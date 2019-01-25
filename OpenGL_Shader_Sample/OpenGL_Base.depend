@@ -1,0 +1,56 @@
+# depslib dependency file v1.0
+1287781523 source:d:\developpement\opengl\freeglut\opengl_shader_sample\source\main.cpp
+	<GL/glew.h>
+	<GL/freeglut.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+
+1283853708 d:\developpement\opengl\freeglut\opengl_shader_sample\include\gl\glew.h
+	<stddef.h>
+	<inttypes.h>
+	<stdint.h>
+	<inttypes.h>
+	<OpenGL/glu.h>
+	<GL/glu.h>
+
+1066740114 d:\developpement\opengl\freeglut\opengl_shader_sample\include\gl\freeglut.h
+	"freeglut_std.h"
+	"freeglut_ext.h"
+
+1260913060 d:\developpement\opengl\freeglut\opengl_shader_sample\include\gl\freeglut_std.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<stdlib.h>
+
+1249933198 d:\developpement\opengl\freeglut\opengl_shader_sample\include\gl\freeglut_ext.h
+
+1283853708 source:d:\developpement\opengl\freeglut\opengl_shader_sample\source\glew\glew.c
+	<GL/glew.h>
+	<GL/wglew.h>
+	<GL/glxew.h>
+	<stdlib.h>
+	<string.h>
+	<AvailabilityMacros.h>
+	<dlfcn.h>
+	<mach-o/dyld.h>
+	<dlfcn.h>
+	<stdio.h>
+	<stdlib.h>
+	<inttypes.h>
+	<inttypes.h>
+	<inttypes.h>
+
+1283853708 d:\developpement\opengl\freeglut\opengl_shader_sample\include\gl\wglew.h
+	<windows.h>
+
+1283853708 d:\developpement\opengl\freeglut\opengl_shader_sample\include\gl\glxew.h
+	<X11/Xlib.h>
+	<X11/Xutil.h>
+	<X11/Xmd.h>
+	<GL/glew.h>
+	<inttypes.h>
+
