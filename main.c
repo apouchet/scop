@@ -317,7 +317,7 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	}
 
 	// Version d'OpenGL
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	// Double Buffer
@@ -349,7 +349,8 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 	float vertices[] = {-0.5, -0.5,   0.0, 0.5,   0.5, -0.5};
-	float couleurs[] = {0.0, 204.0 / 255.0, 1.0,	0.0, 204.0 / 255.0, 1.0,	0.0, 204.0 / 255.0, 1.0};
+	// float couleurs[] = {0.0, 204.0 / 255.0, 1.0,	0.0, 204.0 / 255.0, 1.0,	0.0, 204.0 / 255.0, 1.0};
+	float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
 	unsigned int VBO_color, VBO_vertex, VAO;
 
 	glGenVertexArrays(1, &VAO);
@@ -407,6 +408,7 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 
 /*
 
+https://learnopengl.com/Getting-started/Hello-Triangle
 
 gcc -L ~/.brew/lib -lSDL2 -I ~/.brew/include -framework OpenGL -framework Cocoa main.c
 
