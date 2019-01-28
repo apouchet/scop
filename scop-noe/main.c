@@ -174,35 +174,35 @@ int     checkShaderCompilation(GLuint shaderID)
 	return (1);
 }
 
-int		shaders(char *nameVS, char *nameFS)
+int		shaders(char *name)
 {
 	char	*file;
 	int		size;
-	// printf("start shaders\n");
+	printf("start shaders\n");
 	GLchar* vertexSource = NULL;
 	GLchar* fragmentSource = NULL;
-	// printf("2\n");
+	printf("2\n");
 	GLint programState = 0;
 	GLint vertexSize = 0;
-	// printf("4\n");
+	printf("4\n");
 	GLint fragmentSize = 0;
 	GLenum errorState = GL_NO_ERROR; 
-	// printf("6\n");
+	printf("6\n");
 
 	// Création des IDs
 	vertexID = glCreateShader(GL_VERTEX_SHADER);
-	// printf("vertexID OK\n");
+	printf("vertexID OK\n");
 	fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
-	// printf("fragmentID OK\n");
+	printf("fragmentID OK\n");
 
-	// printf("size ok\n");
+	printf("size ok\n");
 	
-	// printf("malloc ok\n");
-	vertexSource = (GLchar*)get_file(nameVS, vertexSource);
-	fragmentSource = (GLchar*)get_file(nameFS, fragmentSource);
-	// printf("get_file ok\n\n");
-	// printf("vertexSource = %s\n", vertexSource);
-	// printf("fragmentSource = %s\n", fragmentSource);
+	printf("malloc ok\n");
+	vertexSource = (GLchar*)get_file("shader.vs", vertexSource);
+	fragmentSource = (GLchar*)get_file("shader.fs", fragmentSource);
+	printf("get_file ok\n\n");
+	printf("vertexSource = %s\n", vertexSource);
+	printf("fragmentSource = %s\n", fragmentSource);
 
 
 	
@@ -273,8 +273,8 @@ int		shaders(char *nameVS, char *nameFS)
 		deleteShader();
 		return (-1);
 	}
-	/*
-	attributeId = glGetAttribLocation(programID, "couleur");
+/*
+	attributeId = glGetAttribLocation(programID, "couleurs");
 	errorState = glGetError();
 	if ( attributeId == -1 || errorState != GL_NO_ERROR )
 	{
@@ -305,11 +305,7 @@ int main(int argc, char **argv)
 	int				a;
 
 
-
-	// SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
-
-if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
+	if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	{
 		printf("Erreur lors de l'initialisation de la SDL :  %s\n", SDL_GetError());
 		SDL_Quit();
@@ -317,13 +313,13 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	}
 
 	// Version d'OpenGL
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	// Double Buffer
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	
+
 	// Création de la fenêtre
 	fenetre = SDL_CreateWindow("Test SDL 2.0", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	if(fenetre == 0)
@@ -341,15 +337,15 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 		SDL_Quit();
 		return (-1);
 	}
+	shaders("shader.fs");
 	// Boucle principale
-	shaders("shader.vs", "shader.fs");
+	printf("OpenGL %s\n", glGetString(GL_VERSION));
 
 
-	printf("OpenGL version : %s\n", glGetString(GL_VERSION));
-	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 	float vertices[] = {-0.5, -0.5,   0.0, 0.5,   0.5, -0.5};
 	float couleurs[] = {0.0, 204.0 / 255.0, 1.0,	0.0, 204.0 / 255.0, 1.0,	0.0, 204.0 / 255.0, 1.0};
+
 	unsigned int VBO_color, VBO_vertex, VAO;
 
 	glGenVertexArrays(1, &VAO);
@@ -368,10 +364,8 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0); 
-
-
-	glUseProgram(programID);
 	
+
 	
 	while(!terminer)
 	{
@@ -380,21 +374,22 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 		// printf("a = -%d- / -%c- \n", a, a);
 		if(a == SDL_WINDOWEVENT_CLOSE || a == 'q')
 			terminer = 1;	
-		glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
-		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-		// glEnableVertexAttribArray(0);
+		// glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 
-		// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, couleurs);
-		// glEnableVertexAttribArray(1);
 
-		// glDrawArrays(GL_TRIANGLES, 0, 3); // On affiche le triangle
-
-		// glDisableVertexAttribArray(1); // On désactive le tableau Vertex Attrib puisque l'on en a plus besoin
-		// glDisableVertexAttribArray(0); // On désactive le tableau Vertex Attrib puisque l'on en a plus besoin
+		glUseProgram(programID);
 		
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, couleurs);
+		glEnableVertexAttribArray(1);
+		glDrawArrays(GL_TRIANGLES, 0, 3); // On affiche le triangle
+		glDisableVertexAttribArray(0); // On désactive le tableau Vertex Attrib puisque l'on en a plus besoin
+
+		
+		//glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glBindVertexArray(0);
 		SDL_GL_SwapWindow(fenetre); // Actualisation de la fenêtre
 	}
 	// On quitte la SDL
@@ -406,9 +401,6 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 
 
 /*
-
-
-gcc -L ~/.brew/lib -lSDL2 -I ~/.brew/include -framework OpenGL -framework Cocoa main.c
 
 fichier modifier :
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/OpenGL.framework/Headers/gl3.h
