@@ -6,7 +6,7 @@
 // Sortie Shader
 
 out vec4 out_Color;
-in vec3 aCouleurs;
+smooth in vec3 aCouleurs;
 
 // Fonction main
 

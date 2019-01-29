@@ -244,6 +244,7 @@ int		shaders(char *nameVS, char *nameFS)
 	glAttachShader(programID, fragmentID);
 	// On peut enfin passer aux liage.
 	glLinkProgram(programID);
+
 	// Et encore une fois on vérifie si tout se passe bien
 	glGetProgramiv(programID , GL_LINK_STATUS  , &programState);
 	if ( programState != GL_TRUE)
@@ -309,7 +310,7 @@ int main(int argc, char **argv)
 	// SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 
-if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
+	if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	{
 		printf("Erreur lors de l'initialisation de la SDL :  %s\n", SDL_GetError());
 		SDL_Quit();
@@ -317,8 +318,8 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	}
 
 	// Version d'OpenGL
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	// Double Buffer
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -348,7 +349,7 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	printf("OpenGL version : %s\n", glGetString(GL_VERSION));
 	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-	float vertices[] = {-0.5, -0.5,   0.0, 0.5,   0.5, -0.5};
+	float vertices[] = {-0.5, -0.5, 0.0, 0.5, 0.5, -0.5};
 	// float couleurs[] = {0.0, 204.0 / 255.0, 1.0,	0.0, 204.0 / 255.0, 1.0,	0.0, 204.0 / 255.0, 1.0};
 	float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
 	unsigned int VBO_color, VBO_vertex, VAO;
@@ -360,11 +361,13 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 	
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(cubeColours), cubeColours, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(1);
 
@@ -398,6 +401,8 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 		glBindVertexArray(0);
 		SDL_GL_SwapWindow(fenetre); // Actualisation de la fenêtre
 	}
+	glDeleteShader(vertexID);
+	glDeleteShader(fragmentID);
 	// On quitte la SDL
 	SDL_GL_DeleteContext(contexteOpenGL);
 	SDL_DestroyWindow(fenetre);
@@ -408,7 +413,7 @@ if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
 
 /*
 
-https://learnopengl.com/Getting-started/Hello-Triangle
+https://learnopengl.com/Getting-started/Hello-Triangle-
 
 gcc -L ~/.brew/lib -lSDL2 -I ~/.brew/include -framework OpenGL -framework Cocoa main.c
 

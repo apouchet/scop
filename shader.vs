@@ -8,7 +8,7 @@
 layout (location  = 0) in vec2 in_Vertex;
 layout (location  = 1) in vec3 couleurs;
 
-out vec3 aCouleurs;
+smooth out vec3 aCouleurs;
 
 
 // Fonction main
