@@ -1,18 +1,27 @@
 // Version du GLSL
 
-#version 330 core
+#version 410 core
 
 
 // Sortie Shader
 
-out vec4 out_Color;
-smooth in vec3 aCouleurs;
-
-// Fonction main
+out vec4 FragColor;
+  
+uniform vec4 ourColor; // we set this variable in the OpenGL code.
 
 void main()
 {
-    // Couleur finale du pixel
+    FragColor = ourColor;
+} 
 
-    out_Color = vec4(aCouleurs, 1.0);
-}
+// out vec4 out_Color;
+// smooth in vec3 aCouleurs;
+
+// // Fonction main
+
+// void main()
+// {
+//     // Couleur finale du pixel
+
+//     out_Color = vec4(aCouleurs, 1.0);
+// }

@@ -325,6 +325,7 @@ int main(int argc, char **argv)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	
+
 	// Création de la fenêtre
 	fenetre = SDL_CreateWindow("Test SDL 2.0", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	if(fenetre == 0)
@@ -376,14 +377,25 @@ int main(int argc, char **argv)
 
 	glUseProgram(programID);
 	
-	
+	float	frame = 0;
 	while(!terminer)
 	{
 		SDL_WaitEvent(&evenements);
 		a = evenements.window.event;
 		// printf("a = -%d- / -%c- \n", a, a);
 		if(a == SDL_WINDOWEVENT_CLOSE || a == 'q')
-			terminer = 1;	
+			terminer = 1;
+
+		if (couleurs[0] >= 1.0)
+			couleurs[0] = 0.0;
+		couleurs[0] += 0.1;
+
+		printf("couleur = %f\n", couleurs[0]);
+
+		frame++;
+		printf("frame = %f\n", frame / 60);
+		
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
@@ -395,7 +407,12 @@ int main(int argc, char **argv)
 
 		// glDisableVertexAttribArray(1); // On désactive le tableau Vertex Attrib puisque l'on en a plus besoin
 		// glDisableVertexAttribArray(0); // On désactive le tableau Vertex Attrib puisque l'on en a plus besoin
-		
+		float timeValue = (float)(SDL_GetTicks()) / 1000;
+		printf("time : %f\n", timeValue);
+		float redValue = sin(timeValue) / 2.0f + 0.5f;
+		int vertexColorLocation = glGetUniformLocation(programID, "ourColor");
+		glUniform4f(vertexColorLocation, redValue, 0.0f, 0.0f, 1.0f);
+
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
