@@ -22,7 +22,7 @@ LIB = -L ~/.brew/lib -lSDL2
 
 FRAM = -framework OpenGL -framework Cocoa
 
-SRC = ./main.c
+SRC = ./main.c ./ft_read_tga.c
 
 OBJ = $(SRC:.c=.o)
 

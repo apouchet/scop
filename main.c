@@ -10,157 +10,41 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <OpenGL/gl3.h>
-#include <SDL2/SDL.h>
+#include "scop.h"
 
 #ifndef GL_SILENCE_DEPRECATION
-#define GL_SILENCE_DEPRECATION
+# define GL_SILENCE_DEPRECATION
 #endif
 
-// #define STB_IMAGE_IMPLEMENTATION
-// #include "stb_image.h"
+/*
+** #define STB_IMAGE_IMPLEMENTATION
+** #include "stb_image.h"
+*/
 
-GLuint vertexID = 0;
-GLuint fragmentID = 0;
-GLuint programID = 0;
-GLint attributeId = 0;
-
-typedef struct	s_tga
+int		ft_delete_shader(t_gl *gl)
 {
-	char 		idLength;
-	char		colourMap;
-	char		dataType;
-	short int	colourOrigin;
-	short int	colourLength;
-	char		colourDepth;
-	short int	xOrigin;
-	short int	yOrigin;
-	short int	width;
-	short int	height;
-	char		bpp;
-	char		imagedescriptor;
-}				t_tga;
-
-
-short	ft_short_little_debian(char a, char b)
-{
-	short nb;
-
-	nb = a;
-	nb <<= 8;
-	nb += b;
-	return (nb);
-}
-
-void ft_affich_tga_header(t_tga *tga)
-{
-	printf("id length :      %hhd\n", tga->idLength);
-	printf("colour map :     %hhd\n", tga->colourMap);
-	printf("data type :      %hhd\n", tga->dataType);
-	printf("colour origin :  %hd\n", tga->colourOrigin);
-	printf("colour length :  %hd\n", tga->colourLength);
-	printf("colour depth :   %hhd\n", tga->colourDepth);
-	printf("x origin :       %hd\n", tga->xOrigin);
-	printf("y origin :       %hd\n", tga->yOrigin);
-	printf("width :          %hd\n", tga->width);
-	printf("height :         %hd\n", tga->height);
-	printf("bpp :            %hhd\n", tga->bpp);
-	printf("img descriptor : %hhd\n", tga->imagedescriptor);
-}
-
-unsigned char	*ft_read_tga(int fd, size_t size)
-{
-	int				rd;
-	int				i;
-	unsigned char	swap;
-	unsigned char	*file;
-
-	i = 0;
-	if (!(file = (unsigned char*)malloc(size + 1)) ||
-		(rd = read(fd, file, size)) < size)
-		return (NULL);
-	file[size] = '\0';
-	while (i < size)
-	{
-		swap = file[i];
-		file[i] = file[i + 2];
-		file[i + 2] = swap;
-		i += 3;
-	}
-	close(fd);
-	printf("size file = %d / size = %zu\n", rd, size);
-	return (file);
-
-}
-
-// int				ft_error_log(char *error)
-// {
-// 	GLint	logLength;
-// 	GLchar*	log;
-
-// 	logLength = 0;
-// 	glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
-// 	if (!(log = (GLchar*)malloc(logLength)))
-// 	{
-// 		fprintf(stderr,"Erreur d'allocation de mémoire pour le log de la compilation du shader\n");
-// 		return (0);
-// 	}
-// 	glGetShaderInfoLog(shaderID, logLength, &logLength, log);
-// 	fprintf(stderr,"%s%s",error, log);
-// 	free(log);
-// 	return (0);
-// }
-
-unsigned char	*ft_read_tga_headers(char *name, t_tga *tga)
-{
-	int				fd;
-	int				rd;
-	unsigned char	headers[100];
-
-	if ((fd = open(name, O_RDONLY)) < 0 ||
-		(rd = read(fd, headers, 18)) <= 0)
-		return (NULL);
-	headers[18] = '\0';
-	tga->idLength = headers[0];
-	tga->colourMap = headers[1];
-	tga->dataType = headers[2];
-
-	tga->colourOrigin = ft_short_little_debian(headers[4], headers[3]);
-	tga->colourLength = ft_short_little_debian(headers[6], headers[5]);
-	tga->colourDepth = headers[7];
-	tga->xOrigin = ft_short_little_debian(headers[9], headers[8]);
-	tga->yOrigin = ft_short_little_debian(headers[11], headers[10]);
-	tga->width = ft_short_little_debian(headers[13], headers[12]);
-	
-	tga->height = ft_short_little_debian(headers[15], headers[14]);
-	tga->bpp = headers[16];
-	tga->imagedescriptor = headers[17];
-	ft_affich_tga_header(tga);
-	return (ft_read_tga(fd, tga->height * tga->width * (tga->bpp == 24 ? 3 : 4)));
-}
-
-void deleteShader()
-{
-	// On arrête d'utiliser le programme shader
+	/*
+	** On arrête d'utiliser le programme shader
+	*/
 	glUseProgram(0);
-	// Deliage des shaders au programme
-	glDetachShader(programID, fragmentID);
-	glDetachShader(programID, vertexID);
-	
-	// Destruction du programme
-	glDeleteProgram(programID);
-	
-	// Destruction des IDs des shaders
-	glDeleteShader(fragmentID);
-	glDeleteShader(vertexID);
+	/*
+	** Deliage des shaders au programme
+	*/
+	glDetachShader(gl->programID, gl->fragmentID);
+	glDetachShader(gl->programID, gl->vertexID);
+	/*
+	** Destruction du programme
+	*/
+	glDeleteProgram(gl->programID);
+	/*
+	** Destruction des IDs des shaders
+	*/
+	glDeleteShader(gl->fragmentID);
+	glDeleteShader(gl->vertexID);
+	return (-1);
 }
 
-int		size_file(char *name)
+int		ft_size_file(char *name)
 {
 	int		fd;
 	int		rd;
@@ -176,14 +60,14 @@ int		size_file(char *name)
 	return (rd < 0 ? rd : fileLength);
 }
 
-char	*get_file(char *name, char *file)
+char	*ft_get_file(char *name, char *file)
 {
 	int		fd;
 	int		rd;
 	int		j;
 	char	buff[1001];
 
-	if (!(file = (char*)malloc(size_file(name) + 1)) ||
+	if (!(file = (char*)malloc(ft_size_file(name) + 1)) ||
 		(fd = open(name, O_RDONLY)) < 0)
 		return (NULL);
 	j = 0;
@@ -196,161 +80,150 @@ char	*get_file(char *name, char *file)
 	return (file);
 }
 
-int		checkShaderCompilation(GLuint shaderID)
+int		ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl)
+{
+	GLint logLength = 0;
+	GLchar* log = NULL;
+	
+	glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &logLength);
+	if (!(log = (GLchar*)malloc(logLength)))
+	{
+		printf("%s for %s\n", msg, where);
+		if (gl)
+			return (ft_delete_shader(gl));
+		// fprintf(stderr,"Error memori allocation for log of shader compilation\n");
+		return (0);
+	}
+	glGetShaderInfoLog(ID, logLength, &logLength, log);
+	printf("%s error :\n%s",where, log);
+	if (gl)
+		ft_delete_shader(gl);
+	free(log);
+	return (0);
+}
+
+int		ft_checkShader_compilation(GLuint shaderID, t_gl *gl)
 {
 	GLint compilationStatus = 0;
 		
-	glGetShaderiv(vertexID, GL_COMPILE_STATUS, &compilationStatus);
+	glGetShaderiv(gl->vertexID, GL_COMPILE_STATUS, &compilationStatus);
 	if (compilationStatus != GL_TRUE)
 	{
-		// return (ft_error_log("Erreur de compilation:\n"));
+		// return (ft_gl_error("Error memori allocation", "liage du shader", shaderID, NULL));
 		GLint logLength = 0;
 		GLchar* log = NULL;
 		
 		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
 		if (!(log = (GLchar*)malloc(logLength)))
 		{
-			fprintf(stderr,"Erreur d'allocation de mémoire pour le log de la compilation du shader\n");
+			fprintf(stderr,"Error memori allocation for log of shader compilation\n");
 			return 0;
 		}
 		glGetShaderInfoLog(shaderID, logLength, &logLength, log);
-		fprintf(stderr,"Erreur de compilation:\n%s",log);
+		fprintf(stderr,"Compilation error :\n%s",log);
 		free(log);
 		return (0);
 	}
 	return (1);
 }
 
-int		shaders(char *nameVS, char *nameFS)
+int		ft_shaders(char *nameVS, char *nameFS, t_gl *gl)
 {
 	char	*file;
 	int		size;
-	GLchar* vertexSource = NULL;
-	GLchar* fragmentSource = NULL;
-	GLint programState = 0;
-	GLint vertexSize = 0;
-	GLint fragmentSize = 0;
-	GLenum errorState = GL_NO_ERROR;
+	t_shd	shd;
 
-	vertexID = glCreateShader(GL_VERTEX_SHADER);
-	// printf("vertexID OK\n");
-	fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
-	vertexSource = (GLchar*)get_file(nameVS, vertexSource);
-	printf("vertex source :\n--------------------\n%s\n--------------------\n\n", vertexSource);
-	fragmentSource = (GLchar*)get_file(nameFS, fragmentSource);
-	printf("vertex source :\n--------------------\n%s\n--------------------\n\n", fragmentSource);
-	// printf("get_file ok\n\n");
-	if (!vertexSource || !fragmentSource)
-	{
-		// Ici, il faudrait faire en sorte que le programme s'arrête
-		deleteShader();
-		return (-1);
-	}
-	// Chargement des sources dans OpenGL
-	vertexSize = strlen(vertexSource);
-	fragmentSize = strlen(fragmentSource);
-	glShaderSource(vertexID, 1, (const GLchar**)(&vertexSource), &vertexSize);
-	glShaderSource(fragmentID, 1, (const GLchar**)(&fragmentSource), &fragmentSize);
-	
-	// Compilation du vertex shader
-	glCompileShader(vertexID);
-	glCompileShader(fragmentID);
-	
-	// Vérification des erreurs
-	if (!checkShaderCompilation(vertexID) || !checkShaderCompilation(fragmentID))
-	{
-		deleteShader();
-		return (-1);
-	}
-
-	// Creation de l'ID pour le programme
-	programID = glCreateProgram();	
-	// On attache les shader ensemble
-	glAttachShader(programID, vertexID);
-	glAttachShader(programID, fragmentID);
-	printf("vertexID = %d\n", vertexID);
-	printf("fragmentID = %d\n", fragmentID);
-	// On peut enfin passer aux liage.
-	glLinkProgram(programID);
+	bzero(&shd, sizeof(t_shd));
+	gl->vertexID = glCreateShader(GL_VERTEX_SHADER);
+	gl->fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
+	// shd.vertexSource = (GLchar*)ft_get_file(nameVS, shd.vertexSource);
+	// shd.fragmentSource = (GLchar*)ft_get_file(nameFS, shd.fragmentSource);
+	if (!(shd.vertexSource = (GLchar*)ft_get_file(nameVS, shd.vertexSource)) ||
+		!(shd.fragmentSource = (GLchar*)ft_get_file(nameFS, shd.fragmentSource)))
+		return (ft_delete_shader(gl));
+	shd.vertexSize = strlen(shd.vertexSource);
+	shd.fragmentSize = strlen(shd.fragmentSource);
+	glShaderSource(gl->vertexID, 1, (const GLchar**)(&shd.vertexSource), &shd.vertexSize);
+	glShaderSource(gl->fragmentID, 1, (const GLchar**)(&shd.fragmentSource), &shd.fragmentSize);
+	glCompileShader(gl->vertexID);
+	glCompileShader(gl->fragmentID);
+	if (!ft_checkShader_compilation(gl->vertexID, gl) ||
+		!ft_checkShader_compilation(gl->fragmentID, gl))
+		return (ft_delete_shader(gl));
+	gl->programID = glCreateProgram();	
+	glAttachShader(gl->programID, gl->vertexID);
+	glAttachShader(gl->programID, gl->fragmentID);
+	glLinkProgram(gl->programID);
 
 	// Et encore une fois on vérifie si tout se passe bien
-	glGetProgramiv(programID , GL_LINK_STATUS  , &programState);
-	if (programState != GL_TRUE)
+	glGetProgramiv(gl->programID , GL_LINK_STATUS , &shd.programState);
+	if (shd.programState != GL_TRUE)
 	{
-		// return (ft_error_log("Erreur lors du liage du shader:\n"));
-		// On récupère la taille du log
-		GLint logSize = 0;
-		GLchar* log = NULL;
-		
-		glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &logSize);
-		
-		// On peut allouer la mémoire, une fois que l'on a la taille du log
-		if (!(log = (GLchar*)malloc(logSize)))
-		{
-			fprintf(stderr,"Erreur d'allocation de mémoire pour le log de la compilation du programme\n");
-			deleteShader();
-			return (-1);
-		}
-	
-		// Et on récupère le log
-		glGetProgramInfoLog(programID, logSize, &logSize, log);
-		
-		// On affiche
-		fprintf(stderr,"Erreur lors du liage du shader:\n%s",log);
-		
-		free(log);
-		deleteShader();
-		return (-1);
+		return (ft_gl_error("Error memori allocation", "liage du shader", gl->programID, gl));
+		// // return (ft_error_log("Erreur lors du liage du shader:\n"));
+		// // On récupère la taille du log
+		// GLint logSize = 0;
+		// GLchar* log = NULL;
+		// glGetProgramiv(gl->programID, GL_INFO_LOG_LENGTH, &logSize);
+		// if (!(log = (GLchar*)malloc(logSize)))
+		// {
+		// 	fprintf(stderr,"Error memori allocation for log of program compilation\n");
+		// 	return (ft_delete_shader(gl));
+		// }
+		// glGetProgramInfoLog(gl->programID, logSize, &logSize, log);
+		// fprintf(stderr,"Erreur lors du liage du shader:\n%s",log);
+		// free(log);
+		// return (ft_delete_shader(gl));
 	}
-	printf("End Shaders\n--------------------\n\n");
 	return (0);
 }
 
-int main(int argc, char **argv)
-{	
-	SDL_Window*		fenetre;
-	SDL_GLContext	contexteOpenGL;
-	SDL_Event		evenements;
-	int				terminer;
-	int				a;
-	t_tga			tga;
-
-	// SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-	// SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
-	contexteOpenGL = 0;
-	terminer = 0;
-	fenetre = 0;
-	if(SDL_Init(SDL_INIT_VIDEO) < 0) // Initialisation de la SDL
+int		ft_start_sdl_opengl(t_sdl *sdl)
+{
+	if(SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		printf("Erreur lors de l'initialisation de la SDL :  %s\n", SDL_GetError());
+		printf("Error initialisation of SDL :  %s\n", SDL_GetError());
 		SDL_Quit();
-		return -1;
+		return (-1);
 	}
-
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	
-	// Création de la fenêtre
-	fenetre = SDL_CreateWindow("Test SDL 2.0 main.c", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
-	if(fenetre == 0)
+	if((sdl->fenetre = SDL_CreateWindow("Test SDL 2.0 main.c",
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600,
+		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL)) == 0)
 	{
-		printf("Erreur lors de la creation de la fenetre : %s\n", SDL_GetError());
+		printf("Error creation of the window : %s\n", SDL_GetError());
 		SDL_Quit();
 		return (-1);
 	}
-	// Création du contexte OpenGL
-	contexteOpenGL = SDL_GL_CreateContext(fenetre);
-	if(contexteOpenGL == 0)
+	if((sdl->contexteOpenGL = SDL_GL_CreateContext(sdl->fenetre)) == 0)
 	{
 		printf("%s\n", SDL_GetError());
-		SDL_DestroyWindow(fenetre);
+		SDL_DestroyWindow(sdl->fenetre);
 		SDL_Quit();
 		return (-1);
 	}
+	return (1);
+}
+
+int		main(int argc, char **argv)
+{	
+	int		terminer;
+	int		a;
+	t_tga	tga;
+	t_sdl	sdl;
+	t_gl	gl;
+
+	bzero(&tga, sizeof(t_tga));
+	bzero(&sdl, sizeof(sdl));
+	bzero(&gl, sizeof(gl));
+	terminer = 0;
+	if (ft_start_sdl_opengl(&sdl) < 0)
+		return (-1);
 	// Boucle principale
 
-	shaders("shader.vs", "shader.fs");
+	ft_shaders("Shaders/shader.vs", "Shaders/shader.fs", &gl);
 	printf("OpenGL version : %s\n", glGetString(GL_VERSION));
 	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
@@ -422,33 +295,33 @@ int main(int argc, char **argv)
 	free(data);
 
 
-	// unsigned int VBO_color, VBO_vertex, VAO;
+	unsigned int VBO_color, VBO_vertex, VAO;
 
 
-	// glGenVertexArrays(1, &VAO);
- // 	glGenBuffers(1, &VBO_vertex);
- // 	glGenBuffers(1, &VBO_color);
-	// glBindVertexArray(VAO);
+	glGenVertexArrays(1, &VAO);
+ 	glGenBuffers(1, &VBO_vertex);
+ 	glGenBuffers(1, &VBO_color);
+	glBindVertexArray(VAO);
 	
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	// glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
 
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
-	// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	// glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
 
-	// glBindVertexArray(0);
+	glBindVertexArray(0);
 
-	glUseProgram(programID);
-	printf("programme ID = %d\n", programID);
+	glUseProgram(gl.programID);
+	printf("programme ID = %d\n", gl.programID);
 	
 	while(!terminer)
 	{
-		SDL_WaitEvent(&evenements);
-		a = evenements.window.event;
+		SDL_WaitEvent(&sdl.evenements);
+		a = sdl.evenements.window.event;
 		if(a == SDL_WINDOWEVENT_CLOSE || a == 'q')
 			terminer = 1;
 		
@@ -468,13 +341,13 @@ int main(int argc, char **argv)
 		// glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 
-		SDL_GL_SwapWindow(fenetre); // Actualisation de la fenêtre
+		SDL_GL_SwapWindow(sdl.fenetre); // Actualisation de la fenêtre
 	}
-	glDeleteShader(vertexID);
-	glDeleteShader(fragmentID);
+	glDeleteShader(gl.vertexID);
+	glDeleteShader(gl.fragmentID);
 	// On quitte la SDL
-	SDL_GL_DeleteContext(contexteOpenGL);
-	SDL_DestroyWindow(fenetre);
+	SDL_GL_DeleteContext(sdl.contexteOpenGL);
+	SDL_DestroyWindow(sdl.fenetre);
 	SDL_Quit();
 	return (0);
 }
