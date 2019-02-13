@@ -17,17 +17,22 @@ NAME = scop
 INCL = -I ~/.brew/include
 
 LIB = -L ~/.brew/lib -lSDL2 
+# LIB = -L /usr/local/Cellar/
+# LIB = $(shell sdl2-config --libs)
 
 FRAM = -framework OpenGL -framework Cocoa
 
 SRC = ./main.c
 
-# OBJ = $(SRC:.c=.o)
+OBJ = $(SRC:.c=.o)
 
 all: $(NAME) 
 
-$(NAME) : 
-	gcc $(LIB) $(INCL) $(FRAM) $(SRC) -o $(NAME)
+$(NAME) : $(OBJ)
+	gcc $(LIB) $(INCL) $(FRAM) $(OBJ) -o $(NAME)
+
+%.o: %.c
+	@$(CC) -o $@ -c $< $(INCL)
 
 clean :
 	rm -f $(OBJ)

@@ -22,6 +22,9 @@
 #define GL_SILENCE_DEPRECATION
 #endif
 
+// #define STB_IMAGE_IMPLEMENTATION
+// #include "stb_image.h"
+
 GLuint vertexID = 0;
 GLuint fragmentID = 0;
 GLuint programID = 0;
@@ -73,12 +76,22 @@ void ft_affich_tga_header(t_tga *tga)
 unsigned char	*ft_read_tga(int fd, size_t size)
 {
 	int				rd;
+	int				i;
+	unsigned char	swap;
 	unsigned char	*file;
 
+	i = 0;
 	if (!(file = (unsigned char*)malloc(size + 1)) ||
 		(rd = read(fd, file, size)) < size)
 		return (NULL);
 	file[size] = '\0';
+	while (i < size)
+	{
+		swap = file[i];
+		file[i] = file[i + 2];
+		file[i + 2] = swap;
+		i += 3;
+	}
 	close(fd);
 	printf("size file = %d / size = %zu\n", rd, size);
 	return (file);
@@ -107,7 +120,7 @@ unsigned char	*ft_read_tga_headers(char *name, t_tga *tga)
 {
 	int				fd;
 	int				rd;
-	unsigned char	headers[19];
+	unsigned char	headers[100];
 
 	if ((fd = open(name, O_RDONLY)) < 0 ||
 		(rd = read(fd, headers, 18)) <= 0)
@@ -127,7 +140,6 @@ unsigned char	*ft_read_tga_headers(char *name, t_tga *tga)
 	tga->height = ft_short_little_debian(headers[15], headers[14]);
 	tga->bpp = headers[16];
 	tga->imagedescriptor = headers[17];
-	printf("height = : %hd\n", tga->height);
 	ft_affich_tga_header(tga);
 	return (ft_read_tga(fd, tga->height * tga->width * (tga->bpp == 24 ? 3 : 4)));
 }
@@ -344,25 +356,91 @@ int main(int argc, char **argv)
 
 	float vertices[] = {-0.5, -0.5, 0.0, 0.5, 0.5, -0.5};
 	float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
+	float text[] = {
+	// positions          // colors           // texture coords
+	0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
+	0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
+	-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
+	-0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
+	};
+	unsigned int indices[] = {
+		0, 1, 3, // first triangle
+		1, 2, 3  // second triangle
+	};
 
-	unsigned int VBO_color, VBO_vertex, VAO;
-
-	glGenVertexArrays(1, &VAO);
- 	glGenBuffers(1, &VBO_vertex);
- 	glGenBuffers(1, &VBO_color);
-	glBindVertexArray(VAO);
 	
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
+	unsigned int VAO_text, VBO_indide, VBO_texture;
+	glGenVertexArrays(1, &VAO_text);
+	glGenBuffers(1, &VBO_texture);
+	glGenBuffers(1, &VBO_indide);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glBindVertexArray(VAO_text);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(text), text, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO_indide);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	// texture coord attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
+
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// load and generate the texture
+	int width, height, nrChannels;
+	// unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	
+	// unsigned char *data = ft_read_tga_headers("img/wall1.tga", &tga);//stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	unsigned char *data = ft_read_tga_headers("img/container.tga", &tga);//stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	    glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		printf("Failed to load texture\n");
+		return (-1);
+	}
+	free(data);
+
+
+	// unsigned int VBO_color, VBO_vertex, VAO;
+
+
+	// glGenVertexArrays(1, &VAO);
+ // 	glGenBuffers(1, &VBO_vertex);
+ // 	glGenBuffers(1, &VBO_color);
+	// glBindVertexArray(VAO);
+	
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	// glEnableVertexAttribArray(0);
+
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
+	// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	// glEnableVertexAttribArray(1);
+
+	// glBindVertexArray(0);
 
 	glUseProgram(programID);
 	printf("programme ID = %d\n", programID);
@@ -374,13 +452,22 @@ int main(int argc, char **argv)
 		if(a == SDL_WINDOWEVENT_CLOSE || a == 'q')
 			terminer = 1;
 		
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		// glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		// render container
+		glBindVertexArray(VAO_text);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		// glBindVertexArray(VAO);
+		// glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
+
 		SDL_GL_SwapWindow(fenetre); // Actualisation de la fenêtre
 	}
 	glDeleteShader(vertexID);
