@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-int main(int argc, char **argv)
+int		main(int argc, char **argv)
 {	
 	SDL_Window* fenetre = 0;
 	SDL_GLContext contexteOpenGL = 0;
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 		SDL_Quit();	
 		return -1;
 	}
-	fenetre = SDL_CreateWindow("Test SDL 2.0", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	fenetre = SDL_CreateWindow("Test SDL 2.0 ok.c", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	if(fenetre == 0)
 	{
 		printf("Erreur lors de la creation de la fenetre : %s\n",SDL_GetError());

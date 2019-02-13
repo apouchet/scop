@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   test.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: apouchet <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/23 11:30:21 by apouchet          #+#    #+#             */
-/*   Updated: 2019/01/23 12:09:31 by apouchet         ###   ########.fr       */
+/*   Updated: 2019/02/11 13:53:51 by apouchet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
         return -1;
     }
     // Création de la fenêtre
-    fenetre = SDL_CreateWindow("Test SDL 2.0", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+    fenetre = SDL_CreateWindow("Test SDL 2.0 test.c", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
     if(fenetre == 0)
     {
         printf("Erreur lors de la creation de la fenetre : %s\n", SDL_GetError());
@@ -69,7 +69,8 @@ int main(int argc, char **argv)
     {
         // Gestion des évènements
         SDL_WaitEvent(&evenements);
-        if(evenements.window.event == SDL_WINDOWEVENT_CLOSE)
+        if(evenements.window.event == SDL_WINDOWEVENT_CLOSE ||
+            evenements.window.event == 'q')
             terminer = 1;
         // Nettoyage de l'écran
         glClear(GL_COLOR_BUFFER_BIT);
