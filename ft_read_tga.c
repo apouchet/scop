@@ -38,24 +38,47 @@ static short			ft_short_little_debian(char a, char b)
 	return (nb);
 }
 
-static unsigned char	*ft_read_tga(int fd, size_t size)
+static unsigned char	*ft_read_tga(int fd, size_t size, int rgb)
 {
 	int				rd;
 	int				i;
 	unsigned char	swap;
+	unsigned char	*test;
 	unsigned char	*file;
 
 	i = 0;
+	int j = size - 1;
 	if (!(file = (unsigned char*)malloc(size + 1)) ||
 		(rd = read(fd, file, size)) < size)
 		return (NULL);
 	file[size] = '\0';
+	// test = (unsigned char*)malloc(size + 1);
+	// test[size] = '\0';
+	// while (file[i])
+	// {
+	// 	test[j--] = file[i++];
+	// }
+
 	while (i < size)
 	{
-		swap = file[i];
-		file[i] = file[i + 2];
-		file[i + 2] = swap;
-		i += 3;
+		if (rgb == 3)
+		{
+			swap = file[i];
+			file[i] = file[i + 2];
+			file[i + 2] = swap;
+			i += 3;
+		}
+		else
+		{
+			swap = file[i];
+			file[i] = file[i + 3];
+			file[i + 3] = swap;
+
+			swap = file[i + 1];
+			file[i + 1] = file[i + 2];
+			file[i + 2] = swap;
+			i += 4;
+		}
 	}
 	close(fd);
 	printf("size file = %d / size = %zu\n", rd, size);
@@ -82,9 +105,8 @@ unsigned char			*ft_read_tga_headers(char *name, t_tga *tga)
 	tga->yOrigin = ft_short_little_debian(headers[11], headers[10]);
 	tga->width = ft_short_little_debian(headers[13], headers[12]);
 	tga->height = ft_short_little_debian(headers[15], headers[14]);
-	tga->bpp = headers[16];
+	tga->bpp = (int)headers[16] / 8;
 	tga->imagedescriptor = headers[17];
 	ft_affich_tga_header(tga);
-	return (ft_read_tga(fd, tga->height * tga->width *
-		(tga->bpp == 24 ? 3 : 4)));
+	return (ft_read_tga(fd, tga->height * tga->width * tga->bpp, tga->bpp));
 }

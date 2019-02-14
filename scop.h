@@ -63,6 +63,15 @@ typedef struct	s_shd
 	GLint		fragmentSize;
 }				t_shd;
 
+char					*ft_get_file(char *name, char *file);
+
+int						ft_size_file(char *name);
+
 unsigned char			*ft_read_tga_headers(char *name, t_tga *tga);
+
+int						ft_shaders(char *nameVS, char *nameFS, t_gl *gl);
+
+int						ft_delete_shader(t_gl *gl);
+
 
 #endif

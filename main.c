@@ -16,69 +16,10 @@
 # define GL_SILENCE_DEPRECATION
 #endif
 
-/*
-** #define STB_IMAGE_IMPLEMENTATION
-** #include "stb_image.h"
-*/
 
-int		ft_delete_shader(t_gl *gl)
-{
-	/*
-	** On arrête d'utiliser le programme shader
-	*/
-	glUseProgram(0);
-	/*
-	** Deliage des shaders au programme
-	*/
-	glDetachShader(gl->programID, gl->fragmentID);
-	glDetachShader(gl->programID, gl->vertexID);
-	/*
-	** Destruction du programme
-	*/
-	glDeleteProgram(gl->programID);
-	/*
-	** Destruction des IDs des shaders
-	*/
-	glDeleteShader(gl->fragmentID);
-	glDeleteShader(gl->vertexID);
-	return (-1);
-}
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
-int		ft_size_file(char *name)
-{
-	int		fd;
-	int		rd;
-	long	fileLength;
-	char	buff[1001];
-
-	fileLength = 0;
-	if ((fd = open(name, O_RDONLY)) < 0)
-		return (-1);
-	while ((rd = read(fd, buff, 1000)) > 0)
-		fileLength += rd;
-	close(fd);
-	return (rd < 0 ? rd : fileLength);
-}
-
-char	*ft_get_file(char *name, char *file)
-{
-	int		fd;
-	int		rd;
-	int		j;
-	char	buff[1001];
-
-	if (!(file = (char*)malloc(ft_size_file(name) + 1)) ||
-		(fd = open(name, O_RDONLY)) < 0)
-		return (NULL);
-	j = 0;
-	while ((rd = read(fd, &file[j], 1000)) > 0)
-		j += rd;
-	file[j] = '\0';
-	close(fd);
-	if (rd < 0)
-		return (NULL);
-	return (file);
-}
 
 int		ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl)
 {
@@ -99,82 +40,6 @@ int		ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl)
 	if (gl)
 		ft_delete_shader(gl);
 	free(log);
-	return (0);
-}
-
-int		ft_checkShader_compilation(GLuint shaderID, t_gl *gl)
-{
-	GLint compilationStatus = 0;
-		
-	glGetShaderiv(gl->vertexID, GL_COMPILE_STATUS, &compilationStatus);
-	if (compilationStatus != GL_TRUE)
-	{
-		// return (ft_gl_error("Error memori allocation", "liage du shader", shaderID, NULL));
-		GLint logLength = 0;
-		GLchar* log = NULL;
-		
-		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
-		if (!(log = (GLchar*)malloc(logLength)))
-		{
-			fprintf(stderr,"Error memori allocation for log of shader compilation\n");
-			return 0;
-		}
-		glGetShaderInfoLog(shaderID, logLength, &logLength, log);
-		fprintf(stderr,"Compilation error :\n%s",log);
-		free(log);
-		return (0);
-	}
-	return (1);
-}
-
-int		ft_shaders(char *nameVS, char *nameFS, t_gl *gl)
-{
-	char	*file;
-	int		size;
-	t_shd	shd;
-
-	bzero(&shd, sizeof(t_shd));
-	gl->vertexID = glCreateShader(GL_VERTEX_SHADER);
-	gl->fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
-	// shd.vertexSource = (GLchar*)ft_get_file(nameVS, shd.vertexSource);
-	// shd.fragmentSource = (GLchar*)ft_get_file(nameFS, shd.fragmentSource);
-	if (!(shd.vertexSource = (GLchar*)ft_get_file(nameVS, shd.vertexSource)) ||
-		!(shd.fragmentSource = (GLchar*)ft_get_file(nameFS, shd.fragmentSource)))
-		return (ft_delete_shader(gl));
-	shd.vertexSize = strlen(shd.vertexSource);
-	shd.fragmentSize = strlen(shd.fragmentSource);
-	glShaderSource(gl->vertexID, 1, (const GLchar**)(&shd.vertexSource), &shd.vertexSize);
-	glShaderSource(gl->fragmentID, 1, (const GLchar**)(&shd.fragmentSource), &shd.fragmentSize);
-	glCompileShader(gl->vertexID);
-	glCompileShader(gl->fragmentID);
-	if (!ft_checkShader_compilation(gl->vertexID, gl) ||
-		!ft_checkShader_compilation(gl->fragmentID, gl))
-		return (ft_delete_shader(gl));
-	gl->programID = glCreateProgram();	
-	glAttachShader(gl->programID, gl->vertexID);
-	glAttachShader(gl->programID, gl->fragmentID);
-	glLinkProgram(gl->programID);
-
-	// Et encore une fois on vérifie si tout se passe bien
-	glGetProgramiv(gl->programID , GL_LINK_STATUS , &shd.programState);
-	if (shd.programState != GL_TRUE)
-	{
-		return (ft_gl_error("Error memori allocation", "liage du shader", gl->programID, gl));
-		// // return (ft_error_log("Erreur lors du liage du shader:\n"));
-		// // On récupère la taille du log
-		// GLint logSize = 0;
-		// GLchar* log = NULL;
-		// glGetProgramiv(gl->programID, GL_INFO_LOG_LENGTH, &logSize);
-		// if (!(log = (GLchar*)malloc(logSize)))
-		// {
-		// 	fprintf(stderr,"Error memori allocation for log of program compilation\n");
-		// 	return (ft_delete_shader(gl));
-		// }
-		// glGetProgramInfoLog(gl->programID, logSize, &logSize, log);
-		// fprintf(stderr,"Erreur lors du liage du shader:\n%s",log);
-		// free(log);
-		// return (ft_delete_shader(gl));
-	}
 	return (0);
 }
 
@@ -242,46 +107,48 @@ int		main(int argc, char **argv)
 	};
 
 	
-	unsigned int VAO_text, VBO_indide, VBO_texture;
+	unsigned int	VAO_text;
+	unsigned int	VBO_indide;
+	unsigned int	VBO_texture;
+	int				width;
+	int				height;
+	int				nrChannels;
+	unsigned int	texture, texture2;
+	unsigned char	*data;
+	unsigned char	*data2;
+
 	glGenVertexArrays(1, &VAO_text);
 	glGenBuffers(1, &VBO_texture);
 	glGenBuffers(1, &VBO_indide);
-
 	glBindVertexArray(VAO_text);
-
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(text), text, GL_STATIC_DRAW);
-
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO_indide);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	// texture coord attribute
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
-
 	glBindVertexArray(0);
-
-	unsigned int texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	// set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// load and generate the texture
-	int width, height, nrChannels;
-	// unsigned char *data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-	
-	// unsigned char *data = ft_read_tga_headers("img/wall1.tga", &tga);//stbi_load("container.jpg", &width, &height, &nrChannels, 0);
-	unsigned char *data = ft_read_tga_headers("img/container.tga", &tga);//stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	data = ft_read_tga_headers("img/container.tga", &tga);
+	// data2 = stbi_load("img/face.tga", &width, &height, &nrChannels, 0);
+	// for (int i = 0; i < 79000; i++)
+	// {
+	// 	// if (data[i] != data2[i])
+	// 		printf("%d : moi = -%d-, stb = -%d-\n", i, data[i], data2[i]);
+	// 	// else if (i % 100 == 0)
+	// 		// printf("ok : %d\n", i);
+	// }
+	// printf("moi -> height = %d, width %d, nbr channel = %d\n", tga.height, tga.width, tga.bpp);
+	// printf("stb -> height = %d, width %d, nbr channel = %d\n", height, width, nrChannels);
 	if (data)
 	{
 	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -295,27 +162,48 @@ int		main(int argc, char **argv)
 	free(data);
 
 
-	unsigned int VBO_color, VBO_vertex, VAO;
+	// glGenTextures(1, &texture2);
+	// glBindTexture(GL_TEXTURE_2D, texture2);
+	// // set the texture wrapping parameters
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// // set texture filtering parameters
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// // load image, create texture and generate mipmaps
+	// data = ft_read_tga_headers("img/face.tga", &tga);
+	// if (data)
+	// {
+	//     // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
+	//     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tga.width, tga.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	//     glGenerateMipmap(GL_TEXTURE_2D);
+	// }
+	// else
+	// {
+	//     printf("Failed to load texture\n");
+	// }
+	// free(data);
+
+	// unsigned int VBO_color, VBO_vertex, VAO;
 
 
-	glGenVertexArrays(1, &VAO);
- 	glGenBuffers(1, &VBO_vertex);
- 	glGenBuffers(1, &VBO_color);
-	glBindVertexArray(VAO);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
+	// glGenVertexArrays(1, &VAO);
+ // 	glGenBuffers(1, &VBO_vertex);
+ // 	glGenBuffers(1, &VBO_color);
+	// glBindVertexArray(VAO);
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	// glEnableVertexAttribArray(0);
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
+	// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	// glEnableVertexAttribArray(1);
+	// glBindVertexArray(0);
 
 	glUseProgram(gl.programID);
+	// glUniform1i(glGetUniformLocation(gl.programID, "texture1"), 0); // set it manually
+	// ourShader.setInt("texture2", 1); // or with shader class
 	printf("programme ID = %d\n", gl.programID);
 	
 	while(!terminer)
@@ -325,7 +213,7 @@ int		main(int argc, char **argv)
 		if(a == SDL_WINDOWEVENT_CLOSE || a == 'q')
 			terminer = 1;
 		
-		// glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
