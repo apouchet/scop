@@ -21,6 +21,11 @@
 # include <fcntl.h>
 # include <unistd.h>
 
+# define PI 3.14159265359
+# define X 0
+# define Y 1
+# define Z 2
+
 typedef struct	s_tga
 {
 	char 		idLength;

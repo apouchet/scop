@@ -95,15 +95,108 @@ int		main(int argc, char **argv)
 	float vertices[] = {-0.5, -0.5, 0.0, 0.5, 0.5, -0.5};
 	float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
 	float text[] = {
+
 	// positions          // colors           // texture coords
 	0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
 	0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
 	-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	-0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
+	-0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 
+
+	// 0.5f, 0.5f, 1.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
+	// 0.5f, -0.5f, 1.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
+	// -0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
+	// -0.5f, +0.5f, 1.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
+
+	// 0.0f, 0.75f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
+	// 0.75f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
+	// 0.0f, -0.75f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
+	// -0.75f, 0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
 	};
+
+	
+	double angleX = 0;
+	double angleY = 0;
+	double angleZ = 0;
+
+	float tmp;
+	float tmpX;
+	float tmpY;
+	float tmpZ;
+
+	// // rotation axe X
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	tmp = text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX);
+	// 	text[2 + 8 * i] = text[1 + 8 * i] * sinf(angleX) + text[2 + 8 * i] * cosf(angleX);
+	// 	text[1 + 8 * i] = tmp;
+	// }
+
+	// // rotation axe Y
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	tmp = text[0 + 8 * i] * cosf(angleY) + text[2 + 8 * i] * sinf(angleY);
+	// 	text[2 + 8 * i] = text[0 + 8 * i] * -sinf(angleY) + text[2 + 8 * i] * cosf(angleY);
+	// 	text[0 + 8 * i] = tmp;
+	// }
+
+	// // rotation axe Z
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	tmp = text[0 + 8 * i] * cosf(angleZ) - text[1 + 8 * i] * sinf(angleZ);
+	// 	text[1 + 8 * i] = text[0 + 8 * i] * sinf(angleZ) + text[1 + 8 * i] * cosf(angleZ);
+	// 	text[0 + 8 * i] = tmp;
+	// }
+
+	// rotation axe XYZ
+	for (int i = 0; i < 8; i++)
+	{
+
+		tmpZ = text[X + 8 * i] * -sinf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * cosf(angleY);
+		tmpX = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * cosf(angleZ) - (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * sinf(angleZ);
+		text[Y + 8 * i] = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * sinf(angleZ) + (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * cosf(angleZ);
+		text[X + 8 * i] = tmpX;
+		text[Z + 8 * i] = tmpZ;
+		// tmp = text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX);
+		// text[2 + 8 * i] = text[1 + 8 * i] * sinf(angleX) + text[2 + 8 * i] * cosf(angleX);
+		// text[1 + 8 * i] = tmp;
+
+		// tmp = text[0 + 8 * i] * cosf(angleY) + text[2 + 8 * i] * sinf(angleY);
+		// text[2 + 8 * i] = text[0 + 8 * i] * -sinf(angleY) + text[2 + 8 * i] * cosf(angleY);
+		// text[0 + 8 * i] = tmp;
+
+		// tmp = text[0 + 8 * i] * cosf(angleZ) - text[1 + 8 * i] * sinf(angleZ);
+		// text[1 + 8 * i] = text[0 + 8 * i] * sinf(angleZ) + text[1 + 8 * i] * cosf(angleZ);
+		// text[0 + 8 * i] = tmp;
+	}
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 				tmpX = text[X + 8 * i] * (cosf(angleZ)) - text[Y + 8 * i] * sinf(angleY) + text[Z + 8 * i] * sinf(angleZ);
+	// 				tmpY = text[X + 8 * i] * sinf(angleZ) + text[Y + 8 * i] * (cosf(angleZ)) - text[Z + 8 * i] * sinf(angleX);
+	// 	text[Z + 8 * i] = text[X + 8 * i] * -sinf(angleY) + text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * (cosf(angleX) + cosf(angleY));
+	// 	text[X + 8 * i] = tmpX;
+	// 	text[Y + 8 * i] = tmpY;
+	// }
+
 	unsigned int indices[] = {
+
+		// 1, 7, 5,
+		// 1, 3, 7, 
+		// 1, 4, 3, 
+		// 1, 2, 4, 
+		// 3, 8, 7, 
+		// 3, 4, 8, 
+		// 5, 7, 8, 
+		// 5, 8, 6, 
+		// 1, 5, 6, 
+		// 1, 6, 2, 
+		// 2, 6, 8, 
+		// 2, 8, 4 
+
 		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
+		1, 2, 3, // second triangle
+
+		// 4, 5, 7, // first triangle
+		// 5, 6, 7  // second triangle
 	};
 
 	
@@ -140,10 +233,15 @@ int		main(int argc, char **argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	data = ft_read_tga_headers("img/container.tga", &tga);
 	// data2 = stbi_load("img/face.tga", &width, &height, &nrChannels, 0);
-	// for (int i = 0; i < 79000; i++)
+	// for (int i = 78740; i < 78756; i++)
 	// {
 	// 	// if (data[i] != data2[i])
+	// 	if (i % 4 == 0)
+	// 	printf("\n");
+	// 	if (data[i] != data2[i])
 	// 		printf("%d : moi = -%d-, stb = -%d-\n", i, data[i], data2[i]);
+	// 	else
+	// 		printf("ok pour %d\n", i);
 	// 	// else if (i % 100 == 0)
 	// 		// printf("ok : %d\n", i);
 	// }
@@ -184,32 +282,35 @@ int		main(int argc, char **argv)
 	// }
 	// free(data);
 
-	// unsigned int VBO_color, VBO_vertex, VAO;
+	unsigned int VBO_color, VBO_vertex, VAO;
 
-
-	// glGenVertexArrays(1, &VAO);
- // 	glGenBuffers(1, &VBO_vertex);
- // 	glGenBuffers(1, &VBO_color);
-	// glBindVertexArray(VAO);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	// glEnableVertexAttribArray(0);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
-	// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	// glEnableVertexAttribArray(1);
-	// glBindVertexArray(0);
-
+	glGenVertexArrays(1, &VAO);
+ 	glGenBuffers(1, &VBO_vertex);
+ 	glGenBuffers(1, &VBO_color);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
+ 
 	glUseProgram(gl.programID);
+	// unsigned int transformLoc = glGetUniformLocation(gl.programID, "transform");
+
+	// printf("trans = %d\n", transformLoc);
 	// glUniform1i(glGetUniformLocation(gl.programID, "texture1"), 0); // set it manually
 	// ourShader.setInt("texture2", 1); // or with shader class
-	printf("programme ID = %d\n", gl.programID);
+	// printf("programme ID = %d\n", gl.programID);
 	
 	while(!terminer)
 	{
 		SDL_WaitEvent(&sdl.evenements);
 		a = sdl.evenements.window.event;
+		printf("key = %d - %C\n", a, a);
 		if(a == SDL_WINDOWEVENT_CLOSE || a == 'q')
 			terminer = 1;
 		
@@ -220,6 +321,7 @@ int		main(int argc, char **argv)
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
+
 
 		// render container
 		glBindVertexArray(VAO_text);

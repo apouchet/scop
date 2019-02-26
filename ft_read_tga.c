@@ -42,9 +42,14 @@ static unsigned char	*ft_read_tga(int fd, size_t size, int rgb)
 {
 	int				rd;
 	int				i;
+	int z = 0;
 	unsigned char	swap;
+	unsigned char	swap1;
+	unsigned char	swap2;
 	unsigned char	*test;
 	unsigned char	*file;
+	unsigned char	*file2;
+	int k;
 
 	i = 0;
 	int j = size - 1;
@@ -58,27 +63,76 @@ static unsigned char	*ft_read_tga(int fd, size_t size, int rgb)
 	// {
 	// 	test[j--] = file[i++];
 	// }
-
+	k = size;
+	if (rgb == 4)
+	{
+		if (!(file2 = (unsigned char*)malloc(size + 1)))
+			return (NULL);
+		while (i < size)
+		{
+			file2[k] = file[i + 0];
+			file2[k - 1] = file[i + 1];
+			file2[k - 2] = file[i + 2];
+			file2[k - 3] = file[i + 3];
+			i += 4;
+			k -= 4;
+		}
+		file = file2;
+		// free(file);
+	}
+	i = 0;
 	while (i < size)
 	{
+		// if (z == 0 && file[i] != 255)
+		// {
+		// 	z = 1;
+		// 	printf("i = %d\n", i);
+		// 	printf("file[0] = %d\n", file[i]);
+		// 	printf("file[1] = %d\n", file[i + 1]);
+		// 	printf("file[2] = %d\n", file[i + 2]);
+		// 	printf("file[3] = %d\n", file[i + 3]);
+		// }
 		if (rgb == 3)
 		{
 			swap = file[i];
 			file[i] = file[i + 2];
 			file[i + 2] = swap;
 			i += 3;
+			// printf("i = %d\n", i);
 		}
 		else
 		{
-			swap = file[i];
-			file[i] = file[i + 3];
-			file[i + 3] = swap;
+			// swap = file[i];
+			// file[i] = file[i + 3];
+			// file[i + 3] = swap;
 
-			swap = file[i + 1];
-			file[i + 1] = file[i + 2];
-			file[i + 2] = swap;
+			// swap = file[i + 1];
+			// file[i + 1] = file[i + 2];
+			// file[i + 2] = swap;
+			// swap = file[i];
+			// file[i] = file[i + 2];
+			// file[i + 2] = swap;
+
+			// swap = file[i];
+			// file[i] = file[i + 3];
+			// file[i + 3] = swap;
+
+			// swap = file[i + 1];
+			// file[i + 1] = file[i + 2];
+			// file[i + 2] = swap;
 			i += 4;
+
 		}
+		// if (z == 1)
+		// {
+		// 	z = 0;
+		// 	printf("swap :\n");
+		// 	printf("file[0] = %d\n", file[i - 4]);
+		// 	printf("file[1] = %d\n", file[i - 3]);
+		// 	printf("file[2] = %d\n", file[i - 2]);
+		// 	printf("file[3] = %d\n", file[i - 1]);
+		// 	printf("\n");
+		// }
 	}
 	close(fd);
 	printf("size file = %d / size = %zu\n", rd, size);
