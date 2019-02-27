@@ -41,3 +41,6 @@ re : fclean all
 
 fclean : clean
 	rm -f $(NAME)
+
+
+# -I ~/.brew/include -L ~/.brew/lib -lSDL2 -framework OpenGL -framework Cocoa

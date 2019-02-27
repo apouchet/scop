@@ -72,10 +72,68 @@ int		ft_start_sdl_opengl(t_sdl *sdl)
 	return (1);
 }
 
+float	**ft_trans(float **matrix, float x, float y, float z)
+{
+	matrix[3][0] += x;
+	matrix[3][1] += y;
+	matrix[3][2] += z;
+	return (matrix);
+}
+
+float	**ft_rotate(float **matrix, double angleX, double angleY, double angleZ)
+{
+	matrix[0][0] = cosf(angleY) + cosf(angleZ) - 1;
+	matrix[0][1] = sinf(angleZ);
+	matrix[0][2] = -sinf(angleY);
+
+	matrix[1][0] = -sinf(angleZ);
+	matrix[1][1] = cosf(angleX) + cosf(angleZ) - 1;
+	matrix[1][2] = sinf(angleX);
+
+	matrix[2][0] = sinf(angleY);
+	matrix[2][1] = -sinf(angleX);
+	matrix[2][2] = cosf(angleX) + cosf(angleY) - 1;
+
+
+
+	// matrix[0][0] += cosf(angleY) + cosf(angleZ);
+	// matrix[0][1] += sinf(angleZ);
+	// matrix[0][2] += -sinf(angleY);
+
+	// matrix[1][0] += -sinf(angleZ);
+	// matrix[1][1] += cosf(angleX) + cosf(angleZ);
+	// matrix[1][2] += sinf(angleX);
+
+	// matrix[2][0] += sinf(angleY);
+	// matrix[2][1] += -sinf(angleX);
+	// matrix[2][2] += cosf(angleX) + cosf(angleY);
+
+	return (matrix);
+}
+
+// void	ft_rotate(float text[32], double angleX, double angleY, double angleZ)
+// {
+// 	float tmpX;
+// 	float tmpY;
+// 	float tmpZ;
+
+// 	for (int i = 0; i < 8; i++)
+// 	{
+// 		tmpZ = text[X + 8 * i] * -sinf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * cosf(angleY);
+// 		tmpX = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * cosf(angleZ) - (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * sinf(angleZ);
+// 		text[Y + 8 * i] = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * sinf(angleZ) + (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * cosf(angleZ);
+// 		text[X + 8 * i] = tmpX;
+// 		text[Z + 8 * i] = tmpZ;
+// 	}
+// 	// return (text);
+// }
+
 int		main(int argc, char **argv)
 {	
 	int		terminer;
-	int		a;
+	int		key;
+	float	*matrix;
+	float	**mat;
 	t_tga	tga;
 	t_sdl	sdl;
 	t_gl	gl;
@@ -83,6 +141,34 @@ int		main(int argc, char **argv)
 	bzero(&tga, sizeof(t_tga));
 	bzero(&sdl, sizeof(sdl));
 	bzero(&gl, sizeof(gl));
+	mat = (float**)malloc(sizeof(float*) * 4);
+	for (int z = 0; z < 4; z++)
+	{
+		mat[z] = (float*)malloc(sizeof(float) * 4);
+		for (int zz = 0; zz < 4; zz++)
+		{
+			if (z == zz)
+				mat[z][zz] = 1;
+			else
+				mat[z][zz] = 0;
+		}
+		printf("\nmat[%d] = ", z);
+		for (int zz = 0; zz < 4; zz++)
+			printf("%f,", mat[z][zz]);
+	}
+	printf("\n");
+	// mat[0][0] = 1;
+	// mat[1][1] = 1;
+	// mat[2][2] = 1;
+	// mat[3][3] = 1;
+	// for (int z = 0; z < 16; z++)
+	// {
+	// 	printf("%f ,", mat[z]);
+	// 	if ((z + 1) % 4 == 0)
+	// 		printf("\n");
+	// }
+	// for (int z = 0; z < 16; z++)
+	// 	matrix[z] = 1;
 	terminer = 0;
 	if (ft_start_sdl_opengl(&sdl) < 0)
 		return (-1);
@@ -94,6 +180,7 @@ int		main(int argc, char **argv)
 
 	float vertices[] = {-0.5, -0.5, 0.0, 0.5, 0.5, -0.5};
 	float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
+	// float *text = (float*)malloc(sizeof(float) * 32);
 	float text[] = {
 
 	// positions          // colors           // texture coords
@@ -114,68 +201,6 @@ int		main(int argc, char **argv)
 	};
 
 	
-	double angleX = 0;
-	double angleY = 0;
-	double angleZ = 0;
-
-	float tmp;
-	float tmpX;
-	float tmpY;
-	float tmpZ;
-
-	// // rotation axe X
-	// for (int i = 0; i < 4; i++)
-	// {
-	// 	tmp = text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX);
-	// 	text[2 + 8 * i] = text[1 + 8 * i] * sinf(angleX) + text[2 + 8 * i] * cosf(angleX);
-	// 	text[1 + 8 * i] = tmp;
-	// }
-
-	// // rotation axe Y
-	// for (int i = 0; i < 4; i++)
-	// {
-	// 	tmp = text[0 + 8 * i] * cosf(angleY) + text[2 + 8 * i] * sinf(angleY);
-	// 	text[2 + 8 * i] = text[0 + 8 * i] * -sinf(angleY) + text[2 + 8 * i] * cosf(angleY);
-	// 	text[0 + 8 * i] = tmp;
-	// }
-
-	// // rotation axe Z
-	// for (int i = 0; i < 4; i++)
-	// {
-	// 	tmp = text[0 + 8 * i] * cosf(angleZ) - text[1 + 8 * i] * sinf(angleZ);
-	// 	text[1 + 8 * i] = text[0 + 8 * i] * sinf(angleZ) + text[1 + 8 * i] * cosf(angleZ);
-	// 	text[0 + 8 * i] = tmp;
-	// }
-
-	// rotation axe XYZ
-	for (int i = 0; i < 8; i++)
-	{
-
-		tmpZ = text[X + 8 * i] * -sinf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * cosf(angleY);
-		tmpX = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * cosf(angleZ) - (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * sinf(angleZ);
-		text[Y + 8 * i] = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * sinf(angleZ) + (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * cosf(angleZ);
-		text[X + 8 * i] = tmpX;
-		text[Z + 8 * i] = tmpZ;
-		// tmp = text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX);
-		// text[2 + 8 * i] = text[1 + 8 * i] * sinf(angleX) + text[2 + 8 * i] * cosf(angleX);
-		// text[1 + 8 * i] = tmp;
-
-		// tmp = text[0 + 8 * i] * cosf(angleY) + text[2 + 8 * i] * sinf(angleY);
-		// text[2 + 8 * i] = text[0 + 8 * i] * -sinf(angleY) + text[2 + 8 * i] * cosf(angleY);
-		// text[0 + 8 * i] = tmp;
-
-		// tmp = text[0 + 8 * i] * cosf(angleZ) - text[1 + 8 * i] * sinf(angleZ);
-		// text[1 + 8 * i] = text[0 + 8 * i] * sinf(angleZ) + text[1 + 8 * i] * cosf(angleZ);
-		// text[0 + 8 * i] = tmp;
-	}
-	// for (int i = 0; i < 4; i++)
-	// {
-	// 				tmpX = text[X + 8 * i] * (cosf(angleZ)) - text[Y + 8 * i] * sinf(angleY) + text[Z + 8 * i] * sinf(angleZ);
-	// 				tmpY = text[X + 8 * i] * sinf(angleZ) + text[Y + 8 * i] * (cosf(angleZ)) - text[Z + 8 * i] * sinf(angleX);
-	// 	text[Z + 8 * i] = text[X + 8 * i] * -sinf(angleY) + text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * (cosf(angleX) + cosf(angleY));
-	// 	text[X + 8 * i] = tmpX;
-	// 	text[Y + 8 * i] = tmpY;
-	// }
 
 	unsigned int indices[] = {
 
@@ -198,7 +223,7 @@ int		main(int argc, char **argv)
 		// 4, 5, 7, // first triangle
 		// 5, 6, 7  // second triangle
 	};
-
+	// mat = ft_trans(mat, 0.5, -0.5, 0);
 	
 	unsigned int	VAO_text;
 	unsigned int	VBO_indide;
@@ -281,7 +306,6 @@ int		main(int argc, char **argv)
 	//     printf("Failed to load texture\n");
 	// }
 	// free(data);
-
 	unsigned int VBO_color, VBO_vertex, VAO;
 
 	glGenVertexArrays(1, &VAO);
@@ -305,19 +329,36 @@ int		main(int argc, char **argv)
 	// glUniform1i(glGetUniformLocation(gl.programID, "texture1"), 0); // set it manually
 	// ourShader.setInt("texture2", 1); // or with shader class
 	// printf("programme ID = %d\n", gl.programID);
-	
+	int tour;
 	while(!terminer)
 	{
+		tour++;
 		SDL_WaitEvent(&sdl.evenements);
-		a = sdl.evenements.window.event;
-		printf("key = %d - %C\n", a, a);
-		if(a == SDL_WINDOWEVENT_CLOSE || a == 'q')
+		key = sdl.evenements.window.event;
+		printf("key = %d - %C\n", key, key);
+		if(key == SDL_WINDOWEVENT_CLOSE || key == 'q')
 			terminer = 1;
 		
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
+
+		// for (int mm = 0; mm < 4; mm++)
+			// printf("matrix[%d] = %f\n", mm, matrix[mm]);
+
+		// unsigned int matrixLoc = glGetUniformLocation(gl.programID, "matrix");
+		// glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, matrix);
+		mat = ft_rotate(mat, 0, 0, (tour / (PI * 2)) / 2);	
+		
+		unsigned int matLoc = glGetUniformLocation(gl.programID, "mat_x");
+		glUniform4fv(matLoc, 1, mat[0]);
+		matLoc = glGetUniformLocation(gl.programID, "mat_y");
+		glUniform4fv(matLoc, 1, mat[1]);
+		matLoc = glGetUniformLocation(gl.programID, "mat_z");
+		glUniform4fv(matLoc, 1, mat[2]);
+		matLoc = glGetUniformLocation(gl.programID, "mat_w");
+		glUniform4fv(matLoc, 1, mat[3]);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -353,3 +394,72 @@ fichier modifier :
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/OpenGL.framework/Headers/gl3.h
 
 */
+
+
+
+
+	// double angleX = 0;
+	// double angleY = 0;
+	// double angleZ = 0;
+
+	// float tmp;
+	// float tmpX;
+	// float tmpY;
+	// float tmpZ;
+
+	// // rotation axe X
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	tmp = text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX);
+	// 	text[2 + 8 * i] = text[1 + 8 * i] * sinf(angleX) + text[2 + 8 * i] * cosf(angleX);
+	// 	text[1 + 8 * i] = tmp;
+	// }
+
+	// // rotation axe Y
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	tmp = text[0 + 8 * i] * cosf(angleY) + text[2 + 8 * i] * sinf(angleY);
+	// 	text[2 + 8 * i] = text[0 + 8 * i] * -sinf(angleY) + text[2 + 8 * i] * cosf(angleY);
+	// 	text[0 + 8 * i] = tmp;
+	// }
+
+	// // rotation axe Z
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	tmp = text[0 + 8 * i] * cosf(angleZ) - text[1 + 8 * i] * sinf(angleZ);
+	// 	text[1 + 8 * i] = text[0 + 8 * i] * sinf(angleZ) + text[1 + 8 * i] * cosf(angleZ);
+	// 	text[0 + 8 * i] = tmp;
+	// }
+
+	// rotation axe XYZ
+	// matrix = ft_rotate(matrix, 0, PI / 4, 0);
+	// for (int i = 0; i < 8; i++)
+	// {
+
+	// 	// tmpZ = text[X + 8 * i] * -sinf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * cosf(angleY);
+	// 	// tmpX = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * cosf(angleZ) - (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * sinf(angleZ);
+	// 	// text[Y + 8 * i] = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * sinf(angleZ) + (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * cosf(angleZ);
+	// 	// text[X + 8 * i] = tmpX;
+	// 	// text[Z + 8 * i] = tmpZ;
+		
+
+	// 	// tmp = text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX);
+	// 	// text[2 + 8 * i] = text[1 + 8 * i] * sinf(angleX) + text[2 + 8 * i] * cosf(angleX);
+	// 	// text[1 + 8 * i] = tmp;
+
+	// 	// tmp = text[0 + 8 * i] * cosf(angleY) + text[2 + 8 * i] * sinf(angleY);
+	// 	// text[2 + 8 * i] = text[0 + 8 * i] * -sinf(angleY) + text[2 + 8 * i] * cosf(angleY);
+	// 	// text[0 + 8 * i] = tmp;
+
+	// 	// tmp = text[0 + 8 * i] * cosf(angleZ) - text[1 + 8 * i] * sinf(angleZ);
+	// 	// text[1 + 8 * i] = text[0 + 8 * i] * sinf(angleZ) + text[1 + 8 * i] * cosf(angleZ);
+	// 	// text[0 + 8 * i] = tmp;
+	// }
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 				tmpX = text[X + 8 * i] * (cosf(angleZ)) - text[Y + 8 * i] * sinf(angleY) + text[Z + 8 * i] * sinf(angleZ);
+	// 				tmpY = text[X + 8 * i] * sinf(angleZ) + text[Y + 8 * i] * (cosf(angleZ)) - text[Z + 8 * i] * sinf(angleX);
+	// 	text[Z + 8 * i] = text[X + 8 * i] * -sinf(angleY) + text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * (cosf(angleX) + cosf(angleY));
+	// 	text[X + 8 * i] = tmpX;
+	// 	text[Y + 8 * i] = tmpY;
+	// }
