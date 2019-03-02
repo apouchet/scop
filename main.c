@@ -82,17 +82,37 @@ float	**ft_trans(float **matrix, float x, float y, float z)
 
 float	**ft_rotate(float **matrix, double angleX, double angleY, double angleZ)
 {
-	matrix[0][0] = cosf(angleY) + cosf(angleZ) - 1;
-	matrix[0][1] = sinf(angleZ);
-	matrix[0][2] = -sinf(angleY);
+	float a;
+	float b;
+	float c;
 
-	matrix[1][0] = -sinf(angleZ);
-	matrix[1][1] = cosf(angleX) + cosf(angleZ) - 1;
-	matrix[1][2] = sinf(angleX);
+	// a = 0;//662;
+	// b = 0;//2;
+	// c = 0.5;//722;
+	// matrix[0][0] = cosf(angleZ) + a * a * (1 - cosf(angleZ));
+	// matrix[0][1] = a * b * (1 - cosf(angleZ)) + c * sinf(angleZ);
+	// matrix[0][2] = c * a * (1 - cosf(angleZ)) - b * sinf(angleZ);
 
-	matrix[2][0] = sinf(angleY);
-	matrix[2][1] = -sinf(angleX);
-	matrix[2][2] = cosf(angleX) + cosf(angleY) - 1;
+	// matrix[1][0] = a * b * (1 - cosf(angleZ)) - c * sinf(angleZ);
+	// matrix[1][1] = cosf(angleZ) + b * b * (1 - cosf(angleZ));
+	// matrix[1][2] = c * b * (1 - cosf(angleZ)) + a * sinf(angleZ);
+
+	// matrix[2][0] = a * c * (1 - cosf(angleZ)) + b * sinf(angleZ);
+	// matrix[2][1] = b * c * (1 - cosf(angleZ)) - a * sinf(angleZ);
+	// matrix[2][2] = cosf(angleZ) + c * c *(1 - cosf(angleZ));
+
+
+	matrix[0][0] -= cosf(angleY) + cosf(angleZ);
+	matrix[0][1] -= sinf(angleZ);
+	matrix[0][2] -= -sinf(angleY);
+
+	matrix[1][0] -= -sinf(angleZ);
+	matrix[1][1] -= cosf(angleX) + cosf(angleZ);
+	matrix[1][2] -= sinf(angleX);
+
+	matrix[2][0] -= sinf(angleY);
+	matrix[2][1] -= -sinf(angleX);
+	matrix[2][2] -= cosf(angleX) + cosf(angleY);
 
 
 
@@ -108,6 +128,7 @@ float	**ft_rotate(float **matrix, double angleX, double angleY, double angleZ)
 	// matrix[2][1] += -sinf(angleX);
 	// matrix[2][2] += cosf(angleX) + cosf(angleY);
 
+	// matrix[2][2] /= matrix[3][3]; 
 	return (matrix);
 }
 
@@ -332,13 +353,19 @@ int		main(int argc, char **argv)
 	int tour;
 	while(!terminer)
 	{
-		tour++;
 		SDL_WaitEvent(&sdl.evenements);
 		key = sdl.evenements.window.event;
-		printf("key = %d - %C\n", key, key);
+		// printf("key = %d - %C\n", key, key);
 		if(key == SDL_WINDOWEVENT_CLOSE || key == 'q')
 			terminer = 1;
-		
+		else if (key == 'a')
+			tour--;
+		else if (key == 'd')
+			tour++;
+		if (tour < 0)
+			tour += 360;
+		else if (tour > 360)
+			tour -= 360;
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
@@ -349,7 +376,17 @@ int		main(int argc, char **argv)
 
 		// unsigned int matrixLoc = glGetUniformLocation(gl.programID, "matrix");
 		// glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, matrix);
-		mat = ft_rotate(mat, 0, 0, (tour / (PI * 2)) / 2);	
+		for (int z = 0; z < 4; z++)
+		{
+			for (int zz = 0; zz < 4; zz++)
+			{
+				if (z == zz)
+					mat[z][zz] = 1;
+				else
+					mat[z][zz] = 0;
+			}
+		}
+		mat = ft_rotate(mat, 0, 0, (tour / (PI * 2)));
 		
 		unsigned int matLoc = glGetUniformLocation(gl.programID, "mat_x");
 		glUniform4fv(matLoc, 1, mat[0]);
