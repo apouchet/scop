@@ -9,6 +9,8 @@ uniform vec4 mat_x;
 uniform vec4 mat_y;
 uniform vec4 mat_z;
 uniform vec4 mat_w;
+uniform mat4 rotate;
+uniform mat4 pers;
 
 // = mat_x, mat_y, mat_z, mat_w;
 
@@ -26,8 +28,8 @@ void main()
 	// 	// matrix[i + 12] = mat_w[i];
 	// }
 
-	gl_Position = matrix * vec4(aPos, 1.0f);
-	if (mat_x[0] == 1 && mat_y[0] == 1 && mat_z[0] == 1 && mat_w[0] == 1 && matrix[0][0] == 1)
+	gl_Position = rotate * pers * vec4(aPos, 1.0f);
+	// if (mat_x[0] == 1 && mat_y[0] == 1 && mat_z[0] == 1 && mat_w[0] == 1 && matrix[0][0] == 1)
 	{
 		TexCoord = aTexCoord;
 	}

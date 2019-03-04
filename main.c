@@ -6,7 +6,7 @@
 /*   By: apouchet <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/27 13:29:46 by apouchet          #+#    #+#             */
-/*   Updated: 2019/02/11 15:12:25 by apouchet         ###   ########.fr       */
+/*   Updated: 2019/03/03 20:57:11 by apouchet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+typedef struct	s_matrix
+{
+	float		rotate[4][4];
+	float		mouve[4][4];
+	float		pers[4][4];
+}				t_matrix;
 
 int		ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl)
 {
@@ -80,57 +86,122 @@ float	**ft_trans(float **matrix, float x, float y, float z)
 	return (matrix);
 }
 
-float	**ft_rotate(float **matrix, double angleX, double angleY, double angleZ)
+void	ft_rotate_test(t_matrix *mx, double angleX, double angleY, double angleZ)
 {
 	float a;
 	float b;
 	float c;
 
-	// a = 0;//662;
-	// b = 0;//2;
-	// c = 0.5;//722;
-	// matrix[0][0] = cosf(angleZ) + a * a * (1 - cosf(angleZ));
-	// matrix[0][1] = a * b * (1 - cosf(angleZ)) + c * sinf(angleZ);
-	// matrix[0][2] = c * a * (1 - cosf(angleZ)) - b * sinf(angleZ);
+	a = 1;//0.662;
+	b = 1;//0.2;
+	c = 1;//0.722;
+	// mx->rotate[0][0] = cosf(angleY) + a * a * (1 - cosf(angleZ));
+	// mx->rotate[0][1] = a * b * (1 - cosf(angleY))+ sinf(angleZ);
+	// mx->rotate[0][2] = c * a * (1 - cosf(angleZ)) - b * sinf(angleY);
 
-	// matrix[1][0] = a * b * (1 - cosf(angleZ)) - c * sinf(angleZ);
-	// matrix[1][1] = cosf(angleZ) + b * b * (1 - cosf(angleZ));
-	// matrix[1][2] = c * b * (1 - cosf(angleZ)) + a * sinf(angleZ);
+	// mx->rotate[1][0] = a * b * (1 - cosf(angleX)) - sinf(angleZ);
+	// mx->rotate[1][1] = cosf(angleX) + b * b * (1 - cosf(angleZ));
+	// mx->rotate[1][2] = c * b * (1 - cosf(angleZ)) + a * sinf(angleX);
 
-	// matrix[2][0] = a * c * (1 - cosf(angleZ)) + b * sinf(angleZ);
-	// matrix[2][1] = b * c * (1 - cosf(angleZ)) - a * sinf(angleZ);
-	// matrix[2][2] = cosf(angleZ) + c * c *(1 - cosf(angleZ));
-
-
-	matrix[0][0] -= cosf(angleY) + cosf(angleZ);
-	matrix[0][1] -= sinf(angleZ);
-	matrix[0][2] -= -sinf(angleY);
-
-	matrix[1][0] -= -sinf(angleZ);
-	matrix[1][1] -= cosf(angleX) + cosf(angleZ);
-	matrix[1][2] -= sinf(angleX);
-
-	matrix[2][0] -= sinf(angleY);
-	matrix[2][1] -= -sinf(angleX);
-	matrix[2][2] -= cosf(angleX) + cosf(angleY);
+	// mx->rotate[2][0] = a * c * (1 - cosf(angleY)) + b * sinf(angleX);
+	// mx->rotate[2][1] = b * c * (1 - cosf(angleY)) - a * sinf(angleX);
+	// mx->rotate[2][2] = cosf(angleX) + c * c * (1 - cosf(angleY));
 
 
+	mx->rotate[0][0] = cosf(angleY) + cosf(angleZ) - 1;
+	mx->rotate[0][1] = sinf(angleZ);
+	mx->rotate[0][2] = -sinf(angleY);
+	mx->rotate[0][3] = 0;
 
-	// matrix[0][0] += cosf(angleY) + cosf(angleZ);
-	// matrix[0][1] += sinf(angleZ);
-	// matrix[0][2] += -sinf(angleY);
+	mx->rotate[1][0] = -sinf(angleZ);
+	mx->rotate[1][1] = cosf(angleX) + cosf(angleZ) - 1;
+	mx->rotate[1][2] = sinf(angleX);
+	mx->rotate[1][3] = 0;
 
-	// matrix[1][0] += -sinf(angleZ);
-	// matrix[1][1] += cosf(angleX) + cosf(angleZ);
-	// matrix[1][2] += sinf(angleX);
-
-	// matrix[2][0] += sinf(angleY);
-	// matrix[2][1] += -sinf(angleX);
-	// matrix[2][2] += cosf(angleX) + cosf(angleY);
-
-	// matrix[2][2] /= matrix[3][3]; 
-	return (matrix);
+	mx->rotate[2][0] = sinf(angleY);
+	mx->rotate[2][1] = -sinf(angleX);
+	mx->rotate[2][2] = cosf(angleX) + cosf(angleY) - 1;
+	mx->rotate[2][3] = 0;
 }
+
+void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far)
+{
+    const float range = near - far;
+    const float tanHalfFOV = tanf(((fov / 2.0) / 180) * PI);
+    // const float tanHalfFOV = tanf(ToRadian(m_persProj.FOV / 2.0));
+
+    mx->pers[0][0] = 1.0f / (tanHalfFOV * ar); 
+    mx->pers[0][1] = 0.0f; 
+    mx->pers[0][2] = 0.0f; 
+    // mx->pers[0][3] = 0.0f; 
+
+    mx->pers[1][0] = 0.0f; 
+    mx->pers[1][1] = 1.0f / tanHalfFOV; 
+    mx->pers[1][2] = 0.0f; 
+    // mx->pers[1][3] = 0.0f; 
+
+    mx->pers[2][0] = 0.0f; 
+    mx->pers[2][1] = 0.0f; 
+    mx->pers[2][2] = (-near - far) / range; 
+ 	// mx->pers[2][3] = 0.0f;//(2.0f * far * near) / range;
+
+    mx->pers[3][0] = 0.0f;
+    mx->pers[3][1] = 0.0f;
+    mx->pers[3][2] = 1.0f;//(2.0f * far * near) / range;
+    mx->pers[3][3] = 11;//(2.0f * far * near) / range;
+}
+
+// float	**ft_rotate(float **matrix, double angleX, double angleY, double angleZ)
+// {
+// 	float a;
+// 	float b;
+// 	float c;
+
+// 	// a = 0;//662;
+// 	// b = 0;//2;
+// 	// c = 0.5;//722;
+// 	// matrix[0][0] = cosf(angleZ) + a * a * (1 - cosf(angleZ));
+// 	// matrix[0][1] = a * b * (1 - cosf(angleZ)) + c * sinf(angleZ);
+// 	// matrix[0][2] = c * a * (1 - cosf(angleZ)) - b * sinf(angleZ);
+
+// 	// matrix[1][0] = a * b * (1 - cosf(angleZ)) - c * sinf(angleZ);
+// 	// matrix[1][1] = cosf(angleZ) + b * b * (1 - cosf(angleZ));
+// 	// matrix[1][2] = c * b * (1 - cosf(angleZ)) + a * sinf(angleZ);
+
+// 	// matrix[2][0] = a * c * (1 - cosf(angleZ)) + b * sinf(angleZ);
+// 	// matrix[2][1] = b * c * (1 - cosf(angleZ)) - a * sinf(angleZ);
+// 	// matrix[2][2] = cosf(angleZ) + c * c *(1 - cosf(angleZ));
+
+
+// 	matrix[0][0] -= cosf(angleY) + cosf(angleZ);
+// 	matrix[0][1] -= sinf(angleZ);
+// 	matrix[0][2] -= -sinf(angleY);
+
+// 	matrix[1][0] -= -sinf(angleZ);
+// 	matrix[1][1] -= cosf(angleX) + cosf(angleZ);
+// 	matrix[1][2] -= sinf(angleX);
+
+// 	matrix[2][0] -= sinf(angleY);
+// 	matrix[2][1] -= -sinf(angleX);
+// 	matrix[2][2] -= cosf(angleX) + cosf(angleY);
+
+
+
+// 	// matrix[0][0] += cosf(angleY) + cosf(angleZ);
+// 	// matrix[0][1] += sinf(angleZ);
+// 	// matrix[0][2] += -sinf(angleY);
+
+// 	// matrix[1][0] += -sinf(angleZ);
+// 	// matrix[1][1] += cosf(angleX) + cosf(angleZ);
+// 	// matrix[1][2] += sinf(angleX);
+
+// 	// matrix[2][0] += sinf(angleY);
+// 	// matrix[2][1] += -sinf(angleX);
+// 	// matrix[2][2] += cosf(angleX) + cosf(angleY);
+
+// 	// matrix[2][2] /= matrix[3][3]; 
+// 	return (matrix);
+// }
 
 // void	ft_rotate(float text[32], double angleX, double angleY, double angleZ)
 // {
@@ -155,6 +226,10 @@ int		main(int argc, char **argv)
 	int		key;
 	float	*matrix;
 	float	**mat;
+	// float	rotate[4][4];
+	t_matrix mx;
+	float	**mouve;
+	float	**pers;
 	t_tga	tga;
 	t_sdl	sdl;
 	t_gl	gl;
@@ -163,15 +238,31 @@ int		main(int argc, char **argv)
 	bzero(&sdl, sizeof(sdl));
 	bzero(&gl, sizeof(gl));
 	mat = (float**)malloc(sizeof(float*) * 4);
+	// mx.rotate = (float**)malloc(sizeof(float*) * 4);
+	mouve = (float**)malloc(sizeof(float*) * 4);
+	pers = (float**)malloc(sizeof(float*) * 4);
 	for (int z = 0; z < 4; z++)
 	{
 		mat[z] = (float*)malloc(sizeof(float) * 4);
+		// mx.rotate[z] = (float*)malloc(sizeof(float) * 4);
+		mouve[z] = (float*)malloc(sizeof(float) * 4);
+		pers[z] = (float*)malloc(sizeof(float) * 4);
 		for (int zz = 0; zz < 4; zz++)
 		{
 			if (z == zz)
+			{
 				mat[z][zz] = 1;
+				mx.rotate[z][zz] = 1;
+				mouve[z][zz] = 1;
+				pers[z][zz] = 1;
+			}
 			else
+			{
 				mat[z][zz] = 0;
+				mx.rotate[z][zz] = 0;
+				mouve[z][zz] = 0;
+				pers[z][zz] = 0;
+			}
 		}
 		printf("\nmat[%d] = ", z);
 		for (int zz = 0; zz < 4; zz++)
@@ -350,22 +441,44 @@ int		main(int argc, char **argv)
 	// glUniform1i(glGetUniformLocation(gl.programID, "texture1"), 0); // set it manually
 	// ourShader.setInt("texture2", 1); // or with shader class
 	// printf("programme ID = %d\n", gl.programID);
-	int tour;
+	float	tour = 0;
+	float	hor = 0;
+	float	ver = 0;
+	float	tan = 0;
+	int		fov = 45;
 	while(!terminer)
 	{
 		SDL_WaitEvent(&sdl.evenements);
 		key = sdl.evenements.window.event;
 		// printf("key = %d - %C\n", key, key);
-		if(key == SDL_WINDOWEVENT_CLOSE || key == 'q')
+		if(key == SDL_WINDOWEVENT_CLOSE || key == ' ')
 			terminer = 1;
-		else if (key == 'a')
-			tour--;
-		else if (key == 'd')
-			tour++;
-		if (tour < 0)
-			tour += 360;
-		else if (tour > 360)
-			tour -= 360;
+		else if (key == 'f')
+			ver -= PI / 10;
+		else if (key == 'h')
+			ver += PI / 10;
+
+		else if (key == 'g')
+			hor -= PI / 10;
+		else if (key == 't')
+			hor += PI / 10;
+
+		else if (key == 'y')
+			tan -= PI / 10;
+		else if (key == 'r')
+			tan += PI / 10;
+		// if (tour < 0)
+		// 	tour += PI;
+		// else if (tour > 3 * PI)
+		// 	tour -= PI;
+		if (key == 'w')
+			tour = 0;
+		else if (key == 'x')
+			tour = PI / 2;
+		if (key == 'v')
+			fov += 5;
+		else if (key == 'b')
+			fov -= 5;
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
@@ -381,12 +494,19 @@ int		main(int argc, char **argv)
 			for (int zz = 0; zz < 4; zz++)
 			{
 				if (z == zz)
-					mat[z][zz] = 1;
+				{
+					mx.pers[z][zz] = 1;
+				}
 				else
-					mat[z][zz] = 0;
+				{
+					mx.pers[z][zz] = 0;
+				}
 			}
 		}
-		mat = ft_rotate(mat, 0, 0, (tour / (PI * 2)));
+		ft_rotate_test(&mx, hor, ver, tan);
+		ft_perspective(&mx, fov , 800 / 800, 0.1f, 100.0f);
+		// mat = ft_rotate(mat, 0, 0, (tour));
+		// mat = ft_rotate(mat, 0, 0, ((tour / 180) * PI));
 		
 		unsigned int matLoc = glGetUniformLocation(gl.programID, "mat_x");
 		glUniform4fv(matLoc, 1, mat[0]);
@@ -396,6 +516,13 @@ int		main(int argc, char **argv)
 		glUniform4fv(matLoc, 1, mat[2]);
 		matLoc = glGetUniformLocation(gl.programID, "mat_w");
 		glUniform4fv(matLoc, 1, mat[3]);
+
+		matLoc = glGetUniformLocation(gl.programID, "rotate");
+		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.rotate[0][0]);
+
+		matLoc = glGetUniformLocation(gl.programID, "pers");
+		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.pers[0][0]);
+
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);

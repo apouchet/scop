@@ -6,7 +6,7 @@
 #    By: apouchet <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/07 05:07:37 by apouchet          #+#    #+#              #
-#    Updated: 2016/11/22 18:30:23 by apouchet         ###   ########.fr        #
+#    Updated: 2019/03/03 15:19:38 by apouchet         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,9 +16,9 @@ NAME = scop
 
 INCL = -I ~/.brew/include
 
-LIB = -L ~/.brew/lib -lSDL2 
+# LIB = -L ~/.brew/lib -lSDL2 
 # LIB = -L /usr/local/Cellar/
-# LIB = $(shell sdl2-config --libs)
+LIB = $(shell sdl2-config --libs)
 
 FRAM = -framework OpenGL -framework Cocoa
 
@@ -32,7 +32,7 @@ $(NAME) : $(OBJ)
 	gcc $(LIB) $(INCL) $(FRAM) $(OBJ) -o $(NAME)
 
 %.o: %.c
-	@$(CC) -o $@ -c $< $(INCL)
+	@$(CC) -o $@ -c $< $(INCL) -Wno-deprecated-declarations
 
 clean :
 	rm -f $(OBJ)
