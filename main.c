@@ -341,7 +341,7 @@ int		main(int argc, char **argv)
 	if (ft_start_sdl_opengl(&sdl) < 0)
 		return (-1);
 	// Boucle principale
-
+	glEnable(GL_DEPTH_TEST);
 	ft_shaders("Shaders/shader.vs", "Shaders/shader.fs", &gl);
 	printf("OpenGL version : %s\n", glGetString(GL_VERSION));
 	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -359,19 +359,107 @@ int		main(int argc, char **argv)
 
 	0.5f, 0.5f, -1.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
 	0.5f, -0.5f, -1.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
-	-0.5f, -0.5f, -1.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	-0.5f, +0.5f, -1.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
+	-0.5f, -0.5f, -1.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
+	-0.5f, +0.5f, -1.0f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left
+
+	// 0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
+	// 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
+	// -0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
+	// -0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 
 
 	// 0.0f, 0.75f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
 	// 0.75f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
 	// 0.0f, -0.75f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
 	// -0.75f, 0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
+
+	// -1.0f,-1.0f,-1.0f,// triangle 1 : begin
+ //    -1.0f,-1.0f, 1.0f,
+ //    -1.0f, 1.0f, 1.0f, // triangle 1 : end
+ //    1.0f, 1.0f,-1.0f,// triangle 2 : begin
+ //    -1.0f,-1.0f,-1.0f,
+ //    -1.0f, 1.0f,-1.0f, // triangle 2 : end
+ //    1.0f,-1.0f, 1.0f,
+ //    -1.0f,-1.0f,-1.0f,
+ //    1.0f,-1.0f,-1.0f,
+ //    1.0f, 1.0f,-1.0f,
+ //    1.0f,-1.0f,-1.0f,
+ //    -1.0f,-1.0f,-1.0f,
+ //    -1.0f,-1.0f,-1.0f,
+ //    -1.0f, 1.0f, 1.0f,
+ //    -1.0f, 1.0f,-1.0f,
+ //    1.0f,-1.0f, 1.0f,
+ //    -1.0f,-1.0f, 1.0f,
+ //    -1.0f,-1.0f,-1.0f,
+ //    -1.0f, 1.0f, 1.0f,
+ //    -1.0f,-1.0f, 1.0f,
+ //    1.0f,-1.0f, 1.0f,
+ //    1.0f, 1.0f, 1.0f,
+ //    1.0f,-1.0f,-1.0f,
+ //    1.0f, 1.0f,-1.0f,
+ //    1.0f,-1.0f,-1.0f,
+ //    1.0f, 1.0f, 1.0f,
+ //    1.0f,-1.0f, 1.0f,
+ //    1.0f, 1.0f, 1.0f,
+ //    1.0f, 1.0f,-1.0f,
+ //    -1.0f, 1.0f,-1.0f,
+ //    1.0f, 1.0f, 1.0f,
+ //    -1.0f, 1.0f,-1.0f,
+ //    -1.0f, 1.0f, 1.0f,
+ //    1.0f, 1.0f, 1.0f,
+ //    -1.0f, 1.0f, 1.0f,
+ //    1.0f,-1.0f, 1.0f
 	};
 
 	
 
 	unsigned int indices[] = {
+		//face
+		// 0, 1, 3, // first triangle
+		// 1, 2, 3, // second triangle
+		// //fond
+		// 4, 5, 7, // first triangle
+		// 5, 6, 7,  // second triangle
+		// //droit
+		// 0, 1, 4,
+		// 1, 5, 4,
 
+		// 2, 3, 6,
+		// 3, 7, 6,
+
+		// avant
+		0, 1, 2,
+		3, 0, 2,
+		// arrire
+		7, 4, 6,
+		4, 5, 6,
+		//dessus
+		7, 0, 3,
+		7, 4, 0,
+		//dessous
+		6, 1, 2,
+		6, 5, 1,
+		//gauche
+		7, 2, 3,
+		7, 6, 2,
+		//droite
+		4, 0, 1,
+		4, 5, 1
+
+
+		// 0, 1, 2,
+		// 3, 4, 5,
+		// 6, 7, 8,
+		// 9, 10, 11,
+		// 12, 13, 14,
+		// 15, 16, 17,
+		// 18, 19, 20,
+		// 21, 22, 23,
+		// 24, 25, 26,
+		// 27, 28, 29,
+		// 30, 31, 32,
+		// 33, 34, 35
+		// 6, 7, 8,
+		// 9, 10, 11		
 		// 1, 7, 5,
 		// 1, 3, 7, 
 		// 1, 4, 3, 
@@ -385,11 +473,7 @@ int		main(int argc, char **argv)
 		// 2, 6, 8, 
 		// 2, 8, 4 
 
-		0, 1, 3, // first triangle
-		1, 2, 3, // second triangle
-
-		4, 5, 7, // first triangle
-		5, 6, 7  // second triangle
+		
 	};
 	// mat = ft_trans(mat, 0.5, -0.5, 0);
 	
@@ -536,7 +620,8 @@ int		main(int argc, char **argv)
 		else if (key == 'b')
 			fov -= 5;
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
 
@@ -586,7 +671,7 @@ int		main(int argc, char **argv)
 
 		// render container
 		glBindVertexArray(VAO_text);
-		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 		// glBindVertexArray(VAO);
 		// glDrawArrays(GL_TRIANGLES, 0, 3);
