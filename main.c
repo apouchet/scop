@@ -6,7 +6,7 @@
 /*   By: apouchet <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/27 13:29:46 by apouchet          #+#    #+#             */
-/*   Updated: 2019/03/03 20:57:11 by apouchet         ###   ########.fr       */
+/*   Updated: 2019/03/05 17:23:21 by apouchet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,13 +88,43 @@ float	**ft_trans(float **matrix, float x, float y, float z)
 
 void	ft_rotate_test(t_matrix *mx, double angleX, double angleY, double angleZ)
 {
-	float a;
-	float b;
-	float c;
 
-	a = 1;//0.662;
-	b = 1;//0.2;
-	c = 1;//0.722;
+	float A;
+	float B;
+	float C;
+	float D;
+	float E;
+	float F;
+
+	A = cosf(angleX);
+	B = sinf(angleX);
+	C = cosf(angleY);
+	D = sinf(angleY);
+	E = cosf(angleZ);
+	F = sinf(angleZ);
+	mx->rotate[0][0] = C * E;
+	mx->rotate[0][1] = B * D * E + A * F;
+	mx->rotate[0][2] = -A * D * E + B * F;
+	mx->rotate[0][3] = 0;
+	mx->rotate[1][0] = - C * F;
+	mx->rotate[1][1] = - B * D * F + A * E;
+	mx->rotate[1][2] = A * D * F + B * E;
+	mx->rotate[1][3] = 0;
+	mx->rotate[2][0] = D;
+	mx->rotate[2][1] = - B * C;
+	mx->rotate[2][2] = A * C;
+	mx->rotate[2][3] = 0;
+	mx->rotate[3][0] = 0;
+	mx->rotate[3][1] = 0;
+	mx->rotate[3][2] = 0;
+	mx->rotate[3][3] = 0.5f;
+	// float a;
+	// float b;
+	// float c;
+
+	// a = 1;//0.662;
+	// b = 1;//0.2;
+	// c = 1;//0.722;
 	// mx->rotate[0][0] = cosf(angleY) + a * a * (1 - cosf(angleZ));
 	// mx->rotate[0][1] = a * b * (1 - cosf(angleY))+ sinf(angleZ);
 	// mx->rotate[0][2] = c * a * (1 - cosf(angleZ)) - b * sinf(angleY);
@@ -108,20 +138,20 @@ void	ft_rotate_test(t_matrix *mx, double angleX, double angleY, double angleZ)
 	// mx->rotate[2][2] = cosf(angleX) + c * c * (1 - cosf(angleY));
 
 
-	mx->rotate[0][0] = cosf(angleY) + cosf(angleZ) - 1;
-	mx->rotate[0][1] = sinf(angleZ);
-	mx->rotate[0][2] = -sinf(angleY);
-	mx->rotate[0][3] = 0;
+	// mx->rotate[0][0] = cosf(angleY) + cosf(angleZ) - 1;
+	// mx->rotate[0][1] = sinf(angleZ);
+	// mx->rotate[0][2] = -sinf(angleY);
+	// mx->rotate[0][3] = 0;
 
-	mx->rotate[1][0] = -sinf(angleZ);
-	mx->rotate[1][1] = cosf(angleX) + cosf(angleZ) - 1;
-	mx->rotate[1][2] = sinf(angleX);
-	mx->rotate[1][3] = 0;
+	// mx->rotate[1][0] = -sinf(angleZ);
+	// mx->rotate[1][1] = cosf(angleX) + cosf(angleZ) - 1;
+	// mx->rotate[1][2] = sinf(angleX);
+	// mx->rotate[1][3] = 0;
 
-	mx->rotate[2][0] = sinf(angleY);
-	mx->rotate[2][1] = -sinf(angleX);
-	mx->rotate[2][2] = cosf(angleX) + cosf(angleY) - 1;
-	mx->rotate[2][3] = 0;
+	// mx->rotate[2][0] = sinf(angleY);
+	// mx->rotate[2][1] = -sinf(angleX);
+	// mx->rotate[2][2] = cosf(angleX) + cosf(angleY) - 1;
+	// mx->rotate[2][3] = 0;
 }
 
 void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far)
