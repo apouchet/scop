@@ -95,6 +95,7 @@ void	ft_rotate_test(t_matrix *mx, double angleX, double angleY, double angleZ)
 	float D;
 	float E;
 	float F;
+	angleX = -angleX;
 
 	A = cosf(angleX);
 	B = sinf(angleX);
@@ -106,14 +107,17 @@ void	ft_rotate_test(t_matrix *mx, double angleX, double angleY, double angleZ)
 	mx->rotate[0][1] = B * D * E + A * F;
 	mx->rotate[0][2] = -A * D * E + B * F;
 	mx->rotate[0][3] = 0;
+
 	mx->rotate[1][0] = - C * F;
 	mx->rotate[1][1] = - B * D * F + A * E;
 	mx->rotate[1][2] = A * D * F + B * E;
 	mx->rotate[1][3] = 0;
+
 	mx->rotate[2][0] = D;
 	mx->rotate[2][1] = - B * C;
 	mx->rotate[2][2] = A * C;
 	mx->rotate[2][3] = 0;
+
 	mx->rotate[3][0] = 0;
 	mx->rotate[3][1] = 0;
 	mx->rotate[3][2] = 0;
@@ -158,27 +162,49 @@ void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far
 {
     const float range = near - far;
     const float tanHalfFOV = tanf(((fov / 2.0) / 180) * PI);
+    float	tanFov = tanf(((fov / 180) * PI) / 2);
     // const float tanHalfFOV = tanf(ToRadian(m_persProj.FOV / 2.0));
 
-    mx->pers[0][0] = 1.0f / (tanHalfFOV * ar); 
+	mx->pers[0][0] = 1.0f / tanFov; 
     mx->pers[0][1] = 0.0f; 
     mx->pers[0][2] = 0.0f; 
-    // mx->pers[0][3] = 0.0f; 
+    mx->pers[0][3] = 0.0f; 
 
     mx->pers[1][0] = 0.0f; 
-    mx->pers[1][1] = 1.0f / tanHalfFOV; 
+    mx->pers[1][1] = 1.0f / tanFov; 
     mx->pers[1][2] = 0.0f; 
-    // mx->pers[1][3] = 0.0f; 
+    mx->pers[1][3] = 0.0f; 
 
     mx->pers[2][0] = 0.0f; 
     mx->pers[2][1] = 0.0f; 
     mx->pers[2][2] = (-near - far) / range; 
- 	// mx->pers[2][3] = 0.0f;//(2.0f * far * near) / range;
+ 	mx->pers[2][3] = -1.0f;//(2.0f * far * near) / range;
 
     mx->pers[3][0] = 0.0f;
     mx->pers[3][1] = 0.0f;
-    mx->pers[3][2] = 1.0f;//(2.0f * far * near) / range;
-    mx->pers[3][3] = 11;//(2.0f * far * near) / range;
+    mx->pers[3][2] = (2.0f * far * near) / range;
+    mx->pers[3][3] = 10;
+
+  //   mx->pers[3][3] = 11.0f;//(2.0f * far * near) / range;
+  //   mx->pers[0][0] = 1.0f / (tanHalfFOV * ar); 
+  //   mx->pers[0][1] = 0.0f; 
+  //   mx->pers[0][2] = 0.0f; 
+  //   // mx->pers[0][3] = 0.0f; 
+
+  //   mx->pers[1][0] = 0.0f; 
+  //   mx->pers[1][1] = 1.0f / tanHalfFOV; 
+  //   mx->pers[1][2] = 0.0f; 
+  //   // mx->pers[1][3] = 0.0f; 
+
+  //   mx->pers[2][0] = 0.0f; 
+  //   mx->pers[2][1] = 0.0f; 
+  //   mx->pers[2][2] = (-near - far) / range; 
+ 	// mx->pers[2][3] = 1.0f;//(2.0f * far * near) / range;
+
+  //   mx->pers[3][0] = 0.0f;
+  //   mx->pers[3][1] = 0.0f;
+  //   mx->pers[3][2] = (2.0f * far * near) / range;
+  //   mx->pers[3][3] = 11.0f;//(2.0f * far * near) / range;
 }
 
 // float	**ft_rotate(float **matrix, double angleX, double angleY, double angleZ)
@@ -331,10 +357,10 @@ int		main(int argc, char **argv)
 	-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
 	-0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 
 
-	// 0.5f, 0.5f, 1.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
-	// 0.5f, -0.5f, 1.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
-	// -0.5f, -0.5f, 1.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	// -0.5f, +0.5f, 1.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
+	0.5f, 0.5f, -1.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
+	0.5f, -0.5f, -1.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
+	-0.5f, -0.5f, -1.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
+	-0.5f, +0.5f, -1.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
 
 	// 0.0f, 0.75f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
 	// 0.75f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
@@ -362,8 +388,8 @@ int		main(int argc, char **argv)
 		0, 1, 3, // first triangle
 		1, 2, 3, // second triangle
 
-		// 4, 5, 7, // first triangle
-		// 5, 6, 7  // second triangle
+		4, 5, 7, // first triangle
+		5, 6, 7  // second triangle
 	};
 	// mat = ft_trans(mat, 0.5, -0.5, 0);
 	
@@ -560,7 +586,7 @@ int		main(int argc, char **argv)
 
 		// render container
 		glBindVertexArray(VAO_text);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
 		// glBindVertexArray(VAO);
 		// glDrawArrays(GL_TRIANGLES, 0, 3);
