@@ -22,10 +22,42 @@
 
 typedef struct	s_matrix
 {
+	float		base[4][4];
 	float		rotate[4][4];
-	float		mouve[4][4];
+	float		move[4][4];
 	float		pers[4][4];
 }				t_matrix;
+
+void	ft_start_matrix(t_matrix *mx)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while (i < 4)
+	{
+		while (j < 4)
+		{
+			if (i == j)
+			{
+				mx->pers[i][j] = 1;
+				mx->move[i][j] = 1;
+				mx->rotate[i][j] = 1;
+				mx->base[i][j] = 1;
+			}
+			else
+			{
+				mx->pers[i][j] = 0;
+				mx->move[i][j] = 0;
+				mx->rotate[i][j] = 0;
+				mx->base[i][j] = 0;
+			}
+			j++;
+		}
+		i++;
+	}
+}
 
 int		ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl)
 {
@@ -78,15 +110,14 @@ int		ft_start_sdl_opengl(t_sdl *sdl)
 	return (1);
 }
 
-float	**ft_trans(float **matrix, float x, float y, float z)
+void	ft_trans(t_matrix *mx, float x, float y, float z)
 {
-	matrix[3][0] += x;
-	matrix[3][1] += y;
-	matrix[3][2] += z;
-	return (matrix);
+	mx->base[3][0] = x;
+	mx->base[3][1] = y;
+	mx->base[3][2] = z;
 }
 
-void	ft_rotate_test(t_matrix *mx, double angleX, double angleY, double angleZ)
+void	ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ)
 {
 
 	float A;
@@ -95,7 +126,7 @@ void	ft_rotate_test(t_matrix *mx, double angleX, double angleY, double angleZ)
 	float D;
 	float E;
 	float F;
-	angleX = -angleX;
+	// angleX = -angleX;
 
 	A = cosf(angleX);
 	B = sinf(angleX);
@@ -121,41 +152,7 @@ void	ft_rotate_test(t_matrix *mx, double angleX, double angleY, double angleZ)
 	mx->rotate[3][0] = 0;
 	mx->rotate[3][1] = 0;
 	mx->rotate[3][2] = 0;
-	mx->rotate[3][3] = 0.5f;
-	// float a;
-	// float b;
-	// float c;
-
-	// a = 1;//0.662;
-	// b = 1;//0.2;
-	// c = 1;//0.722;
-	// mx->rotate[0][0] = cosf(angleY) + a * a * (1 - cosf(angleZ));
-	// mx->rotate[0][1] = a * b * (1 - cosf(angleY))+ sinf(angleZ);
-	// mx->rotate[0][2] = c * a * (1 - cosf(angleZ)) - b * sinf(angleY);
-
-	// mx->rotate[1][0] = a * b * (1 - cosf(angleX)) - sinf(angleZ);
-	// mx->rotate[1][1] = cosf(angleX) + b * b * (1 - cosf(angleZ));
-	// mx->rotate[1][2] = c * b * (1 - cosf(angleZ)) + a * sinf(angleX);
-
-	// mx->rotate[2][0] = a * c * (1 - cosf(angleY)) + b * sinf(angleX);
-	// mx->rotate[2][1] = b * c * (1 - cosf(angleY)) - a * sinf(angleX);
-	// mx->rotate[2][2] = cosf(angleX) + c * c * (1 - cosf(angleY));
-
-
-	// mx->rotate[0][0] = cosf(angleY) + cosf(angleZ) - 1;
-	// mx->rotate[0][1] = sinf(angleZ);
-	// mx->rotate[0][2] = -sinf(angleY);
-	// mx->rotate[0][3] = 0;
-
-	// mx->rotate[1][0] = -sinf(angleZ);
-	// mx->rotate[1][1] = cosf(angleX) + cosf(angleZ) - 1;
-	// mx->rotate[1][2] = sinf(angleX);
-	// mx->rotate[1][3] = 0;
-
-	// mx->rotate[2][0] = sinf(angleY);
-	// mx->rotate[2][1] = -sinf(angleX);
-	// mx->rotate[2][2] = cosf(angleX) + cosf(angleY) - 1;
-	// mx->rotate[2][3] = 0;
+	mx->rotate[3][3] = 1.0f;
 }
 
 void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far)
@@ -177,115 +174,22 @@ void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far
 
     mx->pers[2][0] = 0.0f; 
     mx->pers[2][1] = 0.0f; 
-    mx->pers[2][2] = (-near - far) / range; 
- 	mx->pers[2][3] = -1.0f;//(2.0f * far * near) / range;
+    mx->pers[2][2] = 1.0f / tanFov;//-(near + far) / range; 
+ 	mx->pers[2][3] = 0;//(2.0f * far * near) / range; // "perspective"
 
     mx->pers[3][0] = 0.0f;
     mx->pers[3][1] = 0.0f;
     mx->pers[3][2] = (2.0f * far * near) / range;
-    mx->pers[3][3] = 10;
-
-  //   mx->pers[3][3] = 11.0f;//(2.0f * far * near) / range;
-  //   mx->pers[0][0] = 1.0f / (tanHalfFOV * ar); 
-  //   mx->pers[0][1] = 0.0f; 
-  //   mx->pers[0][2] = 0.0f; 
-  //   // mx->pers[0][3] = 0.0f; 
-
-  //   mx->pers[1][0] = 0.0f; 
-  //   mx->pers[1][1] = 1.0f / tanHalfFOV; 
-  //   mx->pers[1][2] = 0.0f; 
-  //   // mx->pers[1][3] = 0.0f; 
-
-  //   mx->pers[2][0] = 0.0f; 
-  //   mx->pers[2][1] = 0.0f; 
-  //   mx->pers[2][2] = (-near - far) / range; 
- 	// mx->pers[2][3] = 1.0f;//(2.0f * far * near) / range;
-
-  //   mx->pers[3][0] = 0.0f;
-  //   mx->pers[3][1] = 0.0f;
-  //   mx->pers[3][2] = (2.0f * far * near) / range;
-  //   mx->pers[3][3] = 11.0f;//(2.0f * far * near) / range;
+    mx->pers[3][3] = 5;
 }
 
-// float	**ft_rotate(float **matrix, double angleX, double angleY, double angleZ)
-// {
-// 	float a;
-// 	float b;
-// 	float c;
-
-// 	// a = 0;//662;
-// 	// b = 0;//2;
-// 	// c = 0.5;//722;
-// 	// matrix[0][0] = cosf(angleZ) + a * a * (1 - cosf(angleZ));
-// 	// matrix[0][1] = a * b * (1 - cosf(angleZ)) + c * sinf(angleZ);
-// 	// matrix[0][2] = c * a * (1 - cosf(angleZ)) - b * sinf(angleZ);
-
-// 	// matrix[1][0] = a * b * (1 - cosf(angleZ)) - c * sinf(angleZ);
-// 	// matrix[1][1] = cosf(angleZ) + b * b * (1 - cosf(angleZ));
-// 	// matrix[1][2] = c * b * (1 - cosf(angleZ)) + a * sinf(angleZ);
-
-// 	// matrix[2][0] = a * c * (1 - cosf(angleZ)) + b * sinf(angleZ);
-// 	// matrix[2][1] = b * c * (1 - cosf(angleZ)) - a * sinf(angleZ);
-// 	// matrix[2][2] = cosf(angleZ) + c * c *(1 - cosf(angleZ));
-
-
-// 	matrix[0][0] -= cosf(angleY) + cosf(angleZ);
-// 	matrix[0][1] -= sinf(angleZ);
-// 	matrix[0][2] -= -sinf(angleY);
-
-// 	matrix[1][0] -= -sinf(angleZ);
-// 	matrix[1][1] -= cosf(angleX) + cosf(angleZ);
-// 	matrix[1][2] -= sinf(angleX);
-
-// 	matrix[2][0] -= sinf(angleY);
-// 	matrix[2][1] -= -sinf(angleX);
-// 	matrix[2][2] -= cosf(angleX) + cosf(angleY);
-
-
-
-// 	// matrix[0][0] += cosf(angleY) + cosf(angleZ);
-// 	// matrix[0][1] += sinf(angleZ);
-// 	// matrix[0][2] += -sinf(angleY);
-
-// 	// matrix[1][0] += -sinf(angleZ);
-// 	// matrix[1][1] += cosf(angleX) + cosf(angleZ);
-// 	// matrix[1][2] += sinf(angleX);
-
-// 	// matrix[2][0] += sinf(angleY);
-// 	// matrix[2][1] += -sinf(angleX);
-// 	// matrix[2][2] += cosf(angleX) + cosf(angleY);
-
-// 	// matrix[2][2] /= matrix[3][3]; 
-// 	return (matrix);
-// }
-
-// void	ft_rotate(float text[32], double angleX, double angleY, double angleZ)
-// {
-// 	float tmpX;
-// 	float tmpY;
-// 	float tmpZ;
-
-// 	for (int i = 0; i < 8; i++)
-// 	{
-// 		tmpZ = text[X + 8 * i] * -sinf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * cosf(angleY);
-// 		tmpX = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * cosf(angleZ) - (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * sinf(angleZ);
-// 		text[Y + 8 * i] = (text[X + 8 * i] *  cosf(angleY) + (text[Y + 8 * i] * sinf(angleX) + text[Z + 8 * i] * cosf(angleX)) * sinf(angleY)) * sinf(angleZ) + (text[Y + 8 * i] * cosf(angleX) - text[Z + 8 * i] * sinf(angleX)) * cosf(angleZ);
-// 		text[X + 8 * i] = tmpX;
-// 		text[Z + 8 * i] = tmpZ;
-// 	}
-// 	// return (text);
-// }
 
 int		main(int argc, char **argv)
 {	
 	int		terminer;
 	int		key;
-	float	*matrix;
-	float	**mat;
-	// float	rotate[4][4];
 	t_matrix mx;
-	float	**mouve;
-	float	**pers;
+	float	moveX = 0, moveY = 0, moveZ = 0;
 	t_tga	tga;
 	t_sdl	sdl;
 	t_gl	gl;
@@ -293,55 +197,30 @@ int		main(int argc, char **argv)
 	bzero(&tga, sizeof(t_tga));
 	bzero(&sdl, sizeof(sdl));
 	bzero(&gl, sizeof(gl));
-	mat = (float**)malloc(sizeof(float*) * 4);
-	// mx.rotate = (float**)malloc(sizeof(float*) * 4);
-	mouve = (float**)malloc(sizeof(float*) * 4);
-	pers = (float**)malloc(sizeof(float*) * 4);
+	// ft_start_matrix(&mx);
 	for (int z = 0; z < 4; z++)
 	{
-		mat[z] = (float*)malloc(sizeof(float) * 4);
-		// mx.rotate[z] = (float*)malloc(sizeof(float) * 4);
-		mouve[z] = (float*)malloc(sizeof(float) * 4);
-		pers[z] = (float*)malloc(sizeof(float) * 4);
 		for (int zz = 0; zz < 4; zz++)
 		{
 			if (z == zz)
 			{
-				mat[z][zz] = 1;
 				mx.rotate[z][zz] = 1;
-				mouve[z][zz] = 1;
-				pers[z][zz] = 1;
+				mx.base[z][zz] = 1;
 			}
 			else
 			{
-				mat[z][zz] = 0;
 				mx.rotate[z][zz] = 0;
-				mouve[z][zz] = 0;
-				pers[z][zz] = 0;
+				mx.base[z][zz] = 0;
 			}
 		}
-		printf("\nmat[%d] = ", z);
-		for (int zz = 0; zz < 4; zz++)
-			printf("%f,", mat[z][zz]);
 	}
 	printf("\n");
-	// mat[0][0] = 1;
-	// mat[1][1] = 1;
-	// mat[2][2] = 1;
-	// mat[3][3] = 1;
-	// for (int z = 0; z < 16; z++)
-	// {
-	// 	printf("%f ,", mat[z]);
-	// 	if ((z + 1) % 4 == 0)
-	// 		printf("\n");
-	// }
-	// for (int z = 0; z < 16; z++)
-	// 	matrix[z] = 1;
 	terminer = 0;
 	if (ft_start_sdl_opengl(&sdl) < 0)
 		return (-1);
 	// Boucle principale
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 	ft_shaders("Shaders/shader.vs", "Shaders/shader.fs", &gl);
 	printf("OpenGL version : %s\n", glGetString(GL_VERSION));
 	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -352,15 +231,36 @@ int		main(int argc, char **argv)
 	float text[] = {
 
 	// positions          // colors           // texture coords
-	0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
-	0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
-	-0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	-0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 
+	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		0
+	0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	1
+	-0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left	2
+	-0.5f, +0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 		3
 
-	0.5f, 0.5f, -1.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
-	0.5f, -0.5f, -1.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
-	-0.5f, -0.5f, -1.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	-0.5f, +0.5f, -1.0f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left
+	0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		4
+	0.5f, -0.5f, -0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	5
+	-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left	6
+	-0.5f, +0.5f, -0.5f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f,    // top left		7
+
+	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	0.0f, 1.0f,   // top right		8 / 0
+	0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	9 / 1
+	0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		10 / 4
+	0.5f, -0.5f, -0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	11 / 5
+
+	-0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	0.0f, 1.0f,   // top right		12 / 0
+	-0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	13 / 1
+	-0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		14 / 4
+	-0.5f, -0.5f, -0.5f,	0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	15 / 5
+
+	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,   // bottom right	16 / 0
+	-0.5f, 0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	17 / 3
+	0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		18 / 4
+	-0.5f, 0.5f, -0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left		19 / 7
+
+	0.5f, -0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,   // bottom right	20 / 1
+	-0.5f, -0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	21 / 2
+	0.5f, -0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		22 / 5
+	-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f   // top left		23 / 6
+
 
 	// 0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
 	// 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
@@ -372,42 +272,6 @@ int		main(int argc, char **argv)
 	// 0.0f, -0.75f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
 	// -0.75f, 0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
 
-	// -1.0f,-1.0f,-1.0f,// triangle 1 : begin
- //    -1.0f,-1.0f, 1.0f,
- //    -1.0f, 1.0f, 1.0f, // triangle 1 : end
- //    1.0f, 1.0f,-1.0f,// triangle 2 : begin
- //    -1.0f,-1.0f,-1.0f,
- //    -1.0f, 1.0f,-1.0f, // triangle 2 : end
- //    1.0f,-1.0f, 1.0f,
- //    -1.0f,-1.0f,-1.0f,
- //    1.0f,-1.0f,-1.0f,
- //    1.0f, 1.0f,-1.0f,
- //    1.0f,-1.0f,-1.0f,
- //    -1.0f,-1.0f,-1.0f,
- //    -1.0f,-1.0f,-1.0f,
- //    -1.0f, 1.0f, 1.0f,
- //    -1.0f, 1.0f,-1.0f,
- //    1.0f,-1.0f, 1.0f,
- //    -1.0f,-1.0f, 1.0f,
- //    -1.0f,-1.0f,-1.0f,
- //    -1.0f, 1.0f, 1.0f,
- //    -1.0f,-1.0f, 1.0f,
- //    1.0f,-1.0f, 1.0f,
- //    1.0f, 1.0f, 1.0f,
- //    1.0f,-1.0f,-1.0f,
- //    1.0f, 1.0f,-1.0f,
- //    1.0f,-1.0f,-1.0f,
- //    1.0f, 1.0f, 1.0f,
- //    1.0f,-1.0f, 1.0f,
- //    1.0f, 1.0f, 1.0f,
- //    1.0f, 1.0f,-1.0f,
- //    -1.0f, 1.0f,-1.0f,
- //    1.0f, 1.0f, 1.0f,
- //    -1.0f, 1.0f,-1.0f,
- //    -1.0f, 1.0f, 1.0f,
- //    1.0f, 1.0f, 1.0f,
- //    -1.0f, 1.0f, 1.0f,
- //    1.0f,-1.0f, 1.0f
 	};
 
 	
@@ -428,54 +292,23 @@ int		main(int argc, char **argv)
 
 		// avant
 		0, 1, 2,
-		3, 0, 2,
+		0, 3, 2,
 		// arrire
-		7, 4, 6,
+		4, 7, 6,
 		4, 5, 6,
 		//dessus
-		7, 0, 3,
-		7, 4, 0,
+		19, 17, 16,
+		19, 18, 16,
 		//dessous
-		6, 1, 2,
-		6, 5, 1,
+		23, 21, 20,
+		23, 22, 20,
 		//gauche
-		7, 2, 3,
-		7, 6, 2,
+		14, 12, 13,
+		14, 15, 13,
 		//droite
-		4, 0, 1,
-		4, 5, 1
-
-
-		// 0, 1, 2,
-		// 3, 4, 5,
-		// 6, 7, 8,
-		// 9, 10, 11,
-		// 12, 13, 14,
-		// 15, 16, 17,
-		// 18, 19, 20,
-		// 21, 22, 23,
-		// 24, 25, 26,
-		// 27, 28, 29,
-		// 30, 31, 32,
-		// 33, 34, 35
-		// 6, 7, 8,
-		// 9, 10, 11		
-		// 1, 7, 5,
-		// 1, 3, 7, 
-		// 1, 4, 3, 
-		// 1, 2, 4, 
-		// 3, 8, 7, 
-		// 3, 4, 8, 
-		// 5, 7, 8, 
-		// 5, 8, 6, 
-		// 1, 5, 6, 
-		// 1, 6, 2, 
-		// 2, 6, 8, 
-		// 2, 8, 4 
-
-		
+		10, 8, 9,
+		10, 11, 9		
 	};
-	// mat = ft_trans(mat, 0.5, -0.5, 0);
 	
 	unsigned int	VAO_text;
 	unsigned int	VBO_indide;
@@ -483,7 +316,8 @@ int		main(int argc, char **argv)
 	int				width;
 	int				height;
 	int				nrChannels;
-	unsigned int	texture, texture2;
+	unsigned int	texture1 = glGetUniformLocation(gl.programID, "Texture1");
+	unsigned int	texture2 = glGetUniformLocation(gl.programID, "Texture2");
 	unsigned char	*data;
 	unsigned char	*data2;
 
@@ -502,14 +336,8 @@ int		main(int argc, char **argv)
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	data = ft_read_tga_headers("img/container.tga", &tga);
-	// data2 = stbi_load("img/face.tga", &width, &height, &nrChannels, 0);
+
+	// data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
 	// for (int i = 78740; i < 78756; i++)
 	// {
 	// 	// if (data[i] != data2[i])
@@ -522,20 +350,51 @@ int		main(int argc, char **argv)
 	// 	// else if (i % 100 == 0)
 	// 		// printf("ok : %d\n", i);
 	// }
-	// printf("moi -> height = %d, width %d, nbr channel = %d\n", tga.height, tga.width, tga.bpp);
-	// printf("stb -> height = %d, width %d, nbr channel = %d\n", height, width, nrChannels);
-	if (data)
+	// data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
+	
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
+	data2 = ft_read_tga_headers("img/wall1.tga", &tga);
+	if (data2)
 	{
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data2);
 	    glGenerateMipmap(GL_TEXTURE_2D);
+		free(data2);
 	}
 	else
 	{
 		printf("Failed to load texture\n");
 		return (-1);
 	}
-	free(data);
 
+	// printf("moi -> height = %d, width %d, nbr channel = %d\n", tga.height, tga.width, tga.bpp);
+	// printf("stb -> height = %d, width %d, nbr channel = %d\n", height, width, nrChannels);
+	
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	data = ft_read_tga_headers("img/container.tga", &tga);
+	if (data)
+	{
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	    glGenerateMipmap(GL_TEXTURE_2D);
+		free(data);
+	}
+	else
+	{
+		printf("Failed to load texture\n");
+		return (-1);
+	}
+	glUseProgram(gl.programID);
+	glUniform1i(texture1, 0); // Texture unit 0 is for base images.
+	glUniform1i(texture2, 1);
 
 	// glGenTextures(1, &texture2);
 	// glBindTexture(GL_TEXTURE_2D, texture2);
@@ -558,34 +417,39 @@ int		main(int argc, char **argv)
 	//     printf("Failed to load texture\n");
 	// }
 	// free(data);
-	unsigned int VBO_color, VBO_vertex, VAO;
 
-	glGenVertexArrays(1, &VAO);
- 	glGenBuffers(1, &VBO_vertex);
- 	glGenBuffers(1, &VBO_color);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(0);
+
+	// unsigned int VBO_color, VBO_vertex, VAO;
+
+	// glGenVertexArrays(1, &VAO);
+ // 	glGenBuffers(1, &VBO_vertex);
+ // 	glGenBuffers(1, &VBO_color);
+	// glBindVertexArray(VAO);
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	// glEnableVertexAttribArray(0);
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
+	// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	// glEnableVertexAttribArray(1);
+	// glBindVertexArray(0);
  
-	glUseProgram(gl.programID);
 	// unsigned int transformLoc = glGetUniformLocation(gl.programID, "transform");
 
 	// printf("trans = %d\n", transformLoc);
 	// glUniform1i(glGetUniformLocation(gl.programID, "texture1"), 0); // set it manually
 	// ourShader.setInt("texture2", 1); // or with shader class
 	// printf("programme ID = %d\n", gl.programID);
-	float	tour = 0;
+	float	tour = 20;
 	float	hor = 0;
 	float	ver = 0;
 	float	tan = 0;
 	int		fov = 45;
+	float	acolor = 1;
+	int		deg = 0;
+
+	glUseProgram(gl.programID);
 	while(!terminer)
 	{
 		SDL_WaitEvent(&sdl.evenements);
@@ -594,42 +458,60 @@ int		main(int argc, char **argv)
 		if(key == SDL_WINDOWEVENT_CLOSE || key == ' ')
 			terminer = 1;
 		else if (key == 'f')
-			ver -= PI / 10;
+			ver -= PI / tour;
 		else if (key == 'h')
-			ver += PI / 10;
+			ver += PI / tour;
 
 		else if (key == 'g')
-			hor -= PI / 10;
+			hor -= PI / tour;
 		else if (key == 't')
-			hor += PI / 10;
+			hor += PI / tour;
 
 		else if (key == 'y')
-			tan -= PI / 10;
+			tan -= PI / tour;
 		else if (key == 'r')
-			tan += PI / 10;
+			tan += PI / tour;
 		// if (tour < 0)
 		// 	tour += PI;
 		// else if (tour > 3 * PI)
 		// 	tour -= PI;
-		if (key == 'w')
-			tour = 0;
-		else if (key == 'x')
-			tour = PI / 2;
-		if (key == 'v')
+		// else if (key == 'w')
+		// 	tour = 0;
+		// else if (key == 'x')
+		// 	tour = PI / 2;
+		else if (key == 'v')
 			fov += 5;
 		else if (key == 'b')
 			fov -= 5;
+
+		else if (key == 'w')
+			moveY += 0.1f;
+		else if (key == 's')
+			moveY -= 0.1f;
+		else if (key == 'd')
+			moveX += 0.1f;
+		else if (key == 'a')
+			moveX -= 0.1f;
+		else if (key == 'z')
+			moveZ += 0.1f;
+		else if (key == 'x')
+			moveZ -= 0.1f;
+
+		else if (key == 'p')
+			moveZ = moveX = moveY = 0;
+		else if (key == 'o')
+			ver = hor = tan = 0;
+		else if (key == '.')
+		{
+			acolor = (acolor >= 1? (acolor == 1? 2 : 0) : 1);
+			printf("acolor = %f\n", acolor);
+		}
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
 
-		// for (int mm = 0; mm < 4; mm++)
-			// printf("matrix[%d] = %f\n", mm, matrix[mm]);
-
-		// unsigned int matrixLoc = glGetUniformLocation(gl.programID, "matrix");
-		// glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, matrix);
 		for (int z = 0; z < 4; z++)
 		{
 			for (int zz = 0; zz < 4; zz++)
@@ -644,19 +526,13 @@ int		main(int argc, char **argv)
 				}
 			}
 		}
-		ft_rotate_test(&mx, hor, ver, tan);
-		ft_perspective(&mx, fov , 800 / 800, 0.1f, 100.0f);
-		// mat = ft_rotate(mat, 0, 0, (tour));
-		// mat = ft_rotate(mat, 0, 0, ((tour / 180) * PI));
-		
-		unsigned int matLoc = glGetUniformLocation(gl.programID, "mat_x");
-		glUniform4fv(matLoc, 1, mat[0]);
-		matLoc = glGetUniformLocation(gl.programID, "mat_y");
-		glUniform4fv(matLoc, 1, mat[1]);
-		matLoc = glGetUniformLocation(gl.programID, "mat_z");
-		glUniform4fv(matLoc, 1, mat[2]);
-		matLoc = glGetUniformLocation(gl.programID, "mat_w");
-		glUniform4fv(matLoc, 1, mat[3]);
+		ft_rotate(&mx, hor, ver, tan);
+		ft_perspective(&mx, fov , 800 / 800, 0.01f, 100.0f);
+		ft_trans(&mx, moveX, moveY, moveZ);
+		unsigned int matLoc;
+
+		matLoc = glGetUniformLocation(gl.programID, "color");
+		glUniform1f(matLoc, acolor);
 
 		matLoc = glGetUniformLocation(gl.programID, "rotate");
 		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.rotate[0][0]);
@@ -664,9 +540,18 @@ int		main(int argc, char **argv)
 		matLoc = glGetUniformLocation(gl.programID, "pers");
 		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.pers[0][0]);
 
+		matLoc = glGetUniformLocation(gl.programID, "move");
+		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.pers[0][0]);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		matLoc = glGetUniformLocation(gl.programID, "base");
+		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.base[0][0]);
+
+		
+
+		// glActiveTexture(GL_TEXTURE1);
+		// glBindTexture(GL_TEXTURE_2D, texture1);
+		// glActiveTexture(GL_TEXTURE2);
+		// glBindTexture(GL_TEXTURE_2D, texture2);
 
 
 		// render container
