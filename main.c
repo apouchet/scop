@@ -20,13 +20,41 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#define WINDOW 800
+
 typedef struct	s_matrix
 {
 	float		base[4][4];
 	float		rotate[4][4];
 	float		move[4][4];
 	float		pers[4][4];
+
+	float		top;
+	float		bottom;
+	float		left;
+	float		right;
+	float		fov;
+	float		near;
+	float		far;
+	float		ratio;
 }				t_matrix;
+
+void	gl_perspective(t_matrix *mx) 
+{ 
+	float scale;
+
+	mx->fov = 90;
+	mx->near = 0.1f;
+	mx->far = 100.0f;
+	mx->ratio = WINDOW / WINDOW;
+	scale = tan(mx->fov * 0.5 * PI / 180) * mx->near;
+
+	mx->right = mx->ratio * scale;
+	mx->left = -mx->right;
+
+	mx->top = scale;
+	mx->bottom = -mx->top;
+}
 
 void	ft_start_matrix(t_matrix *mx)
 {
@@ -157,30 +185,73 @@ void	ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ)
 
 void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far)
 {
-    const float range = near - far;
-    const float tanHalfFOV = tanf(((fov / 2.0) / 180) * PI);
-    float	tanFov = tanf(((fov / 180) * PI) / 2);
-    // const float tanHalfFOV = tanf(ToRadian(m_persProj.FOV / 2.0));
+	const float range = near - far;
+	const float tanHalfFOV = tanf(((fov / 2.0) / 180) * PI);
+	float	tanFov = tanf(((fov / 180) * PI) / 2);
+	// float t = r = l = 1;
+	// const float tanHalfFOV = tanf(ToRadian(m_persProj.FOV / 2.0));
 
-	mx->pers[0][0] = 1.0f / tanFov; 
-    mx->pers[0][1] = 0.0f; 
-    mx->pers[0][2] = 0.0f; 
-    mx->pers[0][3] = 0.0f; 
+	//pers
 
-    mx->pers[1][0] = 0.0f; 
-    mx->pers[1][1] = 1.0f / tanFov; 
-    mx->pers[1][2] = 0.0f; 
-    mx->pers[1][3] = 0.0f; 
+	mx->pers[0][0] = 2 * mx->near / (mx->right - mx->left);
+	mx->pers[0][1] = 0;
+	mx->pers[0][2] = 0;
+	mx->pers[0][3] = 0;
 
-    mx->pers[2][0] = 0.0f; 
-    mx->pers[2][1] = 0.0f; 
-    mx->pers[2][2] = 1.0f / tanFov;//-(near + far) / range; 
- 	mx->pers[2][3] = 0;//(2.0f * far * near) / range; // "perspective"
+	mx->pers[1][0] = 0;
+	mx->pers[1][1] = 2 * mx->near / (mx->top - mx->bottom);
+	mx->pers[1][2] = 0;
+	mx->pers[1][3] = 0;
 
-    mx->pers[3][0] = 0.0f;
-    mx->pers[3][1] = 0.0f;
-    mx->pers[3][2] = (2.0f * far * near) / range;
-    mx->pers[3][3] = 5;
+	mx->pers[2][0] = (mx->right + mx->left) / (mx->right - mx->left);
+	mx->pers[2][1] = (mx->top + mx->bottom) / (mx->top - mx->bottom);
+	mx->pers[2][2] = -(mx->far + mx->near) / (mx->far - mx->near);
+	mx->pers[2][3] = -1;
+
+	mx->pers[3][0] = 0;
+	mx->pers[3][1] = 0;
+	mx->pers[3][2] = -2 * mx->far * mx->near / (mx->far - mx->near);
+	mx->pers[3][3] = 1;
+
+	// mx->pers[0][0] = (2 * n) / (r - l); 
+ //    mx->pers[0][1] = 0.0f; 
+ //    mx->pers[0][2] = (r + l) / (r - l); 
+ //    mx->pers[0][3] = 0.0f; 
+
+ //    mx->pers[1][0] = 0.0f; 
+ //    mx->pers[1][1] = (2 * n) / (t - b); 
+ //    mx->pers[1][2] = 0.0f; 
+ //    mx->pers[1][3] = 0.0f; 
+
+ //    mx->pers[2][0] = 0.0f; 
+ //    mx->pers[2][1] = 0.0f; 
+ //    mx->pers[2][2] = 1.0f / tanFov;//-(near + far) / range; 
+ // 	mx->pers[2][3] = 0;//(2.0f * far * near) / range; // "perspective"
+
+ //    mx->pers[3][0] = 0.0f;
+ //    mx->pers[3][1] = 0.0f;
+ //    mx->pers[3][2] = (2.0f * far * near) / range;
+ //    mx->pers[3][3] = 4;
+ //    // orth
+	// mx->pers[0][0] = 1.0f / tanFov; 
+ //    mx->pers[0][1] = 0.0f; 
+ //    mx->pers[0][2] = 0.0f; 
+ //    mx->pers[0][3] = 0.0f; 
+
+ //    mx->pers[1][0] = 0.0f; 
+ //    mx->pers[1][1] = 1.0f / tanFov; 
+ //    mx->pers[1][2] = 0.0f; 
+ //    mx->pers[1][3] = 0.0f; 
+
+ //    mx->pers[2][0] = 0.0f; 
+ //    mx->pers[2][1] = 0.0f; 
+ //    mx->pers[2][2] = 1.0f / tanFov;//-(near + far) / range; 
+ // 	mx->pers[2][3] = 0;//(2.0f * far * near) / range; // "perspective"
+
+ //    mx->pers[3][0] = 0.0f;
+ //    mx->pers[3][1] = 0.0f;
+ //    mx->pers[3][2] = (2.0f * far * near) / range;
+ //    mx->pers[3][3] = 4;
 }
 
 
@@ -457,6 +528,7 @@ int		main(int argc, char **argv)
 		// printf("key = %d - %C\n", key, key);
 		if(key == SDL_WINDOWEVENT_CLOSE || key == ' ')
 			terminer = 1;
+		// ver = tan = hor = 0;
 		else if (key == 'f')
 			ver -= PI / tour;
 		else if (key == 'h')
@@ -480,9 +552,9 @@ int		main(int argc, char **argv)
 		// else if (key == 'x')
 		// 	tour = PI / 2;
 		else if (key == 'v')
-			fov += 5;
+			mx.fov += 5;
 		else if (key == 'b')
-			fov -= 5;
+			mx.fov -= 5;
 
 		else if (key == 'w')
 			moveY += 0.1f;
@@ -526,6 +598,8 @@ int		main(int argc, char **argv)
 				}
 			}
 		}
+	gl_perspective(&mx);
+
 		ft_rotate(&mx, hor, ver, tan);
 		ft_perspective(&mx, fov , 800 / 800, 0.01f, 100.0f);
 		ft_trans(&mx, moveX, moveY, moveZ);
@@ -548,9 +622,9 @@ int		main(int argc, char **argv)
 
 		
 
-		// glActiveTexture(GL_TEXTURE1);
+		glActiveTexture(GL_TEXTURE1);
 		// glBindTexture(GL_TEXTURE_2D, texture1);
-		// glActiveTexture(GL_TEXTURE2);
+		glActiveTexture(GL_TEXTURE2);
 		// glBindTexture(GL_TEXTURE_2D, texture2);
 
 
