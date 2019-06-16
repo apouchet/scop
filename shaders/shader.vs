@@ -14,7 +14,7 @@ uniform mat4 base;
 
 void main()
 {
-	gl_Position = pers * move * rotate  *  base * vec4(aPos, 1.0f);
+	gl_Position = pers * base * rotate * vec4(aPos, 1.0f);
 	TexCoord = aTexCoord;
 	ourColor = aColor;
 }

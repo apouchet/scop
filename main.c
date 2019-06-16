@@ -140,9 +140,11 @@ int		ft_start_sdl_opengl(t_sdl *sdl)
 
 void	ft_trans(t_matrix *mx, float x, float y, float z)
 {
+	printf("z = %f\n", z);
 	mx->base[3][0] = x;
 	mx->base[3][1] = y;
 	mx->base[3][2] = z;
+	mx->base[3][3] = 1;
 }
 
 void	ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ)
@@ -163,23 +165,23 @@ void	ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ)
 	E = cosf(angleZ);
 	F = sinf(angleZ);
 	mx->rotate[0][0] = C * E;
-	mx->rotate[0][1] = B * D * E + A * F;
-	mx->rotate[0][2] = -A * D * E + B * F;
-	mx->rotate[0][3] = 0;
-
-	mx->rotate[1][0] = - C * F;
-	mx->rotate[1][1] = - B * D * F + A * E;
-	mx->rotate[1][2] = A * D * F + B * E;
-	mx->rotate[1][3] = 0;
-
-	mx->rotate[2][0] = D;
-	mx->rotate[2][1] = - B * C;
-	mx->rotate[2][2] = A * C;
-	mx->rotate[2][3] = 0;
-
+	mx->rotate[1][0] = B * D * E + A * F;
+	mx->rotate[2][0] = -A * D * E + B * F;
 	mx->rotate[3][0] = 0;
+
+	mx->rotate[0][1] = - C * F;
+	mx->rotate[1][1] = - B * D * F + A * E;
+	mx->rotate[2][1] = A * D * F + B * E;
 	mx->rotate[3][1] = 0;
+
+	mx->rotate[0][2] = D;
+	mx->rotate[1][2] = - B * C;
+	mx->rotate[2][2] = A * C;
 	mx->rotate[3][2] = 0;
+
+	mx->rotate[0][3] = 0;
+	mx->rotate[1][3] = 0;
+	mx->rotate[2][3] = 0;
 	mx->rotate[3][3] = 1.0f;
 }
 
@@ -194,32 +196,43 @@ void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far
 	//pers
 
 	mx->pers[0][0] = 2 * mx->near / (mx->right - mx->left);
-	mx->pers[0][1] = 0;
-	mx->pers[0][2] = 0;
-	mx->pers[0][3] = 0;
-
 	mx->pers[1][0] = 0;
-	mx->pers[1][1] = 2 * mx->near / (mx->top - mx->bottom);
-	mx->pers[1][2] = 0;
-	mx->pers[1][3] = 0;
-
-	mx->pers[2][0] = (mx->right + mx->left) / (mx->right - mx->left);
-	mx->pers[2][1] = (mx->top + mx->bottom) / (mx->top - mx->bottom);
-	mx->pers[2][2] = -(mx->far + mx->near) / (mx->far - mx->near);
-	mx->pers[2][3] = -1;
-
+	mx->pers[2][0] = 0;
 	mx->pers[3][0] = 0;
-	mx->pers[3][1] = 0;
-	mx->pers[3][2] = -2 * mx->far * mx->near / (mx->far - mx->near);
-	mx->pers[3][3] = 1;
 
-	// mx->pers[0][0] = (2 * n) / (r - l); 
+	mx->pers[0][1] = 0;
+	mx->pers[1][1] = 2 * mx->near / (mx->top - mx->bottom);
+	mx->pers[2][1] = 0;
+	mx->pers[3][1] = 0;
+
+	// mx->pers[0][2] = (mx->right + mx->left) / (mx->right - mx->left);
+	// mx->pers[1][2] = (mx->top + mx->bottom) / (mx->top - mx->bottom);
+	// mx->pers[2][2] = -(mx->far + mx->near) / (mx->far - mx->near);
+	// mx->pers[3][2] = -1;
+
+	// mx->pers[0][3] = 0;
+	// mx->pers[1][3] = 0;
+	// mx->pers[2][3] = -2 * mx->far * mx->near / (mx->far - mx->near);
+	// mx->pers[3][3] = 1;
+
+	mx->pers[0][2] = 0;
+	mx->pers[1][2] = 0;
+	mx->pers[2][2] = -2 * mx->far * mx->near / (mx->far - mx->near);
+	mx->pers[3][2] = 0;
+
+	mx->pers[0][3] = -((mx->right + mx->left) / (mx->right - mx->left));
+	mx->pers[1][3] = -((mx->top + mx->bottom) / (mx->top - mx->bottom));
+	mx->pers[2][3] = -((mx->far + mx->near) / (mx->far - mx->near));
+	mx->pers[3][3] = 2;
+
+
+	// mx->pers[0][0] = (2 * near) / (range - l); 
  //    mx->pers[0][1] = 0.0f; 
- //    mx->pers[0][2] = (r + l) / (r - l); 
+ //    mx->pers[0][2] = (range + l) / (range - l); 
  //    mx->pers[0][3] = 0.0f; 
 
  //    mx->pers[1][0] = 0.0f; 
- //    mx->pers[1][1] = (2 * n) / (t - b); 
+ //    mx->pers[1][1] = (2 * near) / (t - b); 
  //    mx->pers[1][2] = 0.0f; 
  //    mx->pers[1][3] = 0.0f; 
 
@@ -552,9 +565,9 @@ int		main(int argc, char **argv)
 		// else if (key == 'x')
 		// 	tour = PI / 2;
 		else if (key == 'v')
-			mx.fov += 5;
+			fov += 5;
 		else if (key == 'b')
-			mx.fov -= 5;
+			fov -= 5;
 
 		else if (key == 'w')
 			moveY += 0.1f;
@@ -580,6 +593,7 @@ int		main(int argc, char **argv)
 		}
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		printf("fov = %d\n", fov);
 		// glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
