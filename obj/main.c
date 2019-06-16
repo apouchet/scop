@@ -150,8 +150,8 @@ int		ft_get_data(t_obj *obj)
 			value = ft_get_value(&obj->vn, 3, &line[3], &obj->posN);
 		free(line);
 	}
-	for (int j = 0; j < obj->nbVertex * 3; j++)
-		printf("j = %d = %f\n", j, obj->v[j]);
+	// for (int j = 0; j < obj->nbVertex * 3; j++)
+	// 	printf("j = %d = %f\n", j, obj->v[j]);
 	free(line);
 	close(fd);
 	return (get < 0 ? -1 : 1);
@@ -173,7 +173,7 @@ int		main(void)
 	printf("texture name = -%s-\n", obj.texture);
 	ft_get_data(&obj);
 
-	printf("test : %f\n", ft_atof("-10.1"));
+	// printf("test : %f\n", ft_atof("-10.1"));
 	return (0);
 }
 

@@ -149,14 +149,12 @@ void	ft_trans(t_matrix *mx, float x, float y, float z)
 
 void	ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ)
 {
-
 	float A;
 	float B;
 	float C;
 	float D;
 	float E;
 	float F;
-	// angleX = -angleX;
 
 	A = cosf(angleX);
 	B = sinf(angleX);
