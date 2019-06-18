@@ -14,22 +14,24 @@
 #include <unistd.h>
 #include "../libft/libft.h"
 
-typedef struct	s_obj
+typedef struct		s_obj
 {
-	int			nbVertex;
-	int			nbNormal;
-	int			nbTexture;
-	int			face;
-	int			posV;
-	int			posN;
-	int			posT;
-	char		*fileName;
-	char		*name;
-	char		*texture;
-	float		*v;
-	float		*vt;
-	float		*vn;
-}				t_obj;
+	int				nbVertex;
+	int				nbNormal;
+	int				nbTexture;
+	int				face;
+	int				posV;
+	int				posN;
+	int				posT;
+	char			*fileName;
+	char			*name;
+	char			*texture;
+	float			*v;
+	float			*vt;
+	float			*vn;
+	float			*indices;
+	size_t			posI;
+}					t_obj;
 
 void	ft_exit_pars(int type, char *msg, int line)
 {
@@ -38,7 +40,7 @@ void	ft_exit_pars(int type, char *msg, int line)
 	exit(0);
 }
 
-static int		ft_size_file(t_obj *obj)
+static int		ft_size_file_pars(t_obj *obj)
 {
 	int		fd;
 	int		get;
@@ -50,12 +52,18 @@ static int		ft_size_file(t_obj *obj)
 	while ((get = get_next_line(fd, &line)) > 0)
 	{
 		l++;
-		if (ft_strncmp(line, "v ", 2) == 0)
+		if (ft_strncmp(line, "v ", 2) == 0 && obj->face == 0)
 			obj->nbVertex++;
-		else if (ft_strncmp(line, "vt ", 3) == 0)
+		else if (ft_strncmp(line, "vt ", 3) == 0 && obj->face == 0)
 			obj->nbTexture++;
-		else if (ft_strncmp(line, "vn ", 3) == 0)
+		else if (ft_strncmp(line, "vn ", 3) == 0 && obj->face == 0)
 			obj->nbNormal++;
+		else if ((ft_strncmp(line, "v ", 2) == 0 || ft_strncmp(line, "vt ", 3) == 0 || ft_strncmp(line, "vn ", 3) == 0) && obj->face)
+		{
+			printf("ERROR LINE %d: -|%s|-\n", l, line);
+			// printf("Please Mouve All \"face\" At The End Of The File\n");
+			return (-1);
+		}
 		else if (ft_strncmp(line, "f ", 2) == 0)
 			obj->face++;
 		else if (ft_strncmp(line, "usemtl ", 7) == 0)
@@ -99,6 +107,36 @@ int		ft_alloc(t_obj *obj)
 	return (1);
 }
 
+int		ft_check_value(char *s, int max)
+{
+	int i;
+	int dot;
+	int size;
+
+	i = (s[0] == '-' ? 1 : 0);
+	size = 0;
+	dot = (max > 20 ? 0 : -1);
+	while (s[i] == '0')
+		i++;
+	while (ft_isdigit(s[i]) || s[i] == '.')
+	{
+		if (s[i] == '.')
+			dot = (max > 20 ? dot + 1: 10);
+		else if (dot <= 0)
+			size++;
+		i++;
+		printf("infini, size = %d\n", size);
+	}
+	if (size < max && dot <= 1)
+		return (1);
+	s[i] = '\0';
+	if (size > max)
+		printf("Error Value To Big - More Than %d Character In : %s\n", max, s);
+	else
+		printf("Error - To Many Dot In : %s\n", s);
+	return (-1);
+}
+
 int		ft_get_value(float **tab, int nb, char *line, int *pos)
 {
 	int	i;
@@ -117,15 +155,67 @@ int		ft_get_value(float **tab, int nb, char *line, int *pos)
 	{
 		while (line[i] && ft_isspace(line[i]))
 			i++;
-		printf("line = -|%s|-\n", &line[i]);
+		// printf("line = -|%s|-\n", &line[i]);
+		ft_check_value(&line[i], 35);
 		a[(*pos)++] = ft_atof(&line[i]);
-		printf("v[%d] = %f\n",*pos - 1, a[*pos - 1]);
+		// printf("v[%d] = %f\n",*pos - 1, a[*pos - 1]);
 		// (*pos)++;
 		i = ft_find_space(line, i);
 		nb--;
 	}
-	printf("\n");
+	// printf("\n");
 	return (1);
+}
+
+int		ft_fill(t_obj *obj, float *tab, size_t a, int size)
+{
+	int i;
+
+	i = 0;
+	if (a + size - 1 > obj->nbNormal * size)
+		return (-1);
+	while (i < size)
+		obj->indices[obj->posI++] = tab[a * size + i++];
+	return (0);
+}
+
+int		ft_get_face(t_obj *obj, char *line)
+{
+	int		i;
+	size_t	a;
+	int		tour;
+
+	i = 0;
+	tour = 0;
+	
+	// printf("ici\n");
+	while (line[i])
+	{
+		tour++;
+		// printf("\n");
+		// printf("tour = %d\n", tour);
+		if (line[i] == '-')
+		{
+			printf("Error - Inpossible Value In : %s\n", line);
+			return (-1);
+		}
+		ft_check_value(&line[i], 18);
+		a = ft_atol(&line[i]); 				//				//					/// creat atoi - > size_t!!!
+		printf("a = %ld\n", a);
+		if (tour % 3 == 1)
+			ft_fill(obj, obj->v, a, 3);
+		else if (tour % 3 == 2)
+			ft_fill(obj, obj->vn, a, 3);
+		else if (tour % 3 == 0)
+			ft_fill(obj, obj->vt, a, 2);
+		printf("av line = %s\n", &line[i]);
+		while (ft_isdigit(line[i]))
+			i++;
+		if (line[i])
+			i++;
+		printf("ap line = %s\n", &line[i]);
+	}
+	return (0);
 }
 
 int		ft_get_data(t_obj *obj)
@@ -142,12 +232,18 @@ int		ft_get_data(t_obj *obj)
 		return (-1);
 	while ((get = get_next_line(fd, &line)) > 0)
 	{
+		i++;
 		if (ft_strncmp(line, "v ", 2) == 0)
 			value = ft_get_value(&obj->v, 3, &line[2], &obj->posV);
 		else if (ft_strncmp(line, "vt ", 3) == 0)
 			value = ft_get_value(&obj->vt, 2, &line[3], &obj->posT);
 		else if (ft_strncmp(line, "vn ", 3) == 0)
 			value = ft_get_value(&obj->vn, 3, &line[3], &obj->posN);
+		else if (ft_strncmp(line, "f ", 2) == 0)
+		{
+			printf("ok - %d\n", i);
+			ft_get_face(obj, &line[2]);
+		}
 		free(line);
 	}
 	// for (int j = 0; j < obj->nbVertex * 3; j++)
@@ -157,26 +253,69 @@ int		ft_get_data(t_obj *obj)
 	return (get < 0 ? -1 : 1);
 }
 
-int		main(void)
+// int		fill_indices(unsigned int **indices, t_obj *obj)
+// {
+
+// }
+
+// int		main(void)
+float *ft_parsing()
 {
 	t_obj obj;
+	unsigned int *indices;
 
 	ft_bzero(&obj, sizeof(t_obj));
 	obj.fileName = "test.obj";
 	printf("file name = %s\n", obj.fileName);
-	if (ft_size_file(&obj) < 0)
-		return (-1);
+	if (ft_size_file_pars(&obj) < 0)
+		exit(0);
 	printf("vertex  = %d\n", obj.nbVertex);
 	printf("texture = %d\n", obj.nbTexture);
 	printf("normal  = %d\n", obj.nbNormal);
 	printf("nb face = %d\n", obj.face);
 	printf("texture name = -%s-\n", obj.texture);
+	obj.posI = 0;
+	if (!(obj.indices = (float*)malloc(sizeof(float) * ((3 + 3 + 2) * 3 * obj.face + 1))))
+		exit (0);
 	ft_get_data(&obj);
+	printf("size = %d\n", (3 + 3 + 2) * 3 * obj.face);
+	
 
 	// printf("test : %f\n", ft_atof("-10.1"));
-	return (0);
+	return (obj.indices);
 }
 
+
+
+		// if (tour % 3 == 1)
+		// {
+		// 	printf("un\n");
+		// 	if (a + 2 > obj->nbVertex * 3)
+		// 		return (-1);
+		// 	obj->indices[obj->posI++] = obj->v[a * 3];
+		// 	printf("indices[%lu] = %f\n", obj->posI - 1, obj->indices[obj->posI - 1]);
+		// 	obj->indices[obj->posI++] = obj->v[a * 3 + 1];
+		// 	printf("indices[%lu] = %f\n", obj->posI - 1, obj->indices[obj->posI - 1]);
+		// 	obj->indices[obj->posI++] = obj->v[a * 3 + 2];
+		// 	printf("indices[%lu] = %f\n", obj->posI - 1, obj->indices[obj->posI - 1]);
+		// }
+		// if (tour % 3 == 2)
+		// {
+		// 	printf("deux\n");
+		// 	if (a + 2 > obj->nbNormal * 3)
+		// 		return (-1);
+		// 	obj->indices[obj->posI++] = obj->vn[a * 3];
+		// 	obj->indices[obj->posI++] = obj->vn[a * 3 + 1];
+		// 	obj->indices[obj->posI++] = obj->vn[a * 3 + 2];
+		// }
+		// if (tour % 3 == 0)
+		// {
+		// 	printf("trois\n");
+		// 	if (a + 1 > obj->nbTexture * 2)
+		// 		return (-1);
+		// 	obj->indices[obj->posI++] = obj->vt[a * 2];
+		// 	obj->indices[obj->posI++] = obj->vt[a * 2 + 1];
+		// }
 
 
 

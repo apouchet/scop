@@ -21,10 +21,34 @@
 # include <fcntl.h>
 # include <unistd.h>
 
+# include "libft/libft.h"
+
 # define PI 3.14159265359
 # define X 0
 # define Y 1
 # define Z 2
+
+// # include "obj/parsing.c"
+
+typedef struct		s_obj
+{
+	int				nbVertex;
+	int				nbNormal;
+	int				nbTexture;
+	int				face;
+	int				posV;
+	int				posN;
+	int				posT;
+	char			*fileName;
+	char			*name;
+	char			*texture;
+	float			*v;
+	float			*vt;
+	float			*vn;
+	float			*indices;
+	size_t			posI;
+	size_t			size;
+}					t_obj;
 
 typedef struct	s_tga
 {
@@ -77,6 +101,8 @@ unsigned char			*ft_read_tga_headers(char *name, t_tga *tga);
 int						ft_shaders(char *nameVS, char *nameFS, t_gl *gl);
 
 int						ft_delete_shader(t_gl *gl);
+
+float 					*ft_parsing(t_obj *obj);
 
 
 #endif

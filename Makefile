@@ -20,16 +20,18 @@ INCL = -I ~/.brew/include
 # LIB = -L /usr/local/Cellar/
 LIB = $(shell sdl2-config --libs)
 
+LIBFT = ./libft/libft.a
+
 FRAM = -framework OpenGL -framework Cocoa
 
-SRC = ./main.c ./ft_read_tga.c ./ft_read_shader.c ./ft_file.c
+SRC = ./parasing.c ./main.c ./ft_read_tga.c ./ft_read_shader.c ./ft_file.c 
 
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME) 
 
 $(NAME) : $(OBJ)
-	gcc $(LIB) $(INCL) $(FRAM) $(OBJ) -o $(NAME)
+	gcc $(LIB) $(LIBFT) $(INCL) $(FRAM) $(OBJ) -o $(NAME)
 
 %.o: %.c
 	@$(CC) -o $@ -c $< $(INCL) -Wno-deprecated-declarations

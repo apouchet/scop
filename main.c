@@ -275,11 +275,15 @@ int		main(int argc, char **argv)
 	t_tga	tga;
 	t_sdl	sdl;
 	t_gl	gl;
+	t_obj obj;
 
+
+	bzero(&obj, sizeof(t_obj));
 	bzero(&tga, sizeof(t_tga));
 	bzero(&sdl, sizeof(sdl));
 	bzero(&gl, sizeof(gl));
 	// ft_start_matrix(&mx);
+	// float *lol = ft_parsing(&obj);	
 	for (int z = 0; z < 4; z++)
 	{
 		for (int zz = 0; zz < 4; zz++)
@@ -307,94 +311,142 @@ int		main(int argc, char **argv)
 	printf("OpenGL version : %s\n", glGetString(GL_VERSION));
 	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-	float vertices[] = {-0.5, -0.5, 0.0, 0.5, 0.5, -0.5};
-	float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
+	// float vertices[] = {-0.5, -0.5, 0.0, 0.5, 0.5, -0.5};
+	// float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
 	// float *text = (float*)malloc(sizeof(float) * 32);
-	float text[] = {
+	// float *vertices = ft_parsing(&obj);
 
-	// positions          // colors           // texture coords
-	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		0
-	0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	1
-	-0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left	2
-	-0.5f, +0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 		3
+	float *vertices = ft_parsing(&obj);
+	printf("\n");
+	// float *vertices = (float*)malloc(sizeof(float) * 9);
+	// // float vertices[9];
+	// vertices[0] = -0.5;
+	// vertices[1] = -0.5;
+	// vertices[2] = 0.0;
+	// vertices[3] = 0.5;
+	// vertices[4] = -0.5;
+	// vertices[5] = 0.0;
+	// vertices[6] = 0.0;
+	// vertices[7] = 0.5;
+	// vertices[8] = 0.0;
 
-	0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		4
-	0.5f, -0.5f, -0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	5
-	-0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left	6
-	-0.5f, +0.5f, -0.5f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f,    // top left		7
-
-	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	0.0f, 1.0f,   // top right		8 / 0
-	0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	9 / 1
-	0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		10 / 4
-	0.5f, -0.5f, -0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	11 / 5
-
-	-0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	0.0f, 1.0f,   // top right		12 / 0
-	-0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	13 / 1
-	-0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		14 / 4
-	-0.5f, -0.5f, -0.5f,	0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	15 / 5
-
-	0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,   // bottom right	16 / 0
-	-0.5f, 0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	17 / 3
-	0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		18 / 4
-	-0.5f, 0.5f, -0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left		19 / 7
-
-	0.5f, -0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,   // bottom right	20 / 1
-	-0.5f, -0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	21 / 2
-	0.5f, -0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		22 / 5
-	-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f   // top left		23 / 6
-
-
-	// 0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
-	// 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
-	// -0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	// -0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 
-
-	// 0.0f, 0.75f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
-	// 0.75f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
-	// 0.0f, -0.75f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	// -0.75f, 0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
-
-	};
-
+	printf("sizeof vertice %lu\n", sizeof(vertices));
 	
+	// float vertices[] = {
+ //        -0.5f, -0.5f, 0.0f, // left  
+ //         0.5f, -0.5f, 0.0f, // right 
+ //         0.0f,  0.5f, 0.0f  // top   
+ //    };
 
-	unsigned int indices[] = {
-		//face
-		// 0, 1, 3, // first triangle
-		// 1, 2, 3, // second triangle
-		// //fond
-		// 4, 5, 7, // first triangle
-		// 5, 6, 7,  // second triangle
-		// //droit
-		// 0, 1, 4,
-		// 1, 5, 4,
+	// for (int ww = 0; ww < 9; ww++)
+	// 	printf("%f%s", vertices[ww], ((ww == 8)? "\n\n" : ", "));
 
-		// 2, 3, 6,
-		// 3, 7, 6,
 
-		// avant
-		0, 1, 2,
-		0, 3, 2,
-		// arrire
-		4, 7, 6,
-		4, 5, 6,
-		//dessus
-		19, 17, 16,
-		19, 18, 16,
-		//dessous
-		23, 21, 20,
-		23, 22, 20,
-		//gauche
-		14, 12, 13,
-		14, 15, 13,
-		//droite
-		10, 8, 9,
-		10, 11, 9		
-	};
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, obj.nbVertex * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+    glBindVertexArray(0); 
+
+	// float text[] = {
+
+	// // positions          // colors           // texture coords
+	// 0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		0
+	// 0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	1
+	// -0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left	2
+	// -0.5f, +0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 		3
+
+	// 0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		4
+	// 0.5f, -0.5f, -0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	5
+	// -0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left	6
+	// -0.5f, +0.5f, -0.5f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f,    // top left		7
+
+	// 0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	0.0f, 1.0f,   // top right		8 / 0
+	// 0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	9 / 1
+	// 0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		10 / 4
+	// 0.5f, -0.5f, -0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	11 / 5
+
+	// -0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	0.0f, 1.0f,   // top right		12 / 0
+	// -0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	13 / 1
+	// -0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		14 / 4
+	// -0.5f, -0.5f, -0.5f,	0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	15 / 5
+
+	// 0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,   // bottom right	16 / 0
+	// -0.5f, 0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	17 / 3
+	// 0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		18 / 4
+	// -0.5f, 0.5f, -0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left		19 / 7
+
+	// 0.5f, -0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,   // bottom right	20 / 1
+	// -0.5f, -0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	21 / 2
+	// 0.5f, -0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		22 / 5
+	// -0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f   // top left		23 / 6
+
+
+	// // 0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
+	// // 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
+	// // -0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
+	// // -0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 
+
+	// // 0.0f, 0.75f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
+	// // 0.75f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
+	// // 0.0f, -0.75f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
+	// // -0.75f, 0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
+
+	// };
+
+
+	// unsigned int indices[] = {
+	// 	//face
+	// 	// 0, 1, 3, // first triangle
+	// 	// 1, 2, 3, // second triangle
+	// 	// //fond
+	// 	// 4, 5, 7, // first triangle
+	// 	// 5, 6, 7,  // second triangle
+	// 	// //droit
+	// 	// 0, 1, 4,
+	// 	// 1, 5, 4,
+
+	// 	// 2, 3, 6,
+	// 	// 3, 7, 6,
+
+	// 	// avant
+	// 	0, 1, 2,
+	// 	0, 3, 2,
+	// 	// arrire
+	// 	4, 7, 6,
+	// 	4, 5, 6,
+	// 	//dessus
+	// 	19, 17, 16,
+	// 	19, 18, 16,
+	// 	//dessous
+	// 	23, 21, 20,
+	// 	23, 22, 20,
+	// 	//gauche
+	// 	14, 12, 13,
+	// 	14, 15, 13,
+	// 	//droite
+	// 	10, 8, 9,
+	// 	10, 11, 9		
+	// };
 	
-	unsigned int	VAO_text;
-	unsigned int	VBO_indide;
-	unsigned int	VBO_texture;
+	// unsigned int 	VBO_vertex;
+	// unsigned int	VAO_text;
+	// unsigned int	VAO_lol;
+	// unsigned int	VBO_indide;
+	// unsigned int	VBO_texture;
 	int				width;
 	int				height;
 	int				nrChannels;
@@ -403,36 +455,70 @@ int		main(int argc, char **argv)
 	unsigned char	*data;
 	unsigned char	*data2;
 
-	glGenVertexArrays(1, &VAO_text);
-	glGenBuffers(1, &VBO_texture);
-	glGenBuffers(1, &VBO_indide);
-	glBindVertexArray(VAO_text);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(text), text, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO_indide);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	glBindVertexArray(0);
+	// // glGenVertexArrays(1, &VAO_lol);
+	// // glGenBuffers(1, &VBO_texture);
+	// // // glGenBuffers(1, &VBO_indide);
+	// // glBindVertexArray(VAO_lol);
+	// // glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
+	// // glBufferData(GL_ARRAY_BUFFER, sizeof(lol), lol, GL_STATIC_DRAW);
+	// // // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO_indide);
+	// // // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	// // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	// // glEnableVertexAttribArray(0);
+	// // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)(3 * sizeof(float)));
+	// // glEnableVertexAttribArray(1);
+	// // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)(6 * sizeof(float)));
+	// // glEnableVertexAttribArray(2);
+	// // glBindVertexArray(0);
 
-	// data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
-	// for (int i = 78740; i < 78756; i++)
-	// {
-	// 	// if (data[i] != data2[i])
-	// 	if (i % 4 == 0)
-	// 	printf("\n");
-	// 	if (data[i] != data2[i])
-	// 		printf("%d : moi = -%d-, stb = -%d-\n", i, data[i], data2[i]);
-	// 	else
-	// 		printf("ok pour %d\n", i);
-	// 	// else if (i % 100 == 0)
-	// 		// printf("ok : %d\n", i);
-	// }
-	// data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
+	// glGenVertexArrays(1, &VAO_lol);
+ // 	glGenBuffers(1, &VBO_vertex);
+ // 	// glGenBuffers(1, &VBO_color);
+	// glBindVertexArray(VBO_vertex);
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// glEnableVertexAttribArray(0);
+	// // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float)));
+	// // glEnableVertexAttribArray(1);
+	// // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(6 * sizeof(float)));
+	// // glEnableVertexAttribArray(2);
+	// // glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
+	// // glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
+	// // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	// // glEnableVertexAttribArray(1);
+	// glBindVertexArray(0);
+
+	// // glGenVertexArrays(1, &VAO_text);
+	// // glGenBuffers(1, &VBO_texture);
+	// // glGenBuffers(1, &VBO_indide);
+	// // glBindVertexArray(VAO_text);
+	// // glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
+	// // glBufferData(GL_ARRAY_BUFFER, sizeof(text), text, GL_STATIC_DRAW);
+	// // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO_indide);
+	// // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	// // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	// // glEnableVertexAttribArray(0);
+	// // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	// // glEnableVertexAttribArray(1);
+	// // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	// // glEnableVertexAttribArray(2);
+	// // glBindVertexArray(0);
+
+	// // data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
+	// // for (int i = 78740; i < 78756; i++)
+	// // {
+	// // 	// if (data[i] != data2[i])
+	// // 	if (i % 4 == 0)
+	// // 	printf("\n");
+	// // 	if (data[i] != data2[i])
+	// // 		printf("%d : moi = -%d-, stb = -%d-\n", i, data[i], data2[i]);
+	// // 	else
+	// // 		printf("ok pour %d\n", i);
+	// // 	// else if (i % 100 == 0)
+	// // 		// printf("ok : %d\n", i);
+	// // }
+	// // data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
 	
 	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -639,14 +725,18 @@ int		main(int argc, char **argv)
 		glActiveTexture(GL_TEXTURE2);
 		// glBindTexture(GL_TEXTURE_2D, texture2);
 
+		// glUseProgram(shaderProgram);
+        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+        glDrawArrays(GL_TRIANGLES, 0, obj.nbVertex * 3);
 
 		// render container
-		glBindVertexArray(VAO_text);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		// glBindVertexArray(VAO_lol);
+		// glDrawArrays(GL_TRIANGLES, 0, 3);
+		// glDrawElements(GL_TRIANGLES, 36, GL_FLOAT, 0);
 
 		// glBindVertexArray(VAO);
 		// glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
+		// glBindVertexArray(0);
 
 		SDL_GL_SwapWindow(sdl.fenetre); // Actualisation de la fenêtre
 	}
