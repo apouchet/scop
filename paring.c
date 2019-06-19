@@ -43,14 +43,14 @@ static int		ft_size_file_pars(t_obj *obj)
 		else if ((ft_strncmp(line, "v ", 2) == 0 || ft_strncmp(line, "vt ", 3) == 0 || ft_strncmp(line, "vn ", 3) == 0) && obj->face)
 		{
 			printf("ERROR LINE %d: -|%s|-\n", l, line);
-			// printf("Please Mouve All \"face\" At The End Of The File\n");
+			printf("Please Mouve All \"face\" At The End Of The File\n");
 			return (-1);
 		}
 		else if (ft_strncmp(line, "f ", 2) == 0)
 			obj->face++;
 		else if (ft_strncmp(line, "usemtl ", 7) == 0)
 			obj->texture = ft_strtrim(ft_strdup(&line[7]));
-		else if (ft_strncmp(line, "mtllib ", 7) && ft_strncmp(line, "s ", 2) && line[0] != '#' && line[ft_while_space(line, 0)])
+		else if (ft_strncmp(line, "mtllib ", 7) && ft_strncmp(line, "s ", 2) && ft_strncmp(line, "o ", 2) && ft_strncmp(line, "g ", 2) && line[0] != '#' && line[ft_while_space(line, 0)])
 		{
 			printf("ERROR LINE %d: -|%s|-\n", l, line);
 			printf("mtllib : %d\n", ft_strncmp(line, "mtllib ", 7));
@@ -149,7 +149,7 @@ int		ft_get_value(float **tab, int nb, char *line, int *pos)
 	return (1);
 }
 
-int		ft_fill(t_obj *obj, float *tab, size_t a, int size)
+int		ft_fill(t_obj *obj, size_t a, int size, int mode)
 {
 	int i;
 
@@ -159,8 +159,25 @@ int		ft_fill(t_obj *obj, float *tab, size_t a, int size)
 		return (-1);
 	while (i < size)
 	{
-		obj->indices[obj->posI++] = tab[a * size + i++];
-		printf("indices[%lu] = %f     --------------------------------------\n", obj->posI - 1, obj->indices[obj->posI - 1]);
+		if (mode == 1)
+		{
+			obj->tabVertex[obj->tabV++] = obj->v[a * size + i++];
+			printf("vertex[%lu] = %f     --------------------------------------\n", obj->tabV - 1, obj->tabVertex[obj->tabV - 1]);
+		}
+		// else
+		// 	i++;
+		else if (mode == 2)
+		{
+			obj->tabNormal[obj->tabN++] = obj->vn[a * size + i++];
+			printf("normal[%lu] = %f     --------------------------------------\n", obj->tabN - 1, obj->tabVertex[obj->tabN - 1]);
+		}
+		else if (mode == 3)
+		{
+			obj->tabTexture[obj->tabT++] = obj->vt[a * size + i++];
+			printf("texture[%lu] = %f     --------------------------------------\n", obj->tabT - 1, obj->tabVertex[obj->tabT - 1]);
+		}
+		// printf("indices[%lu] = %f     --------------------------------------\n", obj->posI - 1, obj->indices[obj->posI - 1]);
+		// printf("vertex[%lu] = %f     --------------------------------------\n", obj->tabV - 1, obj->tabVertex[obj->posI - 1]);
 	}
 	return (0);
 }
@@ -180,22 +197,26 @@ int		ft_get_face(t_obj *obj, char *line)
 		tour++;
 		printf("\n");
 		printf("tour = %d\n", tour);
+		while (line[i] && ft_isspace(line[i]))
+			i++;
 		if (line[i] == '-')
 		{
 			printf("Error - Inpossible Value In : %s\n", line);
 			return (-1);
 		}
 		ft_check_value(&line[i], 18);
-		a = ft_atol(&line[i]); 				//				//					/// creat atoi - > size_t!!!
+		a = ft_atol(&line[i]) - 1; 				//				//					/// creat atoi - > size_t!!!
 		printf("a = %ld\n", a);
 		if (tour % 3 == 1)
 		{
 			printf("UN\n");
-			ft_fill(obj, obj->v, a, 3);
+			ft_fill(obj, a, 3, 1);
 		}
-		// else if (tour % 3 == 2)
+		else if (tour % 3 == 2)
+			ft_fill(obj, a, 2, 3);
 		// 	ft_fill(obj, obj->vn, a, 3);
-		// else if (tour % 3 == 0)
+		else if (tour % 3 == 0)
+			ft_fill(obj, a, 3, 2);
 		// 	ft_fill(obj, obj->vt, a, 2);
 		printf("av line = %s\n", &line[i]);
 		while (ft_isdigit(line[i]))
@@ -233,7 +254,9 @@ int		ft_get_data(t_obj *obj)
 			printf("ok - %d\n", i);
 			ft_get_face(obj, &line[2]);
 		}
+		printf("ici\n");
 		free(line);
+		// printf("la\n");
 	}
 	// for (int j = 0; j < obj->nbVertex * 3; j++)
 	// 	printf("j = %d = %f\n", j, obj->v[j]);
@@ -248,13 +271,16 @@ int		ft_get_data(t_obj *obj)
 // }
 
 // int		main(void)
-float 	*ft_parsing(t_obj *obj)
+float 	*ft_parsing(t_obj *obj, char *name)
 {
 	// t_obj obj;
 
 	// ft_bzero(&obj, sizeof(t_obj));
 	// obj->fileName = "test.obj";
-	obj->fileName = "cube.obj";
+	if (name == NULL)
+		obj->fileName = "lowtri.obj";
+	else
+		obj->fileName = name;
 	printf("file name = %s\n", obj->fileName);
 	if (ft_size_file_pars(obj) < 0)
 		exit(0);
@@ -264,8 +290,15 @@ float 	*ft_parsing(t_obj *obj)
 	printf("nb face = %d\n", obj->face);
 	printf("texture name = -%s-\n", obj->texture);
 	obj->posI = 0;
+	obj->tabV = 0;
+	obj->tabN = 0;
+	obj->tabT = 0;
 	obj->size = (3 + 3 + 2) * 3 * obj->face;
 	if (!(obj->indices = (float*)malloc(sizeof(float) * obj->size)))
+		exit (0);
+	if (!(obj->tabVertex = (float*)malloc(sizeof(float) * (obj->face * 3 * 3)))
+		|| !(obj->tabNormal = (float*)malloc(sizeof(float) * (obj->face * 3 * 3)))
+		|| !(obj->tabTexture = (float*)malloc(sizeof(float) * (obj->face * 3 * 2))))
 		exit (0);
 	ft_get_data(obj);
 	printf("size = %d\n", (3 + 3 + 2) * 3 * obj->face);

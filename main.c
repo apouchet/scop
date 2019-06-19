@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+// gcc paring.c main.c ft_read_shader.c ft_read_tga.c ft_file.c -I ~/.brew/include -L ~/.brew/lib -lSDL2 -framework OpenGL -framework Cocoa libft/libft.a
 #include "scop.h"
 
 #ifndef GL_SILENCE_DEPRECATION
@@ -315,8 +316,11 @@ int		main(int argc, char **argv)
 	// float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
 	// float *text = (float*)malloc(sizeof(float) * 32);
 	// float *vertices = ft_parsing(&obj);
-
-	float *vertices = ft_parsing(&obj);
+	float *vertices;
+	if (argc == 2)
+		vertices = ft_parsing(&obj, argv[1]);
+	else
+		vertices = ft_parsing(&obj, NULL);
 	printf("\n");
 	// float *vertices = (float*)malloc(sizeof(float) * 9);
 	// // float vertices[9];
@@ -331,6 +335,7 @@ int		main(int argc, char **argv)
 	// vertices[8] = 0.0;
 
 	printf("sizeof vertice %lu\n", sizeof(vertices));
+	printf("nb vertex = %d, nb face = %d\n\n", obj.nbVertex, obj.face);
 	
 	// float vertices[] = {
  //        -0.5f, -0.5f, 0.0f, // left  
@@ -343,17 +348,30 @@ int		main(int argc, char **argv)
 
 
     unsigned int VBO, VAO;
+    unsigned int VBO_vertex, VBO_normal, VBO_texture;
     glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &VBO_vertex);
+    glGenBuffers(1, &VBO_normal);
+    glGenBuffers(1, &VBO_texture);
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, obj.nbVertex * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
-
+    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 2 * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
+    glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 3 * sizeof(float), obj.tabVertex, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_normal);
+    glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 3 * sizeof(float), obj.tabNormal, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
+    glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 2 * sizeof(float), obj.tabTexture, GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(2);
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
 
@@ -520,24 +538,24 @@ int		main(int argc, char **argv)
 	// // }
 	// // data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
 	
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
-	data2 = ft_read_tga_headers("img/wall1.tga", &tga);
-	if (data2)
-	{
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data2);
-	    glGenerateMipmap(GL_TEXTURE_2D);
-		free(data2);
-	}
-	else
-	{
-		printf("Failed to load texture\n");
-		return (-1);
-	}
+	// glGenTextures(1, &texture1);
+	// glBindTexture(GL_TEXTURE_2D, texture1);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
+	// data2 = ft_read_tga_headers("img/wall1.tga", &tga);
+	// if (data2)
+	// {
+	//     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data2);
+	//     glGenerateMipmap(GL_TEXTURE_2D);
+	// 	free(data2);
+	// }
+	// else
+	// {
+	// 	printf("Failed to load texture\n");
+	// 	return (-1);
+	// }
 
 	// printf("moi -> height = %d, width %d, nbr channel = %d\n", tga.height, tga.width, tga.bpp);
 	// printf("stb -> height = %d, width %d, nbr channel = %d\n", height, width, nrChannels);
@@ -548,9 +566,12 @@ int		main(int argc, char **argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// data = ft_read_tga_headers("obj_file/sword.tg", &tga);
 	data = ft_read_tga_headers("img/container.tga", &tga);
+	// data = stbi_load("obj_file/WoodCabinDif.tga", &width, &height, &nrChannels, 0);
 	if (data)
 	{
+	    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	    glGenerateMipmap(GL_TEXTURE_2D);
 		free(data);
@@ -727,7 +748,8 @@ int		main(int argc, char **argv)
 
 		// glUseProgram(shaderProgram);
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawArrays(GL_TRIANGLES, 0, obj.nbVertex * 3);
+        // glDrawArrays(GL_TRIANGLES, 0, 500);
+        glDrawArrays(GL_TRIANGLES, 0, obj.face * 3);
 
 		// render container
 		// glBindVertexArray(VAO_lol);

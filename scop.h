@@ -46,6 +46,12 @@ typedef struct		s_obj
 	float			*vt;
 	float			*vn;
 	float			*indices;
+	float			*tabVertex;
+	size_t				tabV;
+	float			*tabNormal;
+	size_t				tabN;
+	float			*tabTexture;
+	size_t				tabT;
 	size_t			posI;
 	size_t			size;
 }					t_obj;
@@ -102,7 +108,7 @@ int						ft_shaders(char *nameVS, char *nameFS, t_gl *gl);
 
 int						ft_delete_shader(t_gl *gl);
 
-float 					*ft_parsing(t_obj *obj);
+float 					*ft_parsing(t_obj *obj, char *name);
 
 
 #endif
