@@ -22,6 +22,28 @@ void	ft_exit_pars(int type, char *msg, int line)
 	exit(0);
 }
 
+int		ft_get_nb_value(char *s)
+{
+	int nb;
+	int i;
+
+	i = 0;
+	nb = 0;
+	// if ((s[i] >= '0' && s[i] <= '9') || s[i] == '.' || s[i] == '-')
+	// 	nb ++;
+	while (s[i])
+	{
+		while (ft_isspace(s[i]))
+			i++;
+		if ((s[i] >= '0' && s[i] <= '9') || s[i] == '.' || s[i] == '-')
+			nb++;
+		while ((s[i] >= '0' && s[i] <= '9') || s[i] == '.' || s[i] == '-' || s[i] == '/')
+			i++;
+	}
+	printf("--------------- face type = %d ---------------\n", nb);
+	return (nb);
+}
+
 static int		ft_size_file_pars(t_obj *obj)
 {
 	int		fd;
@@ -47,7 +69,25 @@ static int		ft_size_file_pars(t_obj *obj)
 			return (-1);
 		}
 		else if (ft_strncmp(line, "f ", 2) == 0)
+		{
+			if (obj->face == 0)
+			{
+				obj->type_face = ft_get_nb_value(&line[2]);
+				if (obj->type_face < 3 || obj->type_face > 4)
+				{
+					printf("ERROR LINE %d: -|%s|-\n", l, line);
+					printf("ERROR : Invalide Type Face - %d\n", obj->type_face);
+					return (-1);
+				}
+			}
+			// else if (obj->type_face != ft_get_nb_value(&line[2]))
+			// {
+			// 	printf("ERROR LINE %d: -|%s|-\n", l, line);
+			// 	printf("ERROR - Invalide Type Face\n");
+			// 	return (-1);
+			// }
 			obj->face++;
+		}
 		else if (ft_strncmp(line, "usemtl ", 7) == 0)
 			obj->texture = ft_strtrim(ft_strdup(&line[7]));
 		else if (ft_strncmp(line, "mtllib ", 7) && ft_strncmp(line, "s ", 2) && ft_strncmp(line, "o ", 2) && ft_strncmp(line, "g ", 2) && line[0] != '#' && line[ft_while_space(line, 0)])
@@ -207,7 +247,7 @@ int		ft_get_face(t_obj *obj, char *line)
 		ft_check_value(&line[i], 18);
 		a = ft_atol(&line[i]) - 1; 				//				//					/// creat atoi - > size_t!!!
 		printf("a = %ld\n", a);
-		if (tour % 3 == 1)
+		if (tour % 3 == 1 || (obj->nbNormal == 0 && obj->nbTexture == 0))
 		{
 			printf("UN\n");
 			ft_fill(obj, a, 3, 1);
@@ -296,9 +336,9 @@ float 	*ft_parsing(t_obj *obj, char *name)
 	obj->size = (3 + 3 + 2) * 3 * obj->face;
 	if (!(obj->indices = (float*)malloc(sizeof(float) * obj->size)))
 		exit (0);
-	if (!(obj->tabVertex = (float*)malloc(sizeof(float) * (obj->face * 3 * 3)))
-		|| !(obj->tabNormal = (float*)malloc(sizeof(float) * (obj->face * 3 * 3)))
-		|| !(obj->tabTexture = (float*)malloc(sizeof(float) * (obj->face * 3 * 2))))
+	if (!(obj->tabVertex = (float*)malloc(sizeof(float) * (obj->face * obj->type_face * 3)))
+		|| !(obj->tabNormal = (float*)malloc(sizeof(float) * (obj->face * obj->type_face * 3)))
+		|| !(obj->tabTexture = (float*)malloc(sizeof(float) * (obj->face * obj->type_face * 2))))
 		exit (0);
 	ft_get_data(obj);
 	printf("size = %d\n", (3 + 3 + 2) * 3 * obj->face);

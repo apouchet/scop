@@ -47,13 +47,14 @@ typedef struct		s_obj
 	float			*vn;
 	float			*indices;
 	float			*tabVertex;
-	size_t				tabV;
+	size_t			tabV;
 	float			*tabNormal;
-	size_t				tabN;
+	size_t			tabN;
 	float			*tabTexture;
-	size_t				tabT;
+	size_t			tabT;
 	size_t			posI;
 	size_t			size;
+	int				type_face;
 }					t_obj;
 
 typedef struct	s_tga

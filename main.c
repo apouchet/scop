@@ -189,10 +189,6 @@ void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far
 	const float range = near - far;
 	const float tanHalfFOV = tanf(((fov / 2.0) / 180) * PI);
 	float	tanFov = tanf(((fov / 180) * PI) / 2);
-	// float t = r = l = 1;
-	// const float tanHalfFOV = tanf(ToRadian(m_persProj.FOV / 2.0));
-
-	//pers
 
 	mx->pers[0][0] = 2 * mx->near / (mx->right - mx->left);
 	mx->pers[1][0] = 0;
@@ -204,16 +200,6 @@ void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far
 	mx->pers[2][1] = 0;
 	mx->pers[3][1] = 0;
 
-	// mx->pers[0][2] = (mx->right + mx->left) / (mx->right - mx->left);
-	// mx->pers[1][2] = (mx->top + mx->bottom) / (mx->top - mx->bottom);
-	// mx->pers[2][2] = -(mx->far + mx->near) / (mx->far - mx->near);
-	// mx->pers[3][2] = -1;
-
-	// mx->pers[0][3] = 0;
-	// mx->pers[1][3] = 0;
-	// mx->pers[2][3] = -2 * mx->far * mx->near / (mx->far - mx->near);
-	// mx->pers[3][3] = 1;
-
 	mx->pers[0][2] = 0;
 	mx->pers[1][2] = 0;
 	mx->pers[2][2] = -2 * mx->far * mx->near / (mx->far - mx->near);
@@ -223,47 +209,6 @@ void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far
 	mx->pers[1][3] = -((mx->top + mx->bottom) / (mx->top - mx->bottom));
 	mx->pers[2][3] = -((mx->far + mx->near) / (mx->far - mx->near));
 	mx->pers[3][3] = 2;
-
-
-	// mx->pers[0][0] = (2 * near) / (range - l); 
- //    mx->pers[0][1] = 0.0f; 
- //    mx->pers[0][2] = (range + l) / (range - l); 
- //    mx->pers[0][3] = 0.0f; 
-
- //    mx->pers[1][0] = 0.0f; 
- //    mx->pers[1][1] = (2 * near) / (t - b); 
- //    mx->pers[1][2] = 0.0f; 
- //    mx->pers[1][3] = 0.0f; 
-
- //    mx->pers[2][0] = 0.0f; 
- //    mx->pers[2][1] = 0.0f; 
- //    mx->pers[2][2] = 1.0f / tanFov;//-(near + far) / range; 
- // 	mx->pers[2][3] = 0;//(2.0f * far * near) / range; // "perspective"
-
- //    mx->pers[3][0] = 0.0f;
- //    mx->pers[3][1] = 0.0f;
- //    mx->pers[3][2] = (2.0f * far * near) / range;
- //    mx->pers[3][3] = 4;
- //    // orth
-	// mx->pers[0][0] = 1.0f / tanFov; 
- //    mx->pers[0][1] = 0.0f; 
- //    mx->pers[0][2] = 0.0f; 
- //    mx->pers[0][3] = 0.0f; 
-
- //    mx->pers[1][0] = 0.0f; 
- //    mx->pers[1][1] = 1.0f / tanFov; 
- //    mx->pers[1][2] = 0.0f; 
- //    mx->pers[1][3] = 0.0f; 
-
- //    mx->pers[2][0] = 0.0f; 
- //    mx->pers[2][1] = 0.0f; 
- //    mx->pers[2][2] = 1.0f / tanFov;//-(near + far) / range; 
- // 	mx->pers[2][3] = 0;//(2.0f * far * near) / range; // "perspective"
-
- //    mx->pers[3][0] = 0.0f;
- //    mx->pers[3][1] = 0.0f;
- //    mx->pers[3][2] = (2.0f * far * near) / range;
- //    mx->pers[3][3] = 4;
 }
 
 
@@ -359,17 +304,17 @@ int		main(int argc, char **argv)
     // glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 2 * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-    glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 3 * sizeof(float), obj.tabVertex, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, obj.face * obj.type_face * 3 * sizeof(float), obj.tabVertex, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_normal);
-    glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 3 * sizeof(float), obj.tabNormal, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, obj.face * obj.type_face * 3 * sizeof(float), obj.tabNormal, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
-    glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 2 * sizeof(float), obj.tabTexture, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, obj.face * obj.type_face * 2 * sizeof(float), obj.tabTexture, GL_STATIC_DRAW);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(2);
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -379,86 +324,7 @@ int		main(int argc, char **argv)
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0); 
 
-	// float text[] = {
-
-	// // positions          // colors           // texture coords
-	// 0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		0
-	// 0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	1
-	// -0.5f, -0.5f, 0.5f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left	2
-	// -0.5f, +0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 		3
-
-	// 0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		4
-	// 0.5f, -0.5f, -0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	5
-	// -0.5f, -0.5f, -0.5f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left	6
-	// -0.5f, +0.5f, -0.5f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f,    // top left		7
-
-	// 0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	0.0f, 1.0f,   // top right		8 / 0
-	// 0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	9 / 1
-	// 0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		10 / 4
-	// 0.5f, -0.5f, -0.5f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	11 / 5
-
-	// -0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	0.0f, 1.0f,   // top right		12 / 0
-	// -0.5f, -0.5f, 0.5f,		0.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	13 / 1
-	// -0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		14 / 4
-	// -0.5f, -0.5f, -0.5f,	0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right	15 / 5
-
-	// 0.5f, 0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,   // bottom right	16 / 0
-	// -0.5f, 0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	17 / 3
-	// 0.5f, 0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		18 / 4
-	// -0.5f, 0.5f, -0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left		19 / 7
-
-	// 0.5f, -0.5f, 0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,   // bottom right	20 / 1
-	// -0.5f, -0.5f, 0.5f,		1.0f, 1.0f, 0.0f,	0.0f, 0.0f,   // bottom left	21 / 2
-	// 0.5f, -0.5f, -0.5f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right		22 / 5
-	// -0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 0.0f,	0.0f, 1.0f   // top left		23 / 6
-
-
-	// // 0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
-	// // 0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
-	// // -0.5f, -0.5f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	// // -0.5f, +0.5f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f,   // top left 
-
-	// // 0.0f, 0.75f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 1.0f,   // top right
-	// // 0.75f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	1.0f, 0.0f,   // bottom right
-	// // 0.0f, -0.75f, 0.0f,		0.0f, 0.0f, 1.0f,	0.0f, 0.0f,   // bottom left
-	// // -0.75f, 0.0f, 0.0f,		1.0f, 1.0f, 0.0f,	0.0f, 1.0f    // top left 
-
-	// };
-
-
-	// unsigned int indices[] = {
-	// 	//face
-	// 	// 0, 1, 3, // first triangle
-	// 	// 1, 2, 3, // second triangle
-	// 	// //fond
-	// 	// 4, 5, 7, // first triangle
-	// 	// 5, 6, 7,  // second triangle
-	// 	// //droit
-	// 	// 0, 1, 4,
-	// 	// 1, 5, 4,
-
-	// 	// 2, 3, 6,
-	// 	// 3, 7, 6,
-
-	// 	// avant
-	// 	0, 1, 2,
-	// 	0, 3, 2,
-	// 	// arrire
-	// 	4, 7, 6,
-	// 	4, 5, 6,
-	// 	//dessus
-	// 	19, 17, 16,
-	// 	19, 18, 16,
-	// 	//dessous
-	// 	23, 21, 20,
-	// 	23, 22, 20,
-	// 	//gauche
-	// 	14, 12, 13,
-	// 	14, 15, 13,
-	// 	//droite
-	// 	10, 8, 9,
-	// 	10, 11, 9		
-	// };
+	
 	
 	// unsigned int 	VBO_vertex;
 	// unsigned int	VAO_text;
@@ -473,92 +339,6 @@ int		main(int argc, char **argv)
 	unsigned char	*data;
 	unsigned char	*data2;
 
-	// // glGenVertexArrays(1, &VAO_lol);
-	// // glGenBuffers(1, &VBO_texture);
-	// // // glGenBuffers(1, &VBO_indide);
-	// // glBindVertexArray(VAO_lol);
-	// // glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
-	// // glBufferData(GL_ARRAY_BUFFER, sizeof(lol), lol, GL_STATIC_DRAW);
-	// // // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO_indide);
-	// // // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	// // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	// // glEnableVertexAttribArray(0);
-	// // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)(3 * sizeof(float)));
-	// // glEnableVertexAttribArray(1);
-	// // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)(6 * sizeof(float)));
-	// // glEnableVertexAttribArray(2);
-	// // glBindVertexArray(0);
-
-	// glGenVertexArrays(1, &VAO_lol);
- // 	glGenBuffers(1, &VBO_vertex);
- // 	// glGenBuffers(1, &VBO_color);
-	// glBindVertexArray(VBO_vertex);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	// glEnableVertexAttribArray(0);
-	// // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(3 * sizeof(float)));
-	// // glEnableVertexAttribArray(1);
-	// // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(6 * sizeof(float)));
-	// // glEnableVertexAttribArray(2);
-	// // glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
-	// // glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
-	// // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	// // glEnableVertexAttribArray(1);
-	// glBindVertexArray(0);
-
-	// // glGenVertexArrays(1, &VAO_text);
-	// // glGenBuffers(1, &VBO_texture);
-	// // glGenBuffers(1, &VBO_indide);
-	// // glBindVertexArray(VAO_text);
-	// // glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
-	// // glBufferData(GL_ARRAY_BUFFER, sizeof(text), text, GL_STATIC_DRAW);
-	// // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO_indide);
-	// // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	// // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	// // glEnableVertexAttribArray(0);
-	// // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	// // glEnableVertexAttribArray(1);
-	// // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	// // glEnableVertexAttribArray(2);
-	// // glBindVertexArray(0);
-
-	// // data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
-	// // for (int i = 78740; i < 78756; i++)
-	// // {
-	// // 	// if (data[i] != data2[i])
-	// // 	if (i % 4 == 0)
-	// // 	printf("\n");
-	// // 	if (data[i] != data2[i])
-	// // 		printf("%d : moi = -%d-, stb = -%d-\n", i, data[i], data2[i]);
-	// // 	else
-	// // 		printf("ok pour %d\n", i);
-	// // 	// else if (i % 100 == 0)
-	// // 		// printf("ok : %d\n", i);
-	// // }
-	// // data2 = stbi_load("img/wall1.tga", &width, &height, &nrChannels, 0);
-	
-	// glGenTextures(1, &texture1);
-	// glBindTexture(GL_TEXTURE_2D, texture1);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
-	// data2 = ft_read_tga_headers("img/wall1.tga", &tga);
-	// if (data2)
-	// {
-	//     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data2);
-	//     glGenerateMipmap(GL_TEXTURE_2D);
-	// 	free(data2);
-	// }
-	// else
-	// {
-	// 	printf("Failed to load texture\n");
-	// 	return (-1);
-	// }
-
-	// printf("moi -> height = %d, width %d, nbr channel = %d\n", tga.height, tga.width, tga.bpp);
-	// printf("stb -> height = %d, width %d, nbr channel = %d\n", height, width, nrChannels);
 	
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
