@@ -21,7 +21,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#define WINDOW 800
+#define WINDOWX 800
+#define WINDOWY 800
 
 typedef struct	s_matrix
 {
@@ -47,7 +48,7 @@ void	gl_perspective(t_matrix *mx)
 	mx->fov = 90;
 	mx->near = 0.1f;
 	mx->far = 100.0f;
-	mx->ratio = WINDOW / WINDOW;
+	mx->ratio = WINDOWX / WINDOWY;
 	scale = tan(mx->fov * 0.5 * PI / 180) * mx->near;
 
 	mx->right = mx->ratio * scale;
@@ -122,7 +123,7 @@ int		ft_start_sdl_opengl(t_sdl *sdl)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	if((sdl->fenetre = SDL_CreateWindow("Test SDL 2.0 main.c",
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600,
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOWX, WINDOWY,
 		SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL)) == 0)
 	{
 		printf("Error creation of the window : %s\n", SDL_GetError());
@@ -347,12 +348,15 @@ int		main(int argc, char **argv)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// data = ft_read_tga_headers("obj_file/sword.tg", &tga);
-	data = ft_read_tga_headers("img/container.tga", &tga);
+	printf("texture = -|%s|-\n", obj.texture);
+	if (obj.texture)
+		data = ft_read_tga_headers(obj.texture, &tga);
+	else
+		data = ft_read_tga_headers("img/face.tga", &tga);
 	// data = stbi_load("obj_file/WoodCabinDif.tga", &width, &height, &nrChannels, 0);
 	if (data)
 	{
-	    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, ((tga.bpp == 4) ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
 	    glGenerateMipmap(GL_TEXTURE_2D);
 		free(data);
 	}
@@ -365,51 +369,7 @@ int		main(int argc, char **argv)
 	glUniform1i(texture1, 0); // Texture unit 0 is for base images.
 	glUniform1i(texture2, 1);
 
-	// glGenTextures(1, &texture2);
-	// glBindTexture(GL_TEXTURE_2D, texture2);
-	// // set the texture wrapping parameters
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// // set texture filtering parameters
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// // load image, create texture and generate mipmaps
-	// data = ft_read_tga_headers("img/face.tga", &tga);
-	// if (data)
-	// {
-	//     // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
-	//     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tga.width, tga.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	//     glGenerateMipmap(GL_TEXTURE_2D);
-	// }
-	// else
-	// {
-	//     printf("Failed to load texture\n");
-	// }
-	// free(data);
 
-
-	// unsigned int VBO_color, VBO_vertex, VAO;
-
-	// glGenVertexArrays(1, &VAO);
- // 	glGenBuffers(1, &VBO_vertex);
- // 	glGenBuffers(1, &VBO_color);
-	// glBindVertexArray(VAO);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	// glEnableVertexAttribArray(0);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_color);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(couleurs), couleurs, GL_STATIC_DRAW);
-	// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	// glEnableVertexAttribArray(1);
-	// glBindVertexArray(0);
- 
-	// unsigned int transformLoc = glGetUniformLocation(gl.programID, "transform");
-
-	// printf("trans = %d\n", transformLoc);
-	// glUniform1i(glGetUniformLocation(gl.programID, "texture1"), 0); // set it manually
-	// ourShader.setInt("texture2", 1); // or with shader class
-	// printf("programme ID = %d\n", gl.programID);
 	float	tour = 20;
 	float	hor = 0;
 	float	ver = 0;
@@ -500,7 +460,7 @@ int		main(int argc, char **argv)
 	gl_perspective(&mx);
 
 		ft_rotate(&mx, hor, ver, tan);
-		ft_perspective(&mx, fov , 800 / 800, 0.01f, 100.0f);
+		ft_perspective(&mx, fov , WINDOWY / WINDOWX, 0.01f, 100.0f);
 		ft_trans(&mx, moveX, moveY, moveZ);
 		unsigned int matLoc;
 
@@ -521,7 +481,7 @@ int		main(int argc, char **argv)
 
 		
 
-		glActiveTexture(GL_TEXTURE1);
+		// glActiveTexture(GL_TEXTURE1);
 		// glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE2);
 		// glBindTexture(GL_TEXTURE_2D, texture2);

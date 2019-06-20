@@ -52,15 +52,23 @@ static int		ft_size_file_pars(t_obj *obj)
 	char	*line;
 
 	l = 0;
-	fd = open(obj->fileName, O_RDONLY);
+	printf("obj->fileName = %s\n", obj->fileName);
+	if ((fd = open(obj->fileName, O_RDONLY)) < 0)
+	{
+		printf("Error fd = %d\n", fd);
+		return (-1);
+	}
+	printf("fd = %d\n", fd);
 	while ((get = get_next_line(fd, &line)) > 0)
 	{
 		l++;
-		if (ft_strncmp(line, "v ", 2) == 0 && obj->face == 0)
+		printf("line : %d\n", l);
+		
+		if (ft_strncmp(line, "v ", 2) == 0)// && obj->face == 0)
 			obj->nbVertex++;
-		else if (ft_strncmp(line, "vt ", 3) == 0 && obj->face == 0)
+		else if (ft_strncmp(line, "vt ", 3) == 0)// && obj->face == 0)
 			obj->nbTexture++;
-		else if (ft_strncmp(line, "vn ", 3) == 0 && obj->face == 0)
+		else if (ft_strncmp(line, "vn ", 3) == 0)// && obj->face == 0)
 			obj->nbNormal++;
 		else if ((ft_strncmp(line, "v ", 2) == 0 || ft_strncmp(line, "vt ", 3) == 0 || ft_strncmp(line, "vn ", 3) == 0) && obj->face)
 		{
@@ -89,7 +97,11 @@ static int		ft_size_file_pars(t_obj *obj)
 			obj->face++;
 		}
 		else if (ft_strncmp(line, "usemtl ", 7) == 0)
+		{
 			obj->texture = ft_strtrim(ft_strdup(&line[7]));
+			obj->texture = ft_strjoin_free(&obj->path, &obj->texture, 2);
+			// check .tga texture
+		}
 		else if (ft_strncmp(line, "mtllib ", 7) && ft_strncmp(line, "s ", 2) && ft_strncmp(line, "o ", 2) && ft_strncmp(line, "g ", 2) && line[0] != '#' && line[ft_while_space(line, 0)])
 		{
 			printf("ERROR LINE %d: -|%s|-\n", l, line);
@@ -311,16 +323,58 @@ int		ft_get_data(t_obj *obj)
 // }
 
 // int		main(void)
+
+int		ft_check_extention(char *s, char *ex)
+{
+	int i;
+
+	i = 0;
+	while (s[i])
+		i++;
+	while (i > 0 && s[i] != '.')
+		i--;
+	if (i >= 0 && ft_strcmp(&s[i], ex) == 0)
+		return (1);
+	else
+		return (0);
+}
+
+char 	*ft_get_path(char *s)
+{
+	int i;
+
+	i = 0;
+	while (s[i])
+		i++;
+	while (i > 0 && s[i] != '/')
+		i--;
+	if (i > 0)
+		return (ft_strndup(s, i + 1));
+	else
+		return (ft_strdup("./"));
+}
+
 float 	*ft_parsing(t_obj *obj, char *name)
 {
 	// t_obj obj;
 
 	// ft_bzero(&obj, sizeof(t_obj));
 	// obj->fileName = "test.obj";
+	
+	// printf("end name = %s\n", &name[i]);
 	if (name == NULL)
 		obj->fileName = "lowtri.obj";
-	else
+	else if (ft_check_extention(name, ".obj"))
+	{
 		obj->fileName = name;
+		obj->path = ft_get_path(name);
+		printf("path = %s\n", obj->path);
+	}
+	else
+	{
+		printf("Invalid File Name : %s\n", name);
+		exit(-2);
+	}
 	printf("file name = %s\n", obj->fileName);
 	if (ft_size_file_pars(obj) < 0)
 		exit(0);

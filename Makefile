@@ -10,7 +10,9 @@
 #                                                                              #
 # **************************************************************************** #
 
-# CFLAGS = -Wall -Werror -Wextra
+CFLAGS = # -Wall -Werror -Wextra
+
+CC = gcc
 
 NAME = scop
 
@@ -24,17 +26,17 @@ LIBFT = ./libft/libft.a
 
 FRAM = -framework OpenGL -framework Cocoa
 
-SRC = ./parasing.c ./main.c ./ft_read_tga.c ./ft_read_shader.c ./ft_file.c 
+SRC = ./paring.c ./main.c ./ft_read_tga.c ./ft_read_shader.c ./ft_file.c 
 
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME) 
 
 $(NAME) : $(OBJ)
-	gcc $(LIB) $(LIBFT) $(INCL) $(FRAM) $(OBJ) -o $(NAME)
+	gcc $(CFLAGS) $(LIB) $(LIBFT) $(INCL) $(FRAM) $(OBJ) -o $(NAME)
 
 %.o: %.c
-	@$(CC) -o $@ -c $< $(INCL) -Wno-deprecated-declarations
+	$(CC) $(CFLAGS) -o $@ -c $< $(INCL) -Wno-deprecated-declarations
 
 clean :
 	rm -f $(OBJ)

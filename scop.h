@@ -55,6 +55,7 @@ typedef struct		s_obj
 	size_t			posI;
 	size_t			size;
 	int				type_face;
+	char			*path;
 }					t_obj;
 
 typedef struct	s_tga
