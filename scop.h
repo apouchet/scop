@@ -32,10 +32,14 @@
 
 typedef struct		s_obj
 {
+	float			midX[2];
+	float			midY[2];
+	float			midZ[2];
 	int				nbVertex;
 	int				nbNormal;
 	int				nbTexture;
-	int				face;
+	int				faceTri;
+	int				faceQuad;
 	int				posV;
 	int				posN;
 	int				posT;
@@ -46,12 +50,18 @@ typedef struct		s_obj
 	float			*vt;
 	float			*vn;
 	float			*indices;
-	float			*tabVertex;
-	size_t			tabV;
-	float			*tabNormal;
-	size_t			tabN;
-	float			*tabTexture;
-	size_t			tabT;
+	float			*tabVertexQuad;
+	size_t			tabVQuad;
+	float			*tabNormalQuad;
+	size_t			tabNQuad;
+	float			*tabTextureQuad;
+	size_t			tabTQuad;
+	float			*tabVertexTri;
+	size_t			tabVTri;
+	float			*tabNormalTri;
+	size_t			tabNTri;
+	float			*tabTextureTri;
+	size_t			tabTTri;
 	size_t			posI;
 	size_t			size;
 	int				type_face;
@@ -110,7 +120,7 @@ int						ft_shaders(char *nameVS, char *nameFS, t_gl *gl);
 
 int						ft_delete_shader(t_gl *gl);
 
-float 					*ft_parsing(t_obj *obj, char *name);
+void 					ft_parsing(t_obj *obj, char *name);
 
 
 #endif

@@ -264,9 +264,9 @@ int		main(int argc, char **argv)
 	// float *vertices = ft_parsing(&obj);
 	float *vertices;
 	if (argc == 2)
-		vertices = ft_parsing(&obj, argv[1]);
+		ft_parsing(&obj, argv[1]);
 	else
-		vertices = ft_parsing(&obj, NULL);
+		ft_parsing(&obj, NULL);
 	printf("\n");
 	// float *vertices = (float*)malloc(sizeof(float) * 9);
 	// // float vertices[9];
@@ -281,7 +281,7 @@ int		main(int argc, char **argv)
 	// vertices[8] = 0.0;
 
 	printf("sizeof vertice %lu\n", sizeof(vertices));
-	printf("nb vertex = %d, nb face = %d\n\n", obj.nbVertex, obj.face);
+	// printf("nb vertex = %d, nb face = %d\n\n", obj.nbVertex, obj.face);
 	
 	// float vertices[] = {
  //        -0.5f, -0.5f, 0.0f, // left  
@@ -292,41 +292,93 @@ int		main(int argc, char **argv)
 	// for (int ww = 0; ww < 9; ww++)
 	// 	printf("%f%s", vertices[ww], ((ww == 8)? "\n\n" : ", "));
 
+	printf("face tri %d\n", obj.faceTri);
+	printf("face quad %d\n", obj.faceQuad);
+	for (int ii = 0; ii < obj.faceQuad * 4 ; ii += 4)
+	{
+		printf("quad[%d] = %f, %f, %f, %f\n", ii / 4, obj.tabVertexQuad[ii], obj.tabVertexQuad[ii + 1], obj.tabVertexQuad[ii + 2], obj.tabVertexQuad[ii + 3]);
+	}
 
-    unsigned int VBO, VAO;
-    unsigned int VBO_vertex, VBO_normal, VBO_texture;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO_vertex);
-    glGenBuffers(1, &VBO_normal);
-    glGenBuffers(1, &VBO_texture);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
+	unsigned int VBO_tri, VAO_tri;
+	unsigned int VBO_vertex_tri, VBO_normal_tri, VBO_texture_tri;
+	glGenVertexArrays(1, &VAO_tri);
+	glGenBuffers(1, &VBO_vertex_tri);
+	printf("obj.posT = %d\n", obj.posT);
+	if (obj.posN)
+		glGenBuffers(1, &VBO_normal_tri);
+	if (obj.posT)
+		glGenBuffers(1, &VBO_texture_tri);
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	glBindVertexArray(VAO_tri);
 
-    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 2 * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex);
-    glBufferData(GL_ARRAY_BUFFER, obj.face * obj.type_face * 3 * sizeof(float), obj.tabVertex, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 2 * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_tri);
+	glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabVertexTri, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	if (obj.posN)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_tri);
+		glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabNormalTri, GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+	}
+	if (obj.posT)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_tri);
+		glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 2 * sizeof(float), obj.tabTextureTri, GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(2);
+	}
+	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	glBindBuffer(GL_ARRAY_BUFFER, 0); 
+	glBindVertexArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_normal);
-    glBufferData(GL_ARRAY_BUFFER, obj.face * obj.type_face * 3 * sizeof(float), obj.tabNormal, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
+	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_texture);
-    glBufferData(GL_ARRAY_BUFFER, obj.face * obj.type_face * 2 * sizeof(float), obj.tabTexture, GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(2);
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+	unsigned int VBO_quad, VAO_quad;
+	unsigned int VBO_vertex_quad, VBO_normal_quad, VBO_texture_quad;
+	glGenVertexArrays(1, &VAO_quad);
+	glGenBuffers(1, &VBO_vertex_quad);
+	if (obj.posN)
+		glGenBuffers(1, &VBO_normal_quad);
+	if (obj.posT)
+		glGenBuffers(1, &VBO_texture_quad);
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	glBindVertexArray(VAO_quad);
 
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0); 
+	// glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// glBufferData(GL_ARRAY_BUFFER, obj.face * 3 * 2 * 3 * sizeof(float), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_quad);
+	glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 3 * sizeof(float), obj.tabVertexQuad, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	if (obj.posN)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_quad);
+		glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 3 * sizeof(float), obj.tabNormalQuad, GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+	}
+	if (obj.posT)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_quad);
+		glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 2 * sizeof(float), obj.tabTextureQuad, GL_STATIC_DRAW);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(2);
+	}
+	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+	glBindBuffer(GL_ARRAY_BUFFER, 0); 
+	glBindVertexArray(0);
 
+	// // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+	// // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+	// glBindVertexArray(0);
 	
-	
+	free(obj.tabVertexQuad);
+	free(obj.tabVertexTri);
 	// unsigned int 	VBO_vertex;
 	// unsigned int	VAO_text;
 	// unsigned int	VAO_lol;
@@ -377,6 +429,9 @@ int		main(int argc, char **argv)
 	int		fov = 45;
 	float	acolor = 1;
 	int		deg = 0;
+
+
+
 
 	glUseProgram(gl.programID);
 	while(!terminer)
@@ -457,7 +512,7 @@ int		main(int argc, char **argv)
 				}
 			}
 		}
-	gl_perspective(&mx);
+		gl_perspective(&mx);
 
 		ft_rotate(&mx, hor, ver, tan);
 		ft_perspective(&mx, fov , WINDOWY / WINDOWX, 0.01f, 100.0f);
@@ -479,7 +534,7 @@ int		main(int argc, char **argv)
 		matLoc = glGetUniformLocation(gl.programID, "base");
 		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.base[0][0]);
 
-		
+
 
 		// glActiveTexture(GL_TEXTURE1);
 		// glBindTexture(GL_TEXTURE_2D, texture1);
@@ -487,9 +542,15 @@ int		main(int argc, char **argv)
 		// glBindTexture(GL_TEXTURE_2D, texture2);
 
 		// glUseProgram(shaderProgram);
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        // glDrawArrays(GL_TRIANGLES, 0, 500);
-        glDrawArrays(GL_TRIANGLES, 0, obj.face * 3);
+		glBindVertexArray(VAO_tri); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		glDrawArrays(GL_TRIANGLES, 0, obj.faceTri * 3);
+
+		glBindVertexArray(VAO_quad);
+		for (int k = 0; k < obj.faceQuad * 4; k += 4)
+			glDrawArrays(GL_TRIANGLE_FAN, k, 4);
+
+		// glDrawArrays(GL_TRIANGLE_FAN, 4, 4);
+		// glDrawArrays(GL_TRIANGLE_STRIP, 0, obj.faceQuad * 4);
 
 		// render container
 		// glBindVertexArray(VAO_lol);
