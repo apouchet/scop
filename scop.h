@@ -32,24 +32,16 @@
 
 typedef struct		s_obj
 {
-	float			midX[2];
-	float			midY[2];
-	float			midZ[2];
 	int				nbVertex;
 	int				nbNormal;
 	int				nbTexture;
 	int				faceTri;
 	int				faceQuad;
-	int				posV;
-	int				posN;
-	int				posT;
 	char			*fileName;
-	char			*name;
 	char			*texture;
 	float			*v;
 	float			*vt;
 	float			*vn;
-	float			*indices;
 	float			*tabVertexQuad;
 	size_t			tabVQuad;
 	float			*tabNormalQuad;
@@ -62,9 +54,6 @@ typedef struct		s_obj
 	size_t			tabNTri;
 	float			*tabTextureTri;
 	size_t			tabTTri;
-	size_t			posI;
-	size_t			size;
-	int				type_face;
 	char			*path;
 }					t_obj;
 
@@ -89,8 +78,6 @@ typedef struct	s_sdl
 	SDL_Window*		fenetre;
 	SDL_GLContext	contexteOpenGL;
 	SDL_Event		evenements;
-
-
 }				t_sdl;
 
 typedef struct	s_gl

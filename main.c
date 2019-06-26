@@ -58,37 +58,6 @@ void	gl_perspective(t_matrix *mx)
 	mx->bottom = -mx->top;
 }
 
-void	ft_start_matrix(t_matrix *mx)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	j = 0;
-	while (i < 4)
-	{
-		while (j < 4)
-		{
-			if (i == j)
-			{
-				mx->pers[i][j] = 1;
-				mx->move[i][j] = 1;
-				mx->rotate[i][j] = 1;
-				mx->base[i][j] = 1;
-			}
-			else
-			{
-				mx->pers[i][j] = 0;
-				mx->move[i][j] = 0;
-				mx->rotate[i][j] = 0;
-				mx->base[i][j] = 0;
-			}
-			j++;
-		}
-		i++;
-	}
-}
-
 int		ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl)
 {
 	GLint logLength = 0;
@@ -142,7 +111,7 @@ int		ft_start_sdl_opengl(t_sdl *sdl)
 
 void	ft_trans(t_matrix *mx, float x, float y, float z)
 {
-	printf("z = %f\n", z);
+	// printf("z = %f\n", z);
 	mx->base[3][0] = x;
 	mx->base[3][1] = y;
 	mx->base[3][2] = z;
@@ -187,25 +156,22 @@ void	ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ)
 
 void	ft_perspective(t_matrix *mx, double fov, double ar, double near, double far)
 {
-	const float range = near - far;
-	const float tanHalfFOV = tanf(((fov / 2.0) / 180) * PI);
-	float	tanFov = tanf(((fov / 180) * PI) / 2);
+	// const float range = near - far;
+	// const float tanHalfFOV = tanf(((fov / 2.0) / 180) * PI);
+	// float	tanFov = tanf(((fov / 180) * PI) / 2);
 
 	mx->pers[0][0] = 2 * mx->near / (mx->right - mx->left);
 	mx->pers[1][0] = 0;
 	mx->pers[2][0] = 0;
 	mx->pers[3][0] = 0;
-
 	mx->pers[0][1] = 0;
 	mx->pers[1][1] = 2 * mx->near / (mx->top - mx->bottom);
 	mx->pers[2][1] = 0;
 	mx->pers[3][1] = 0;
-
 	mx->pers[0][2] = 0;
 	mx->pers[1][2] = 0;
 	mx->pers[2][2] = -2 * mx->far * mx->near / (mx->far - mx->near);
 	mx->pers[3][2] = 0;
-
 	mx->pers[0][3] = -((mx->right + mx->left) / (mx->right - mx->left));
 	mx->pers[1][3] = -((mx->top + mx->bottom) / (mx->top - mx->bottom));
 	mx->pers[2][3] = -((mx->far + mx->near) / (mx->far - mx->near));
@@ -229,8 +195,8 @@ int		main(int argc, char **argv)
 	bzero(&tga, sizeof(t_tga));
 	bzero(&sdl, sizeof(sdl));
 	bzero(&gl, sizeof(gl));
-	// ft_start_matrix(&mx);
-	// float *lol = ft_parsing(&obj);	
+	bzero(&mx, sizeof(mx));
+
 	for (int z = 0; z < 4; z++)
 	{
 		for (int zz = 0; zz < 4; zz++)
@@ -240,73 +206,47 @@ int		main(int argc, char **argv)
 				mx.rotate[z][zz] = 1;
 				mx.base[z][zz] = 1;
 			}
-			else
-			{
-				mx.rotate[z][zz] = 0;
-				mx.base[z][zz] = 0;
-			}
+			// else
+			// {
+			// 	mx.rotate[z][zz] = 0;
+			// 	mx.base[z][zz] = 0;
+			// }
 		}
 	}
 	printf("\n");
 	terminer = 0;
 	if (ft_start_sdl_opengl(&sdl) < 0)
 		return (-1);
-	// Boucle principale
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	ft_shaders("Shaders/shader.vs", "Shaders/shader.fs", &gl);
 	printf("OpenGL version : %s\n", glGetString(GL_VERSION));
 	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-	// float vertices[] = {-0.5, -0.5, 0.0, 0.5, 0.5, -0.5};
-	// float couleurs[] = {1.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 0.0, 1.0};
-	// float *text = (float*)malloc(sizeof(float) * 32);
-	// float *vertices = ft_parsing(&obj);
 	float *vertices;
 	if (argc == 2)
 		ft_parsing(&obj, argv[1]);
 	else
 		ft_parsing(&obj, NULL);
-	printf("\n");
-	// float *vertices = (float*)malloc(sizeof(float) * 9);
-	// // float vertices[9];
-	// vertices[0] = -0.5;
-	// vertices[1] = -0.5;
-	// vertices[2] = 0.0;
-	// vertices[3] = 0.5;
-	// vertices[4] = -0.5;
-	// vertices[5] = 0.0;
-	// vertices[6] = 0.0;
-	// vertices[7] = 0.5;
-	// vertices[8] = 0.0;
-
-	printf("sizeof vertice %lu\n", sizeof(vertices));
-	// printf("nb vertex = %d, nb face = %d\n\n", obj.nbVertex, obj.face);
-	
-	// float vertices[] = {
- //        -0.5f, -0.5f, 0.0f, // left  
- //         0.5f, -0.5f, 0.0f, // right 
- //         0.0f,  0.5f, 0.0f  // top   
- //    };
-
-	// for (int ww = 0; ww < 9; ww++)
-	// 	printf("%f%s", vertices[ww], ((ww == 8)? "\n\n" : ", "));
 
 	printf("face tri %d\n", obj.faceTri);
 	printf("face quad %d\n", obj.faceQuad);
-	for (int ii = 0; ii < obj.faceQuad * 4 ; ii += 4)
-	{
-		printf("quad[%d] = %f, %f, %f, %f\n", ii / 4, obj.tabVertexQuad[ii], obj.tabVertexQuad[ii + 1], obj.tabVertexQuad[ii + 2], obj.tabVertexQuad[ii + 3]);
-	}
+	printf("face total %d\n", obj.faceQuad + obj.faceTri);
+	// printf("posV = %d\n", obj.posV);
+	// for (int ii = 0; ii < obj.faceQuad * 4 ; ii += 4)
+	// {
+	// 	printf("quad[%d] = %f, %f, %f, %f\n", ii / 4, obj.tabVertexQuad[ii], obj.tabVertexQuad[ii + 1], obj.tabVertexQuad[ii + 2], obj.tabVertexQuad[ii + 3]);
+	// }
 
 	unsigned int VBO_tri, VAO_tri;
 	unsigned int VBO_vertex_tri, VBO_normal_tri, VBO_texture_tri;
 	glGenVertexArrays(1, &VAO_tri);
 	glGenBuffers(1, &VBO_vertex_tri);
-	printf("obj.posT = %d\n", obj.posT);
-	if (obj.posN)
+	// printf("obj.posT = %d\n", obj.posT);
+	// if (obj.posN)
 		glGenBuffers(1, &VBO_normal_tri);
-	if (obj.posT)
+	// if (obj.posT)
 		glGenBuffers(1, &VBO_texture_tri);
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(VAO_tri);
@@ -317,14 +257,14 @@ int		main(int argc, char **argv)
 	glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabVertexTri, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	if (obj.posN)
+	// if (obj.posN)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_tri);
 		glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabNormalTri, GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 	}
-	if (obj.posT)
+	// if (obj.posT)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_tri);
 		glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 2 * sizeof(float), obj.tabTextureTri, GL_STATIC_DRAW);
@@ -342,9 +282,9 @@ int		main(int argc, char **argv)
 	unsigned int VBO_vertex_quad, VBO_normal_quad, VBO_texture_quad;
 	glGenVertexArrays(1, &VAO_quad);
 	glGenBuffers(1, &VBO_vertex_quad);
-	if (obj.posN)
+	// if (obj.posN)
 		glGenBuffers(1, &VBO_normal_quad);
-	if (obj.posT)
+	// if (obj.posT)
 		glGenBuffers(1, &VBO_texture_quad);
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(VAO_quad);
@@ -355,14 +295,14 @@ int		main(int argc, char **argv)
 	glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 3 * sizeof(float), obj.tabVertexQuad, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	if (obj.posN)
+	// if (obj.posN)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_quad);
 		glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 3 * sizeof(float), obj.tabNormalQuad, GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 	}
-	if (obj.posT)
+	// if (obj.posT)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_quad);
 		glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 2 * sizeof(float), obj.tabTextureQuad, GL_STATIC_DRAW);
@@ -498,20 +438,20 @@ int		main(int argc, char **argv)
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
 
-		for (int z = 0; z < 4; z++)
-		{
-			for (int zz = 0; zz < 4; zz++)
-			{
-				if (z == zz)
-				{
-					mx.pers[z][zz] = 1;
-				}
-				else
-				{
-					mx.pers[z][zz] = 0;
-				}
-			}
-		}
+		// for (int z = 0; z < 4; z++)
+		// {
+		// 	for (int zz = 0; zz < 4; zz++)
+		// 	{
+		// 		if (z == zz)
+		// 		{
+		// 			mx.pers[z][zz] = 1;
+		// 		}
+		// 		else
+		// 		{
+		// 			mx.pers[z][zz] = 0;
+		// 		}
+		// 	}
+		// }
 		gl_perspective(&mx);
 
 		ft_rotate(&mx, hor, ver, tan);
