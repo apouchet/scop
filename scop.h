@@ -13,6 +13,15 @@
 #ifndef SCOP_H
 # define SCOP_H
 
+# ifndef GL_SILENCE_DEPRECATION
+# define GL_SILENCE_DEPRECATION
+# endif
+
+# define STB_IMAGE_IMPLEMENTATION
+# define WINDOWX 800
+# define WINDOWY 800
+
+
 # include <OpenGL/gl3.h>
 # include <SDL2/SDL.h>
 
@@ -21,6 +30,7 @@
 # include <fcntl.h>
 # include <unistd.h>
 
+// # include "stb_image.h"
 # include "libft/libft.h"
 
 # define PI 3.14159265359
@@ -32,9 +42,9 @@
 
 typedef struct		s_obj
 {
-	int				nbVertex;
-	int				nbNormal;
-	int				nbTexture;
+	// int				nbVertex;
+	// int				nbNormal;
+	// int				nbTexture;
 	int				faceTri;
 	int				faceQuad;
 	char			*fileName;
@@ -97,6 +107,23 @@ typedef struct	s_shd
 	GLint		fragmentSize;
 }				t_shd;
 
+typedef struct	s_matrix
+{
+	float		base[4][4];
+	float		rotate[4][4];
+	float		move[4][4];
+	float		pers[4][4];
+
+	float		top;
+	float		bottom;
+	float		left;
+	float		right;
+	float		fov;
+	float		near;
+	float		far;
+	float		ratio;
+}				t_matrix;
+
 char					*ft_get_file(char *name, char *file);
 
 int						ft_size_file(char *name);
@@ -108,6 +135,18 @@ int						ft_shaders(char *nameVS, char *nameFS, t_gl *gl);
 int						ft_delete_shader(t_gl *gl);
 
 void 					ft_parsing(t_obj *obj, char *name);
+
+void					gl_perspective(t_matrix *mx);
+
+int						ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl);
+
+int						ft_start_sdl_opengl(t_sdl *sdl);
+
+void					ft_trans(t_matrix *mx, float x, float y, float z);
+
+void					ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ);
+
+void					ft_perspective(t_matrix *mx, double near, double far);
 
 
 #endif

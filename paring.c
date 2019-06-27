@@ -71,13 +71,42 @@ int		ft_get_nb_value(char *s)
 	return (nb);
 }
 
-static int		ft_size_file_pars(t_obj *obj)
+void			ft_other_command(t_obj *obj, char *line, size_t l)
+{
+	size_t	tmp;
+
+	if (ft_strncmp(line, "f ", 2) == 0)
+	{
+		if ((tmp = ft_get_nb_value(&line[2])) < 3 || tmp > 4)
+			ft_exit_pars(1, "Invalide Type, Can Only Read 3 or 4 Vertex Per Face", l, line);
+		(ft_get_nb_value(&line[2]) == 3) ? obj->faceTri++ : obj->faceQuad++;
+	}
+	else if (ft_strncmp(line, "usemtl ", 7) == 0)
+	{
+		obj->texture = ft_strtrim(&line[7]); // strdup !!!
+		if (ft_strncmp(obj->texture, "None\0 ", 5) != 0 && ft_strncmp(obj->texture, "Material\0 ", 9) != 0)
+		{
+			if (ft_check_extention(obj->texture, ".tga") == 1)
+				obj->texture = ft_strjoin_free(&obj->path, &obj->texture, 2);
+			else
+				ft_exit_pars(1, "Invalide Texture, Only Read TGA File", l, line);
+		}
+		else
+			ft_strdel(&obj->texture);
+	}
+	else if (ft_strncmp(line, "mtllib ", 7) && ft_strncmp(line, "s ", 2) && ft_strncmp(line, "o ", 2)
+		&& ft_strncmp(line, "g ", 2) && line[0] != '#' && line[ft_while_space(line, 0)])
+			ft_exit_pars(1, "Unknow Command", l, line);
+}
+
+// void			ft_count_type_v(t_obj, line, )
+
+static int		ft_size_file_pars(t_obj *obj, size_t *nbVertex, size_t *nbTexture, size_t *nbNormal)
 {
 	int		fd;
 	int		get;
-	int		l;
+	size_t	l;
 	char	*line;
-	size_t	tmp;
 
 	l = 0;
 	if ((fd = open(obj->fileName, O_RDONLY)) < 0)
@@ -86,37 +115,13 @@ static int		ft_size_file_pars(t_obj *obj)
 	{
 		l++;
 		if (ft_strncmp(line, "v ", 2) == 0)// && obj->face == 0)
-			obj->nbVertex++;
+			(*nbVertex)++;
 		else if (ft_strncmp(line, "vt ", 3) == 0)// && obj->face == 0)
-			obj->nbTexture++;
+			(*nbTexture)++;
 		else if (ft_strncmp(line, "vn ", 3) == 0)// && obj->face == 0)
-			obj->nbNormal++;
-
-		else if (ft_strncmp(line, "f ", 2) == 0)
-		{
-			if (!obj->faceTri && !obj->faceQuad)
-			{
-				tmp = ft_get_nb_value(&line[2]);
-				if (tmp < 3 || tmp > 4)
-					ft_exit_pars(1, "Invalide Type, Can Only Read 3 or 4 Vertex Per Face", l, line);
-			}
-			(ft_get_nb_value(&line[2]) == 3) ? obj->faceTri++ : obj->faceQuad++;
-		}
-		else if (ft_strncmp(line, "usemtl ", 7) == 0)
-		{
-			obj->texture = ft_strtrim(&line[7]); // strdup !!!
-			if (ft_strncmp(obj->texture, "None\0 ", 5) != 0 && ft_strncmp(obj->texture, "Material\0 ", 9) != 0)
-			{
-				if (ft_check_extention(obj->texture, ".tga") == 1)
-					obj->texture = ft_strjoin_free(&obj->path, &obj->texture, 2);
-				else
-					ft_exit_pars(1, "Invalide Texture, Only Read TGA File", l, line);
-			}
-			else
-				ft_strdel(&obj->texture);
-		}
-		else if (ft_strncmp(line, "mtllib ", 7) && ft_strncmp(line, "s ", 2) && ft_strncmp(line, "o ", 2) && ft_strncmp(line, "g ", 2) && line[0] != '#' && line[ft_while_space(line, 0)])
-			ft_exit_pars(1, "Unknow Commande", l, line);
+			(*nbNormal)++;
+		else
+			ft_other_command(obj, line, l);
 		free(line);
 	}
 	free(line);
@@ -124,11 +129,21 @@ static int		ft_size_file_pars(t_obj *obj)
 	return (get < 0 ? -1 : 1);
 }
 
-void		ft_alloc(t_obj *obj)
+void		ft_alloc(t_obj *obj, size_t nbVertex, size_t nbTexture, size_t nbNormal)
 {
-	if (!(obj->v = (float*)ft_memalloc(sizeof(float) * (obj->nbVertex * 3))) ||
-		!(obj->vt = (float*)ft_memalloc(sizeof(float) * (obj->nbTexture * 2))) ||
-		!(obj->vn = (float*)ft_memalloc(sizeof(float) * (obj->nbNormal * 3))))
+	if (!(obj->v = (float*)ft_memalloc(sizeof(float) * (nbVertex * 3)))
+		|| !(obj->vt = (float*)ft_memalloc(sizeof(float) * (nbTexture * 2)))
+		|| !(obj->vn = (float*)ft_memalloc(sizeof(float) * (nbNormal * 3))))
+		ft_exit_pars(2, "Fail To Malloc", 0, NULL);
+	if (obj->faceTri > 0
+		&& (!(obj->tabVertexTri = (float*)ft_memalloc(sizeof(float) * (obj->faceTri * 3 * 3)))
+		|| !(obj->tabNormalTri = (float*)ft_memalloc(sizeof(float) * (obj->faceTri * 3 * 3)))
+		|| !(obj->tabTextureTri = (float*)ft_memalloc(sizeof(float) * (obj->faceTri * 3 * 2)))))
+		ft_exit_pars(2, "Fail To Malloc", 0, NULL);
+	if (obj->faceQuad > 0
+		&& (!(obj->tabVertexQuad = (float*)ft_memalloc(sizeof(float) * (obj->faceQuad * 4 * 3)))
+		|| !(obj->tabNormalQuad = (float*)ft_memalloc(sizeof(float) * (obj->faceQuad * 4 * 3)))
+		|| !(obj->tabTextureQuad = (float*)ft_memalloc(sizeof(float) * (obj->faceQuad * 4 * 2)))))
 		ft_exit_pars(2, "Fail To Malloc", 0, NULL);
 }
 
@@ -150,7 +165,6 @@ int		ft_check_value(char *s, int max)
 		else if (dot <= 0)
 			size++;
 		i++;
-		// printf("infini, size = %d\n", size);
 	}
 	if (size < max && dot <= 1)
 		return (1);
@@ -188,7 +202,8 @@ void		ft_get_value(float **tab, int nb, char *line, size_t *pos)
 	{
 		while (line[i] && ft_isspace(line[i]))
 			i++;
-		ft_check_value(&line[i], 35);
+		if (ft_check_value(&line[i], 35) < 0) // size max of numbers
+			exit(0);
 		a[(*pos)++] = ft_atof(&line[i]);
 		i = ft_find_space(line, i);
 		nb--;
@@ -202,6 +217,16 @@ void		ft_fill(t_obj *obj, size_t a, int size, int type)
 	i = 0;
 	// if (a + size - 1 > obj->nbVertex * size) !!!!!!!!!!!!!!!!!!!!!!!
 	// 	return ;
+	if (type < 10 && a + size - 1> obj->faceTri * 3 * 3)
+	{
+		printf("fail tri\n");
+		exit(0);
+	}
+	if (type >= 10 && a + size  - 1> obj->faceQuad * 4 * 3)
+	{
+		printf("fail quad\n");
+		exit(0);
+	}
 	while (i < size)
 	{
 		if (type == 1)
@@ -254,7 +279,7 @@ void	ft_get_point(t_obj *obj, char *line, int type, int *i)
 		ft_fill(obj, a[2], 3, 2 * type);
 }
 
-int		ft_get_face(t_obj *obj, char *line)
+void		ft_get_face(t_obj *obj, char *line)
 {
 	int		i;
 	int		type;
@@ -268,7 +293,6 @@ int		ft_get_face(t_obj *obj, char *line)
 		if (line[i])
 			ft_get_point(obj, line, type, &i);
 	}
-	return (0);
 }
 
 
@@ -284,7 +308,6 @@ void		ft_get_data(t_obj *obj, size_t *posVertex)
 	posNormal = 0;
 	if ((fd = open(obj->fileName, O_RDONLY)) < 0)
 		ft_exit_pars(4, "Can't Read File", 0, obj->fileName);
-	ft_alloc(obj);
 	while ((get = get_next_line(fd, &line)) > 0)
 	{
 		if (ft_strncmp(line, "v ", 2) == 0)
@@ -297,6 +320,8 @@ void		ft_get_data(t_obj *obj, size_t *posVertex)
 			ft_get_face(obj, &line[2]);
 		free(line);
 	}
+	// for (int i = 0; i < *posVertex; i++)
+		// printf("v[%d] = %f\n", i, obj->v[i]);
 	free(line);
 	close(fd);
 	if (get < 0)
@@ -318,7 +343,7 @@ char 	*ft_get_path(char *s)
 		return (ft_strdup("./"));
 }
 
-void	ft_min_max(t_obj *obj, float tab[6], size_t *posVertex)
+void	ft_min_max(t_obj *obj, float *tab, size_t *posVertex)
 {
 	int i;
 
@@ -348,14 +373,15 @@ void	ft_center(t_obj *obj, size_t *posVertex)
 	float midX;
 	float midY;
 	float midZ;
-	float tab[6];
+	float *tab;
 	int i;
 
+	if (!(tab = (float*)ft_memalloc(sizeof(float) * 6)))
+		ft_exit_pars(2, "Fail To Malloc", 0, NULL);
 	ft_min_max(obj, tab, posVertex);
 	midX = (tab[1] + tab[0]) / 2;
 	midY = (tab[3] + tab[2]) / 2;
 	midZ = (tab[5] + tab[4]) / 2;
-
 	i = 0;
 	while (i < obj->tabVTri)
 	{
@@ -370,12 +396,19 @@ void	ft_center(t_obj *obj, size_t *posVertex)
 		obj->tabVertexQuad[i++] -= midY;
 		obj->tabVertexQuad[i++] -= midZ;
 	}
+	free(tab);
 }
 
 void 	ft_parsing(t_obj *obj, char *name)
 {
 	size_t posVertex;
+	size_t nbVertex;
+	size_t nbTexture;
+	size_t nbNormal;
 
+	nbVertex = 0;
+	nbTexture = 0;
+	nbNormal = 0;
 	posVertex = 0;
 	if (name == NULL)
 		obj->fileName = "lowtri.obj";
@@ -386,17 +419,13 @@ void 	ft_parsing(t_obj *obj, char *name)
 		printf("path = %s\n", obj->path);
 	}
 	else
-	{
 		ft_exit_pars(2, "Invalid File Name, Need To Be A \".obj\"", 0, NULL);
-		// printf("Invalid File Name : %s\n", name);
-		// exit(-2);
-	}
 	printf("file name = %s\n", obj->fileName);
-	if (ft_size_file_pars(obj) < 0)
+	if (ft_size_file_pars(obj, &nbVertex, &nbTexture, &nbNormal) < 0)
 		exit(0);
-	printf("vertex  = %d\n", obj->nbVertex);
-	printf("texture = %d\n", obj->nbTexture);
-	printf("normal  = %d\n", obj->nbNormal);
+	printf("vertex  = %zu\n", nbVertex);
+	printf("texture = %zu\n", nbTexture);
+	printf("normal  = %zu\n", nbNormal);
 	printf("nb face Tri = %d\n", obj->faceTri);
 	printf("nb face Quad = %d\n", obj->faceQuad);
 	printf("nb face total = %d\n", obj->faceQuad + obj->faceTri);
@@ -409,16 +438,8 @@ void 	ft_parsing(t_obj *obj, char *name)
 	// obj->tabNQuad = 0;
 	// obj->tabTQuad = 0;
 	// obj->size = (3 + 3 + 2) * 3 * (obj->faceTri + obj->faceQuad);
-	if (obj->faceTri > 0
-		&& (!(obj->tabVertexTri = (float*)ft_memalloc(sizeof(float) * (obj->faceTri * 3 * 3)))
-		|| !(obj->tabNormalTri = (float*)ft_memalloc(sizeof(float) * (obj->faceTri * 3 * 3)))
-		|| !(obj->tabTextureTri = (float*)ft_memalloc(sizeof(float) * (obj->faceTri * 3 * 2)))))
-		ft_exit_pars(2, "Fail To Malloc", 0, NULL);
-	if (obj->faceQuad > 0
-			&& (!(obj->tabVertexQuad = (float*)ft_memalloc(sizeof(float) * (obj->faceQuad * 4 * 3)))
-			|| !(obj->tabNormalQuad = (float*)ft_memalloc(sizeof(float) * (obj->faceQuad * 4 * 3)))
-			|| !(obj->tabTextureQuad = (float*)ft_memalloc(sizeof(float) * (obj->faceQuad * 4 * 2)))))
-		ft_exit_pars(2, "Fail To Malloc", 0, NULL);
+	
+	ft_alloc(obj, nbVertex, nbTexture, nbNormal);
 	ft_get_data(obj, &posVertex);
 	ft_center(obj, &posVertex);
 }
