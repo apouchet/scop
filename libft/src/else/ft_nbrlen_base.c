@@ -6,7 +6,7 @@
 /*   By: apouchet <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/29 14:09:51 by apouchet          #+#    #+#             */
-/*   Updated: 2019/02/14 17:57:39 by apouchet         ###   ########.fr       */
+/*   Updated: 2019/06/28 22:31:08 by apouchet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ size_t	ft_nbrlen_base(long nb, unsigned int base)
 	len = 0;
 	if (base < 2 || base > 36)
 		return (0);
-	if (nb < 0 && nb <= -base)
+	if (nb < 0 && nb <= -(int)base)
 	{
 		nb = (nb / base) * -1;
 		len = 2;

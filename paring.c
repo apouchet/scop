@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   paring.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: apouchet <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/02/19 15:00:05 by apouchet          #+#    #+#             */
-/*   Updated: 2019/02/19 22:29:02 by apouchet         ###   ########.fr       */
+/*   Updated: 2019/07/16 09:01:04 by apouchet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,6 +244,30 @@ void		ft_fill(t_obj *obj, size_t a, int size, int type)
 	}
 }
 
+size_t	ft_atost(const char *s)
+{
+	size_t	len;
+	size_t	nb;
+	size_t	i;
+
+	nb = 0;
+	len = 0;
+	i = 0;
+	while (s[i] && (ft_isspace(s[i]) || (s[i] == '+' && ft_isdigit(s[i + 1]))))
+		i++;
+	if (!ft_isdigit(s[i]))
+		return (0);
+	while (s[i] == '0')
+		s++;
+	while (ft_isdigit(s[len]))
+		len++;
+	if (len > 20)
+		return (0);
+	while (ft_isdigit(s[i]))
+		nb = (nb * 10) + (s[i++] - '0');
+	return (nb);
+}
+
 void	ft_get_point(t_obj *obj, char *line, int type, int *i)
 {
 	size_t a[3];
@@ -255,7 +279,7 @@ void	ft_get_point(t_obj *obj, char *line, int type, int *i)
 		if (line[*i] == '-')
 			ft_exit_pars(4, "Negative Value Imposible", 0, line);
 		if (ft_isdigit(line[*i]))
-			a[step++] = ft_atol(&line[*i]) - 1;
+			a[step++] = ft_atost(&line[*i]) - 1;
 		else if (line[*i - 1] == '/' && (line[*i] == '/' || !line[*i] || ft_isspace(line[*i])))
 			a[step++] = 0;
 		else
@@ -366,6 +390,29 @@ void	ft_min_max(t_obj *obj, float *tab, size_t *posVertex)
 			tab[5] = obj->v[i];
 		i++;
 	}
+	
+}
+
+float	ft_fabs(float f)
+{
+	if (f < 0)
+		return (-f);
+	return (f);
+}
+
+float	ft_min(float *tab, float midX, float midY, float midZ)
+{
+	float zoom;
+	
+	zoom = ft_fabs(tab[0] - midX);
+	if (ft_fabs(tab[1] - midX) > zoom)
+		zoom = ft_fabs(tab[1] - midX);
+	if (ft_fabs(tab[2] - midX) > zoom)
+		zoom = ft_fabs(tab[2] - midX);
+	if (ft_fabs(tab[3] - midZ) > zoom)
+		zoom = ft_fabs(tab[3] - midZ);
+	printf("zoom = %f\n", zoom);
+	return (zoom);
 }
 
 void	ft_center(t_obj *obj, size_t *posVertex)
@@ -396,6 +443,7 @@ void	ft_center(t_obj *obj, size_t *posVertex)
 		obj->tabVertexQuad[i++] -= midY;
 		obj->tabVertexQuad[i++] -= midZ;
 	}
+	obj->zoom = ft_min(tab, midX, midY, midZ);
 	free(tab);
 }
 

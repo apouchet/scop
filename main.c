@@ -6,38 +6,41 @@
 /*   By: apouchet <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/27 13:29:46 by apouchet          #+#    #+#             */
-/*   Updated: 2019/03/05 17:23:21 by apouchet         ###   ########.fr       */
+/*   Updated: 2019/07/16 12:10:10 by apouchet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // gcc paring.c main.c ft_read_shader.c ft_read_tga.c ft_file.c -I ~/.brew/include -L ~/.brew/lib -lSDL2 -framework OpenGL -framework Cocoa libft/libft.a
 #include "scop.h"
 
-void	ft_creat_glBuffer(size_t size, size_t tabVer, size_t tabTex, size_t tabNor)
-{
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_tri);
-	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabVer, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+// void	ft_creat_glBuffer(size_t size, size_t tabVer, size_t tabTex, size_t tabNor)
+// {
+// 	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_tri);
+// 	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabVer, GL_STATIC_DRAW);
+// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+// 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_tri);
-	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabNor, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
+// 	glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_tri);
+// 	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabNor, GL_STATIC_DRAW);
+// 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+// 	glEnableVertexAttribArray(1);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_tri);
-	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabTex, GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(2);
-}
+// 	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_tri);
+// 	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabTex, GL_STATIC_DRAW);
+// 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+// 	glEnableVertexAttribArray(2);
+// }
 
 int		main(int argc, char **argv)
 {	
+	// char		*a = "		12345678910111213";
+	// printf("a = -|%s|-, size_t = %zu\n", a, ft_atost(a));
+	// return 0;
 	int			terminer;
 	int			key;
 	float		moveX = 0;
 	float		moveY = 0;
-	float		moveZ = -1;
+	float		moveZ;
 	t_matrix	mx;
 	t_tga		tga;
 	t_sdl		sdl;
@@ -66,10 +69,38 @@ int		main(int argc, char **argv)
 		ft_parsing(&obj, argv[1]);
 	else
 		ft_parsing(&obj, NULL);
-
+	printf("zoom = %f\n", obj.zoom);
+	moveZ = -(obj.zoom + 1);
 	printf("face tri %d\n", obj.faceTri);
 	printf("face quad %d\n", obj.faceQuad);
 	printf("face total %d\n", obj.faceQuad + obj.faceTri);
+	
+	float ww = 0.5;
+	for (int w = 0; w < obj.faceTri * 3 * 3;)
+	{
+		// if (w + 1 % 3 == 0)
+		// 	ww += 0.5f;
+		if (ww > 1)
+			ww = 0;
+		// 	ww = 0;
+		for (int k = 0; k < 9; k++)
+			obj.tabNormalTri[w++] = ww;
+
+		// obj.tabNormalTri[w] = ww;
+		// obj.tabNormalTri[w + 1] = ww;
+		// obj.tabNormalTri[w + 2] = ww;
+		// w += 3;
+		ww += 0.5f;
+	}
+	ww = 0;
+	for (int w = 0; w < obj.faceQuad * 4 * 3;)
+	{
+		if (ww > 1)
+			ww = 0;
+		for (int k = 0; k < 12; k++)
+			obj.tabNormalTri[w++] = ww;
+		ww += 0.5f;
+	}
 
 	unsigned int VAO_tri;
 	unsigned int VBO_vertex_tri, VBO_normal_tri, VBO_texture_tri;
@@ -79,20 +110,20 @@ int		main(int argc, char **argv)
 	glGenBuffers(1, &VBO_texture_tri);
 	glBindVertexArray(VAO_tri);
 
-	ft_creat_glBuffer(size_t obj.faceTri * 3 * 3, obj.tabVertexTri, obj.tabTextureTri, obj.tabNormalTri)
+	// ft_creat_glBuffer(size_t obj.faceTri * 3 * 3, obj.tabVertexTri, obj.tabTextureTri, obj.tabNormalTri)
 
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_tri);
-	// glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabVertexTri, GL_STATIC_DRAW);
-	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	// glEnableVertexAttribArray(0);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_tri);
-	// glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabNormalTri, GL_STATIC_DRAW);
-	// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	// glEnableVertexAttribArray(1);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_tri);
-	// glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 2 * sizeof(float), obj.tabTextureTri, GL_STATIC_DRAW);
-	// glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	// glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_tri);
+	glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabVertexTri, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_tri);
+	glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabNormalTri, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_tri);
+	glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 2 * sizeof(float), obj.tabTextureTri, GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
 	glBindVertexArray(0);

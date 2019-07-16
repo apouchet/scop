@@ -6,7 +6,7 @@
 /*   By: apouchet <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/02/13 17:14:17 by apouchet          #+#    #+#             */
-/*   Updated: 2019/02/13 17:14:19 by apouchet         ###   ########.fr       */
+/*   Updated: 2019/07/16 08:56:34 by apouchet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ typedef struct		s_obj
 	float			*tabTextureTri;
 	size_t			tabTTri;
 	char			*path;
+	float			zoom;
 }					t_obj;
 
 typedef struct	s_tga
@@ -114,6 +115,7 @@ typedef struct	s_matrix
 	float		move[4][4];
 	float		pers[4][4];
 
+
 	float		top;
 	float		bottom;
 	float		left;
@@ -148,5 +150,6 @@ void					ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ);
 
 void					ft_perspective(t_matrix *mx, double near, double far);
 
+size_t					ft_atost(const char *s);
 
 #endif
