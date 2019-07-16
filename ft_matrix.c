@@ -44,3 +44,27 @@ void	ft_perspective(t_matrix *mx, double near, double far)
 	mx->pers[2][3] = -((mx->far + mx->near) / (mx->far - mx->near));
 	mx->pers[3][3] = 1;
 }
+
+void	ft_matrix(GLuint programID, int key, t_matrix *mx)
+{
+	unsigned int	matLoc;
+	static int		acolor = 0;
+
+	if (key == '.')
+	{
+		acolor = (acolor >= 1? (acolor == 1? 2 : 0) : 1);
+		printf("acolor = %f\n", acolor);
+	}
+	gl_perspective(mx);
+	ft_perspective(mx, 0.01f, 100.0f);
+	matLoc = glGetUniformLocation(programID, "color");
+	glUniform1f(matLoc, acolor);
+	matLoc = glGetUniformLocation(programID, "rotate");
+	glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx->rotate[0][0]);
+	matLoc = glGetUniformLocation(programID, "pers");
+	glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx->pers[0][0]);
+	matLoc = glGetUniformLocation(programID, "move");
+	glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx->pers[0][0]);
+	matLoc = glGetUniformLocation(programID, "base");
+	glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx->base[0][0]);
+}

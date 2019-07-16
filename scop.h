@@ -126,6 +126,18 @@ typedef struct	s_matrix
 	float		ratio;
 }				t_matrix;
 
+typedef struct	s_control
+{
+	int			key;
+	float		moveX;
+	float		moveY;
+	float		moveZ;
+	float		rotX;
+	float		rotY;
+	float		rotZ;
+	
+}				t_control;
+
 char					*ft_get_file(char *name, char *file);
 
 int						ft_size_file(char *name);
@@ -149,6 +161,8 @@ void					ft_trans(t_matrix *mx, float x, float y, float z);
 void					ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ);
 
 void					ft_perspective(t_matrix *mx, double near, double far);
+
+void					ft_matrix(GLuint programID, int key, t_matrix *mx);
 
 size_t					ft_atost(const char *s);
 

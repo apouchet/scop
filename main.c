@@ -13,30 +13,46 @@
 // gcc paring.c main.c ft_read_shader.c ft_read_tga.c ft_file.c -I ~/.brew/include -L ~/.brew/lib -lSDL2 -framework OpenGL -framework Cocoa libft/libft.a
 #include "scop.h"
 
-// void	ft_creat_glBuffer(size_t size, size_t tabVer, size_t tabTex, size_t tabNor)
-// {
-// 	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_tri);
-// 	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabVer, GL_STATIC_DRAW);
-// 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-// 	glEnableVertexAttribArray(0);
+void	control(int key, t_control *ctrl)
+{
 
-// 	glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_tri);
-// 	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabNor, GL_STATIC_DRAW);
-// 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-// 	glEnableVertexAttribArray(1);
+}
 
-// 	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_tri);
-// 	glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), tabTex, GL_STATIC_DRAW);
-// 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-// 	glEnableVertexAttribArray(2);
-// }
+void	ft_creat_glBuffer(t_obj *obj, unsigned int VBO[3], int type)
+{
+	int		size;
+	float	*tab[3];
+
+	size = (type == 1 ? obj->faceQuad * 4 : obj->faceTri * 3);
+	tab[0] = obj->tabVertexTri;
+	tab[1] = obj->tabNormalTri;
+	tab[2] = obj->tabTextureTri;
+	if (type == 1)
+	{
+		tab[0] = obj->tabVertexQuad;
+		tab[1] = obj->tabNormalQuad;
+		tab[2] = obj->tabTextureQuad;
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, size * 3 * sizeof(float), tab[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBufferData(GL_ARRAY_BUFFER, size * 3 * sizeof(float), tab[1], GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+	glBufferData(GL_ARRAY_BUFFER, size * 2 * sizeof(float), tab[2], GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(2);
+}
 
 int		main(int argc, char **argv)
 {	
 	// char		*a = "		12345678910111213";
 	// printf("a = -|%s|-, size_t = %zu\n", a, ft_atost(a));
 	// return 0;
-	int			terminer;
+	int			end;
 	int			key;
 	float		moveX = 0;
 	float		moveY = 0;
@@ -55,7 +71,7 @@ int		main(int argc, char **argv)
 	bzero(&mx, sizeof(mx));
 
 
-	terminer = 0;
+	end = 0;
 	if (ft_start_sdl_opengl(&sdl) < 0)
 		return (-1);
 
@@ -78,18 +94,10 @@ int		main(int argc, char **argv)
 	float ww = 0.5;
 	for (int w = 0; w < obj.faceTri * 3 * 3;)
 	{
-		// if (w + 1 % 3 == 0)
-		// 	ww += 0.5f;
 		if (ww > 1)
 			ww = 0;
-		// 	ww = 0;
 		for (int k = 0; k < 9; k++)
 			obj.tabNormalTri[w++] = ww;
-
-		// obj.tabNormalTri[w] = ww;
-		// obj.tabNormalTri[w + 1] = ww;
-		// obj.tabNormalTri[w + 2] = ww;
-		// w += 3;
 		ww += 0.5f;
 	}
 	ww = 0;
@@ -98,32 +106,19 @@ int		main(int argc, char **argv)
 		if (ww > 1)
 			ww = 0;
 		for (int k = 0; k < 12; k++)
-			obj.tabNormalTri[w++] = ww;
+			obj.tabNormalQuad[w++] = ww;
 		ww += 0.5f;
 	}
 
 	unsigned int VAO_tri;
-	unsigned int VBO_vertex_tri, VBO_normal_tri, VBO_texture_tri;
+	unsigned int VBO_tri[3];
 	glGenVertexArrays(1, &VAO_tri);
-	glGenBuffers(1, &VBO_vertex_tri);
-	glGenBuffers(1, &VBO_normal_tri);
-	glGenBuffers(1, &VBO_texture_tri);
+	glGenBuffers(1, &VBO_tri[0]);
+	glGenBuffers(1, &VBO_tri[1]);
+	glGenBuffers(1, &VBO_tri[2]);
 	glBindVertexArray(VAO_tri);
 
-	// ft_creat_glBuffer(size_t obj.faceTri * 3 * 3, obj.tabVertexTri, obj.tabTextureTri, obj.tabNormalTri)
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_tri);
-	glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabVertexTri, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_tri);
-	glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 3 * sizeof(float), obj.tabNormalTri, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_tri);
-	glBufferData(GL_ARRAY_BUFFER, obj.faceTri * 3 * 2 * sizeof(float), obj.tabTextureTri, GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(2);
+	ft_creat_glBuffer(&obj, VBO_tri, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
 	glBindVertexArray(0);
@@ -133,24 +128,14 @@ int		main(int argc, char **argv)
 
 	unsigned int VAO_quad;
 	unsigned int VBO_vertex_quad, VBO_normal_quad, VBO_texture_quad;
+	unsigned int VBO_quad[3];
 	glGenVertexArrays(1, &VAO_quad);
-	glGenBuffers(1, &VBO_vertex_quad);
-	glGenBuffers(1, &VBO_normal_quad);
-	glGenBuffers(1, &VBO_texture_quad);
+	glGenBuffers(1, &VBO_quad[0]);
+	glGenBuffers(1, &VBO_quad[1]);
+	glGenBuffers(1, &VBO_quad[2]);
 	glBindVertexArray(VAO_quad);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_vertex_quad);
-	glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 3 * sizeof(float), obj.tabVertexQuad, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_normal_quad);
-	glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 3 * sizeof(float), obj.tabNormalQuad, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_texture_quad);
-	glBufferData(GL_ARRAY_BUFFER, obj.faceQuad * 4 * 2 * sizeof(float), obj.tabTextureQuad, GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(2);
+	ft_creat_glBuffer(&obj, VBO_quad, 1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0); 
 	glBindVertexArray(0);
@@ -159,9 +144,9 @@ int		main(int argc, char **argv)
 	free(obj.tabVertexQuad);
 	free(obj.tabVertexTri);
 
+
 	unsigned int	texture = glGetUniformLocation(gl.programID, "Texture");
 	unsigned char	*data;
-
 	
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -201,13 +186,13 @@ int		main(int argc, char **argv)
 
 
 	glUseProgram(gl.programID);
-	while(!terminer)
+	while(!end)
 	{
 		SDL_WaitEvent(&sdl.evenements);
 		key = sdl.evenements.window.event;
 		// printf("key = %d - %C\n", key, key);
 		if(key == SDL_WINDOWEVENT_CLOSE || key == ' ')
-			terminer = 1;
+			end = 1;
 		// ver = tan = hor = 0;
 		else if (key == 'f')
 			ver -= PI / tour;
@@ -231,10 +216,10 @@ int		main(int argc, char **argv)
 		// 	tour = 0;
 		// else if (key == 'x')
 		// 	tour = PI / 2;
-		else if (key == 'v')
-			fov += 5;
-		else if (key == 'b')
-			fov -= 5;
+		// else if (key == 'v')
+		// 	fov += 5;
+		// else if (key == 'b')
+		// 	fov -= 5;
 
 		else if (key == 'w')
 			moveY += 0.1f;
@@ -243,7 +228,7 @@ int		main(int argc, char **argv)
 		else if (key == 'd')
 			moveX += 0.1f;
 		else if (key == 'a')
-			moveX -= 0.1f;
+			moveX -= 0.1f; 
 		else if (key == 'z')
 			moveZ += 0.1f;
 		else if (key == 'x')
@@ -253,40 +238,17 @@ int		main(int argc, char **argv)
 			moveZ = moveX = moveY = 0;
 		else if (key == 'o')
 			ver = hor = tan = 0;
-		else if (key == '.')
-		{
-			acolor = (acolor >= 1? (acolor == 1? 2 : 0) : 1);
-			printf("acolor = %f\n", acolor);
-		}
+		// else 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		printf("fov = %d\n", fov);
 		// glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
-
-		gl_perspective(&mx);
-
 		ft_rotate(&mx, hor, ver, tan);
-		ft_perspective(&mx, 0.01f, 100.0f);
 		ft_trans(&mx, moveX, moveY, moveZ);
-
-		unsigned int matLoc;
-
-		matLoc = glGetUniformLocation(gl.programID, "color");
-		glUniform1f(matLoc, acolor);
-
-		matLoc = glGetUniformLocation(gl.programID, "rotate");
-		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.rotate[0][0]);
-
-		matLoc = glGetUniformLocation(gl.programID, "pers");
-		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.pers[0][0]);
-
-		matLoc = glGetUniformLocation(gl.programID, "move");
-		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.pers[0][0]);
-
-		matLoc = glGetUniformLocation(gl.programID, "base");
-		glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx.base[0][0]);
+		ft_matrix(gl.programID, key, &mx);
+		
 
 		glActiveTexture(GL_TEXTURE2);
 		glBindVertexArray(VAO_tri); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
