@@ -171,4 +171,6 @@ void					ft_matrix(GLuint programID, t_control *ctrl, t_matrix *mx);
 
 size_t					ft_atost(const char *s);
 
+void					ft_glBuffer(t_obj *obj, t_gl *gl);
+
 #endif

@@ -17,37 +17,20 @@ void	ft_control(t_control *ctrl, SDL_Event evenements)
 {
 	SDL_WaitEvent(&evenements);
 	ctrl->key = evenements.window.event;
-	// printf("key = %d - %C\n", key, key);
 	if(ctrl->key == SDL_WINDOWEVENT_CLOSE || ctrl->key == ' ')
 		ctrl->end = 1;
-	// ver = tan = hor = 0;
 	else if (ctrl->key == 'f')
 		ctrl->rotY -= PI / ctrl->step;
 	else if (ctrl->key == 'h')
 		ctrl->rotY += PI / ctrl->step;
-
 	else if (ctrl->key == 'g')
 		ctrl->rotX -= PI / ctrl->step;
 	else if (ctrl->key == 't')
 		ctrl->rotX += PI / ctrl->step;
-
 	else if (ctrl->key == 'y')
 		ctrl->rotZ -= PI / ctrl->step;
 	else if (ctrl->key == 'r')
 		ctrl->rotZ += PI / ctrl->step;
-	// if (ctrl.step < 0)
-	// 	ctrl.step += PI;
-	// else if (ctrl.step > 3 * PI)
-	// 	ctrl.step -= PI;
-	// else if (key == 'w')
-	// 	ctrl.step = 0;
-	// else if (key == 'x')
-	// 	ctrl.step = PI / 2;
-	// else if (key == 'v')
-	// 	fov += 5;
-	// else if (key == 'b')
-	// 	fov -= 5;
-
 	else if (ctrl->key == 'w')
 		ctrl->moveY += 0.1f;
 	else if (ctrl->key == 's')
@@ -68,56 +51,7 @@ void	ft_control(t_control *ctrl, SDL_Event evenements)
 	// else 
 }
 
-void	ft_creat_glBuffer(t_obj *obj, unsigned int VBO[3], int type)
-{
-	int		size;
-	float	*tab[3];
 
-	size = (type == 1 ? obj->faceQuad * 4 : obj->faceTri * 3);
-	tab[0] = obj->tabVertexTri;
-	tab[1] = obj->tabNormalTri;
-	tab[2] = obj->tabTextureTri;
-	if (type == 1)
-	{
-		tab[0] = obj->tabVertexQuad;
-		tab[1] = obj->tabNormalQuad;
-		tab[2] = obj->tabTextureQuad;
-	}
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-	glBufferData(GL_ARRAY_BUFFER, size * 3 * sizeof(float), tab[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, size * 3 * sizeof(float), tab[1], GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-	glBufferData(GL_ARRAY_BUFFER, size * 2 * sizeof(float), tab[2], GL_STATIC_DRAW);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(2);
-}
-
-void	ft_glBuffer(t_obj *obj, t_gl *gl)
-{
-	glGenVertexArrays(1, &gl->VAO_tri);
-	glGenBuffers(1, &gl->VBO_tri[0]);
-	glGenBuffers(1, &gl->VBO_tri[1]);
-	glGenBuffers(1, &gl->VBO_tri[2]);
-	glBindVertexArray(gl->VAO_tri);
-	ft_creat_glBuffer(obj, gl->VBO_tri, 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0); 
-	glBindVertexArray(0);
-	glGenVertexArrays(1, &gl->VAO_quad);
-	glGenBuffers(1, &gl->VBO_quad[0]);
-	glGenBuffers(1, &gl->VBO_quad[1]);
-	glGenBuffers(1, &gl->VBO_quad[2]);
-	glBindVertexArray(gl->VAO_quad);
-	ft_creat_glBuffer(obj, gl->VBO_quad, 1);
-	glBindBuffer(GL_ARRAY_BUFFER, 0); 
-	glBindVertexArray(0);
-	free(obj->tabVertexQuad);
-	free(obj->tabVertexTri);
-}
 
 void	ft_read_texture(GLuint programID, char *texture)
 {
@@ -151,28 +85,42 @@ void	ft_read_texture(GLuint programID, char *texture)
 	}
 }
 
+void	ft_main_loop(t_sdl *sdl, t_gl *gl, t_obj *obj)
+{
+	t_matrix	mx;
+	t_control	ctrl;
+	int			i;
+
+	bzero(&mx, sizeof(mx));
+	bzero(&ctrl, sizeof(t_control));
+	ctrl.step = 20;
+	ctrl.moveZ = -(obj->zoom + 1);
+	while(!ctrl.end)
+	{
+		i = 0;
+		ft_control(&ctrl, sdl->evenements);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		ft_matrix(gl->programID, &ctrl, &mx);
+		glActiveTexture(GL_TEXTURE2);
+		glBindVertexArray(gl->VAO_tri);
+		glDrawArrays(GL_TRIANGLES, 0, obj->faceTri * 3);
+		glBindVertexArray(gl->VAO_quad);
+			while (i < obj->faceQuad * 4)
+				glDrawArrays(GL_TRIANGLE_FAN, i += 4, 4);
+		SDL_GL_SwapWindow(sdl->fenetre);
+	}
+}
+
 int		main(int argc, char **argv)
 {	
-	// char		*a = "		12345678910111213";
-	// printf("a = -|%s|-, size_t = %zu\n", a, ft_atost(a));
-	// return 0;
-	// int			end;
-	// int			key;
-	// float		moveX = 0;
-	// float		moveY = 0;
-	// float		moveZ;
-	t_matrix	mx;
 	t_sdl		sdl;
 	t_gl		gl;
 	t_obj		obj;
-	t_control	ctrl;
 
-	bzero(&ctrl, sizeof(t_control));
 	bzero(&obj, sizeof(t_obj));
 	bzero(&sdl, sizeof(sdl));
 	bzero(&gl, sizeof(gl));
-	bzero(&mx, sizeof(mx));
-	ctrl.step = 20;
 
 	// end = 0;
 	if (ft_start_sdl_opengl(&sdl) < 0)
@@ -188,8 +136,7 @@ int		main(int argc, char **argv)
 		ft_parsing(&obj, argv[1]);
 	else
 		ft_parsing(&obj, NULL);
-	// printf("zoom = %f\n", obj.zoom);
-	ctrl.moveZ = -(obj.zoom + 1);
+	
 	// printf("face tri %d\n", obj.faceTri);
 	// printf("face quad %d\n", obj.faceQuad);
 	// printf("face total %d\n", obj.faceQuad + obj.faceTri);
@@ -220,26 +167,8 @@ int		main(int argc, char **argv)
 	float	acolor = 1;
 
 	glUseProgram(gl.programID);
-	while(!ctrl.end)
-	{
-		ft_control(&ctrl, sdl.evenements);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// printf("fov = %d\n", fov);
-		// glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
-		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-		// glEnableVertexAttribArray(0);
-		
-		ft_matrix(gl.programID, &ctrl, &mx);
-		glActiveTexture(GL_TEXTURE2);
-		glBindVertexArray(gl.VAO_tri); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-		glDrawArrays(GL_TRIANGLES, 0, obj.faceTri * 3);
+	ft_main_loop(&sdl, &gl, &obj);
 
-		glBindVertexArray(gl.VAO_quad);
-		for (int k = 0; k < obj.faceQuad * 4; k += 4)
-			glDrawArrays(GL_TRIANGLE_FAN, k, 4);
-		SDL_GL_SwapWindow(sdl.fenetre); // Actualisation de la fenêtre
-	}
 	glDeleteShader(gl.vertexID);
 	glDeleteShader(gl.fragmentID);
 	// On quitte la SDL
