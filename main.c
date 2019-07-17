@@ -13,9 +13,59 @@
 // gcc paring.c main.c ft_read_shader.c ft_read_tga.c ft_file.c -I ~/.brew/include -L ~/.brew/lib -lSDL2 -framework OpenGL -framework Cocoa libft/libft.a
 #include "scop.h"
 
-void	control(int key, t_control *ctrl)
+void	ft_control(t_control *ctrl, SDL_Event evenements)
 {
+	SDL_WaitEvent(&evenements);
+	ctrl->key = evenements.window.event;
+	// printf("key = %d - %C\n", key, key);
+	if(ctrl->key == SDL_WINDOWEVENT_CLOSE || ctrl->key == ' ')
+		ctrl->end = 1;
+	// ver = tan = hor = 0;
+	else if (ctrl->key == 'f')
+		ctrl->rotY -= PI / ctrl->step;
+	else if (ctrl->key == 'h')
+		ctrl->rotY += PI / ctrl->step;
 
+	else if (ctrl->key == 'g')
+		ctrl->rotX -= PI / ctrl->step;
+	else if (ctrl->key == 't')
+		ctrl->rotX += PI / ctrl->step;
+
+	else if (ctrl->key == 'y')
+		ctrl->rotZ -= PI / ctrl->step;
+	else if (ctrl->key == 'r')
+		ctrl->rotZ += PI / ctrl->step;
+	// if (ctrl.step < 0)
+	// 	ctrl.step += PI;
+	// else if (ctrl.step > 3 * PI)
+	// 	ctrl.step -= PI;
+	// else if (key == 'w')
+	// 	ctrl.step = 0;
+	// else if (key == 'x')
+	// 	ctrl.step = PI / 2;
+	// else if (key == 'v')
+	// 	fov += 5;
+	// else if (key == 'b')
+	// 	fov -= 5;
+
+	else if (ctrl->key == 'w')
+		ctrl->moveY += 0.1f;
+	else if (ctrl->key == 's')
+		ctrl->moveY -= 0.1f;
+	else if (ctrl->key == 'd')
+		ctrl->moveX += 0.1f;
+	else if (ctrl->key == 'a')
+		ctrl->moveX -= 0.1f; 
+	else if (ctrl->key == 'z')
+		ctrl->moveZ += 0.1f;
+	else if (ctrl->key == 'x')
+		ctrl->moveZ -= 0.1f;
+
+	// else if (ctrl->key == 'p')
+	// 	ctrl->moveZ = moveX = moveY = 0;
+	// else if (ctrl->key == 'o')
+	// 	ctrl->ver = hor = tan = 0;
+	// else 
 }
 
 void	ft_creat_glBuffer(t_obj *obj, unsigned int VBO[3], int type)
@@ -47,49 +97,102 @@ void	ft_creat_glBuffer(t_obj *obj, unsigned int VBO[3], int type)
 	glEnableVertexAttribArray(2);
 }
 
+void	ft_glBuffer(t_obj *obj, t_gl *gl)
+{
+	glGenVertexArrays(1, &gl->VAO_tri);
+	glGenBuffers(1, &gl->VBO_tri[0]);
+	glGenBuffers(1, &gl->VBO_tri[1]);
+	glGenBuffers(1, &gl->VBO_tri[2]);
+	glBindVertexArray(gl->VAO_tri);
+	ft_creat_glBuffer(obj, gl->VBO_tri, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0); 
+	glBindVertexArray(0);
+	glGenVertexArrays(1, &gl->VAO_quad);
+	glGenBuffers(1, &gl->VBO_quad[0]);
+	glGenBuffers(1, &gl->VBO_quad[1]);
+	glGenBuffers(1, &gl->VBO_quad[2]);
+	glBindVertexArray(gl->VAO_quad);
+	ft_creat_glBuffer(obj, gl->VBO_quad, 1);
+	glBindBuffer(GL_ARRAY_BUFFER, 0); 
+	glBindVertexArray(0);
+	free(obj->tabVertexQuad);
+	free(obj->tabVertexTri);
+}
+
+void	ft_read_texture(GLuint programID, char *texture)
+{
+	t_tga			tga;
+	unsigned int	gl_texture;
+	unsigned char	*data;
+
+	bzero(&tga, sizeof(t_tga));
+	gl_texture = glGetUniformLocation(programID, "Texture");
+	glGenTextures(1, &gl_texture);
+	glBindTexture(GL_TEXTURE_2D, gl_texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	if (texture)
+		data = ft_read_tga_headers(texture, &tga);
+	else
+		data = ft_read_tga_headers("img/face.tga", &tga);
+	if (data)
+	{
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, ((tga.bpp == 4) ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
+	    glGenerateMipmap(GL_TEXTURE_2D);
+		free(data);
+	}
+	else
+	{
+		printf("Failed to load texture\n");
+		exit(0);
+		// return (-1);
+	}
+}
+
 int		main(int argc, char **argv)
 {	
 	// char		*a = "		12345678910111213";
 	// printf("a = -|%s|-, size_t = %zu\n", a, ft_atost(a));
 	// return 0;
-	int			end;
-	int			key;
-	float		moveX = 0;
-	float		moveY = 0;
-	float		moveZ;
+	// int			end;
+	// int			key;
+	// float		moveX = 0;
+	// float		moveY = 0;
+	// float		moveZ;
 	t_matrix	mx;
-	t_tga		tga;
 	t_sdl		sdl;
 	t_gl		gl;
 	t_obj		obj;
+	t_control	ctrl;
 
-
+	bzero(&ctrl, sizeof(t_control));
 	bzero(&obj, sizeof(t_obj));
-	bzero(&tga, sizeof(t_tga));
 	bzero(&sdl, sizeof(sdl));
 	bzero(&gl, sizeof(gl));
 	bzero(&mx, sizeof(mx));
+	ctrl.step = 20;
 
-
-	end = 0;
+	// end = 0;
 	if (ft_start_sdl_opengl(&sdl) < 0)
 		return (-1);
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	ft_shaders("Shaders/shader.vs", "Shaders/shader.fs", &gl);
-	printf("OpenGL version : %s\n", glGetString(GL_VERSION));
-	printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	// printf("OpenGL version : %s\n", glGetString(GL_VERSION));
+	// printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 	if (argc == 2)
 		ft_parsing(&obj, argv[1]);
 	else
 		ft_parsing(&obj, NULL);
-	printf("zoom = %f\n", obj.zoom);
-	moveZ = -(obj.zoom + 1);
-	printf("face tri %d\n", obj.faceTri);
-	printf("face quad %d\n", obj.faceQuad);
-	printf("face total %d\n", obj.faceQuad + obj.faceTri);
+	// printf("zoom = %f\n", obj.zoom);
+	ctrl.moveZ = -(obj.zoom + 1);
+	// printf("face tri %d\n", obj.faceTri);
+	// printf("face quad %d\n", obj.faceQuad);
+	// printf("face total %d\n", obj.faceQuad + obj.faceTri);
 	
 	float ww = 0.5;
 	for (int w = 0; w < obj.faceTri * 3 * 3;)
@@ -110,151 +213,29 @@ int		main(int argc, char **argv)
 		ww += 0.5f;
 	}
 
-	unsigned int VAO_tri;
-	unsigned int VBO_tri[3];
-	glGenVertexArrays(1, &VAO_tri);
-	glGenBuffers(1, &VBO_tri[0]);
-	glGenBuffers(1, &VBO_tri[1]);
-	glGenBuffers(1, &VBO_tri[2]);
-	glBindVertexArray(VAO_tri);
+	ft_glBuffer(&obj, &gl);
 
-	ft_creat_glBuffer(&obj, VBO_tri, 0);
+	ft_read_texture(gl.programID, obj.texture);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0); 
-	glBindVertexArray(0);
-
-	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-
-	unsigned int VAO_quad;
-	unsigned int VBO_vertex_quad, VBO_normal_quad, VBO_texture_quad;
-	unsigned int VBO_quad[3];
-	glGenVertexArrays(1, &VAO_quad);
-	glGenBuffers(1, &VBO_quad[0]);
-	glGenBuffers(1, &VBO_quad[1]);
-	glGenBuffers(1, &VBO_quad[2]);
-	glBindVertexArray(VAO_quad);
-
-	ft_creat_glBuffer(&obj, VBO_quad, 1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0); 
-	glBindVertexArray(0);
-
-	
-	free(obj.tabVertexQuad);
-	free(obj.tabVertexTri);
-
-
-	unsigned int	texture = glGetUniformLocation(gl.programID, "Texture");
-	unsigned char	*data;
-	
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	printf("texture = -|%s|-\n", obj.texture);
-	if (obj.texture)
-		data = ft_read_tga_headers(obj.texture, &tga);
-	else
-		data = ft_read_tga_headers("img/face.tga", &tga);
-	if (data)
-	{
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, ((tga.bpp == 4) ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
-	    glGenerateMipmap(GL_TEXTURE_2D);
-		free(data);
-	}
-	else
-	{
-		printf("Failed to load texture\n");
-		return (-1);
-	}
-	glUseProgram(gl.programID);
-	// glUniform1i(texture1, 0); // Texture unit 0 is for base images.
-	// glUniform1i(texture2, 1); // Texture unit 0 is for base images.
-
-
-	float	tour = 20;
-	float	hor = 0;
-	float	ver = 0;
-	float	tan = 0;
-	int		fov = 45;
 	float	acolor = 1;
-	int		deg = 0;
-
-
 
 	glUseProgram(gl.programID);
-	while(!end)
+	while(!ctrl.end)
 	{
-		SDL_WaitEvent(&sdl.evenements);
-		key = sdl.evenements.window.event;
-		// printf("key = %d - %C\n", key, key);
-		if(key == SDL_WINDOWEVENT_CLOSE || key == ' ')
-			end = 1;
-		// ver = tan = hor = 0;
-		else if (key == 'f')
-			ver -= PI / tour;
-		else if (key == 'h')
-			ver += PI / tour;
-
-		else if (key == 'g')
-			hor -= PI / tour;
-		else if (key == 't')
-			hor += PI / tour;
-
-		else if (key == 'y')
-			tan -= PI / tour;
-		else if (key == 'r')
-			tan += PI / tour;
-		// if (tour < 0)
-		// 	tour += PI;
-		// else if (tour > 3 * PI)
-		// 	tour -= PI;
-		// else if (key == 'w')
-		// 	tour = 0;
-		// else if (key == 'x')
-		// 	tour = PI / 2;
-		// else if (key == 'v')
-		// 	fov += 5;
-		// else if (key == 'b')
-		// 	fov -= 5;
-
-		else if (key == 'w')
-			moveY += 0.1f;
-		else if (key == 's')
-			moveY -= 0.1f;
-		else if (key == 'd')
-			moveX += 0.1f;
-		else if (key == 'a')
-			moveX -= 0.1f; 
-		else if (key == 'z')
-			moveZ += 0.1f;
-		else if (key == 'x')
-			moveZ -= 0.1f;
-
-		else if (key == 'p')
-			moveZ = moveX = moveY = 0;
-		else if (key == 'o')
-			ver = hor = tan = 0;
-		// else 
+		ft_control(&ctrl, sdl.evenements);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		printf("fov = %d\n", fov);
+		// printf("fov = %d\n", fov);
 		// glClear(GL_COLOR_BUFFER_BIT); // Nettoyage de l'écran
 		// glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 		// glEnableVertexAttribArray(0);
-		ft_rotate(&mx, hor, ver, tan);
-		ft_trans(&mx, moveX, moveY, moveZ);
-		ft_matrix(gl.programID, key, &mx);
 		
-
+		ft_matrix(gl.programID, &ctrl, &mx);
 		glActiveTexture(GL_TEXTURE2);
-		glBindVertexArray(VAO_tri); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+		glBindVertexArray(gl.VAO_tri); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 		glDrawArrays(GL_TRIANGLES, 0, obj.faceTri * 3);
 
-		glBindVertexArray(VAO_quad);
+		glBindVertexArray(gl.VAO_quad);
 		for (int k = 0; k < obj.faceQuad * 4; k += 4)
 			glDrawArrays(GL_TRIANGLE_FAN, k, 4);
 		SDL_GL_SwapWindow(sdl.fenetre); // Actualisation de la fenêtre

@@ -91,13 +91,17 @@ typedef struct	s_sdl
 	SDL_Event		evenements;
 }				t_sdl;
 
-typedef struct	s_gl
-{
-	GLuint		vertexID;
-	GLuint		fragmentID;
-	GLuint		programID;
-	GLint		attributeId;
-}				t_gl;
+typedef struct		s_gl
+{	
+	GLuint			vertexID;
+	GLuint			fragmentID;
+	GLuint			programID;
+	GLint			attributeId;
+	unsigned int	VAO_tri;
+	unsigned int	VBO_tri[3];
+	unsigned int	VAO_quad;
+	unsigned int	VBO_quad[3];
+}					t_gl;
 
 typedef struct	s_shd
 {
@@ -129,13 +133,14 @@ typedef struct	s_matrix
 typedef struct	s_control
 {
 	int			key;
+	int			end;
 	float		moveX;
 	float		moveY;
 	float		moveZ;
 	float		rotX;
 	float		rotY;
 	float		rotZ;
-	
+	int			step;
 }				t_control;
 
 char					*ft_get_file(char *name, char *file);
@@ -162,7 +167,7 @@ void					ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ);
 
 void					ft_perspective(t_matrix *mx, double near, double far);
 
-void					ft_matrix(GLuint programID, int key, t_matrix *mx);
+void					ft_matrix(GLuint programID, t_control *ctrl, t_matrix *mx);
 
 size_t					ft_atost(const char *s);
 
