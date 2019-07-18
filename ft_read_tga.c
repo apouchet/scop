@@ -43,19 +43,18 @@ static short			ft_short_little_debian(char a, char b)
 static unsigned char	*ft_read_tga(int fd, size_t size, int rgb)
 {
 	int				rd;
-	int				i;
+	size_t			i;
 	unsigned char	swap;
 	unsigned char	*file;
 
 	i = 0;
-	int j = size - 1;
 	if (!(file = (unsigned char*)malloc(size + 1)))// ||
 		// (rd = read(fd, file, size)) < size)
 	{
 		printf("malloc 1 fail ft_read_tga\n");
 		return (NULL);
 	}
-	if ((rd = read(fd, file, size)) < size)
+	if ((rd = read(fd, file, size)) < (ssize_t)size)
 	{
 		printf("rd = %d, size = %zu\n", rd, size);
 		printf("read fail ft_read_tga\n");

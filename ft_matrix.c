@@ -1,5 +1,22 @@
 #include "scop.h"
 
+void		gl_perspective(t_matrix *mx) 
+{ 
+	float scale;
+
+	mx->fov = 90;
+	mx->near = 0.1f;
+	mx->far = 100.0f;
+	mx->ratio = WINDOWX / WINDOWY;
+	scale = tan(mx->fov * 0.5 * PI / 180) * mx->near;
+
+	mx->right = mx->ratio * scale;
+	mx->left = -mx->right;
+
+	mx->top = scale;
+	mx->bottom = -mx->top;
+}
+
 void	ft_trans(t_matrix *mx, float x, float y, float z)
 {
 	mx->base[0][0] = 1;
@@ -34,7 +51,7 @@ void	ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ)
 	mx->rotate[3][3] = 1.0f;
 }
 
-void	ft_perspective(t_matrix *mx, double near, double far)
+void	ft_perspective(t_matrix *mx)
 {
 	mx->pers[0][0] = 2 * mx->near / (mx->right - mx->left);
 	mx->pers[1][1] = 2 * mx->near / (mx->top - mx->bottom);
@@ -49,18 +66,26 @@ void	ft_matrix(GLuint programID, t_control *ctrl, t_matrix *mx)
 {
 	unsigned int	matLoc;
 	static int		acolor = 0;
+	static float	mix = 0;
 
 	if (ctrl->key == '.')
 	{
-		acolor = (acolor >= 1? (acolor == 1? 2 : 0) : 1);
-		printf("acolor = %f\n", acolor);
+		acolor = (acolor == 1 ? 0 : 1);
+		// acolor = (acolor >= 1? (acolor == 1? 2 : 0) : 1);
+	// printf("\ntour\n");
+		// printf("acolor = %f\n", acolor);
 	}
+	if(acolor == 1 && mix < 1.00f)
+		mix += 0.02;
+	else if (acolor == 0 && mix > 0)
+		mix -= 0.02;
+
 	gl_perspective(mx);
 	ft_rotate(mx, ctrl->rotX, ctrl->rotY, ctrl->rotZ);
 	ft_trans(mx, ctrl->moveX, ctrl->moveY, ctrl->moveZ);
-	ft_perspective(mx, 0.01f, 100.0f);
+	ft_perspective(mx);
 	matLoc = glGetUniformLocation(programID, "color");
-	glUniform1f(matLoc, acolor);
+	glUniform1f(matLoc, mix);
 	matLoc = glGetUniformLocation(programID, "rotate");
 	glUniformMatrix4fv(matLoc, 1, GL_FALSE, &mx->rotate[0][0]);
 	matLoc = glGetUniformLocation(programID, "pers");

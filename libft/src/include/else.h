@@ -57,5 +57,6 @@ double	ft_pow(double x, double y);
 
 float	ft_atof(char *s);
 
+size_t	ft_atost(const char *s);
 
 #endif

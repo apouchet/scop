@@ -1,21 +1,13 @@
 
 #include "scop.h"
 
-void		gl_perspective(t_matrix *mx) 
-{ 
-	float scale;
-
-	mx->fov = 90;
-	mx->near = 0.1f;
-	mx->far = 100.0f;
-	mx->ratio = WINDOWX / WINDOWY;
-	scale = tan(mx->fov * 0.5 * PI / 180) * mx->near;
-
-	mx->right = mx->ratio * scale;
-	mx->left = -mx->right;
-
-	mx->top = scale;
-	mx->bottom = -mx->top;
+void		ft_exit_gl_sdl(t_gl *gl, t_sdl *sdl)
+{
+	glDeleteShader(gl->vertexID);
+	glDeleteShader(gl->fragmentID);
+	SDL_GL_DeleteContext(sdl->contexteOpenGL);
+	SDL_DestroyWindow(sdl->fenetre);
+	SDL_Quit();
 }
 
 int			ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl)

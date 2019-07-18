@@ -14,22 +14,10 @@
 
 int				ft_delete_shader(t_gl *gl)
 {
-	/*
-	** On arrête d'utiliser le programme shader
-	*/
 	glUseProgram(0);
-	/*
-	** Deliage des shaders au programme
-	*/
 	glDetachShader(gl->programID, gl->fragmentID);
 	glDetachShader(gl->programID, gl->vertexID);
-	/*
-	** Destruction du programme
-	*/
 	glDeleteProgram(gl->programID);
-	/*
-	** Destruction des IDs des shaders
-	*/
 	glDeleteShader(gl->fragmentID);
 	glDeleteShader(gl->vertexID);
 	return (-1);
@@ -37,47 +25,32 @@ int				ft_delete_shader(t_gl *gl)
 
 static int		ft_checkShader_compilation(GLuint shaderID, t_gl *gl)
 {
-	GLint compilationStatus = 0;
-		
+	GLint compilationStatus;
+
+	compilationStatus = 0;
 	glGetShaderiv(gl->vertexID, GL_COMPILE_STATUS, &compilationStatus);
 	if (compilationStatus != GL_TRUE)
 	{
-		// return (ft_gl_error("Error memori allocation", "liage du shader", shaderID, NULL));
-		GLint logLength = 0;
-		GLchar* log = NULL;
-		
-		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
-		if (!(log = (GLchar*)malloc(logLength)))
+		glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &gl->logSize);
+		if (!(gl->log = (GLchar*)malloc(gl->logSize)))
 		{
 			fprintf(stderr,"Error memori allocation for log of shader compilation\n");
-			return 0;
+			return (0);
 		}
-		glGetShaderInfoLog(shaderID, logLength, &logLength, log);
-		fprintf(stderr,"Compilation error :\n%s",log);
-		free(log);
+		glGetShaderInfoLog(shaderID, gl->logSize, &gl->logSize, gl->log);
+		fprintf(stderr,"Compilation error :\n%s",gl->log);
+		free(gl->log);
 		return (0);
 	}
 	return (1);
 }
 
-int				ft_shaders(char *nameVS, char *nameFS, t_gl *gl)
+int				ft_shader_start(t_gl *gl, t_shd *shd)
 {
-	char	*file;
-	int		size;
-	t_shd	shd;
-
-	bzero(&shd, sizeof(t_shd));
-	gl->vertexID = glCreateShader(GL_VERTEX_SHADER);
-	gl->fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
-	// shd.vertexSource = (GLchar*)ft_get_file(nameVS, shd.vertexSource);
-	// shd.fragmentSource = (GLchar*)ft_get_file(nameFS, shd.fragmentSource);
-	if (!(shd.vertexSource = (GLchar*)ft_get_file(nameVS, shd.vertexSource)) ||
-		!(shd.fragmentSource = (GLchar*)ft_get_file(nameFS, shd.fragmentSource)))
-		return (ft_delete_shader(gl));
-	shd.vertexSize = strlen(shd.vertexSource);
-	shd.fragmentSize = strlen(shd.fragmentSource);
-	glShaderSource(gl->vertexID, 1, (const GLchar**)(&shd.vertexSource), &shd.vertexSize);
-	glShaderSource(gl->fragmentID, 1, (const GLchar**)(&shd.fragmentSource), &shd.fragmentSize);
+	shd->vertexSize = strlen(shd->vertexSource);
+	shd->fragmentSize = strlen(shd->fragmentSource);
+	glShaderSource(gl->vertexID, 1, (const GLchar**)(&shd->vertexSource), &shd->vertexSize);
+	glShaderSource(gl->fragmentID, 1, (const GLchar**)(&shd->fragmentSource), &shd->fragmentSize);
 	glCompileShader(gl->vertexID);
 	glCompileShader(gl->fragmentID);
 	if (!ft_checkShader_compilation(gl->vertexID, gl) ||
@@ -87,25 +60,33 @@ int				ft_shaders(char *nameVS, char *nameFS, t_gl *gl)
 	glAttachShader(gl->programID, gl->vertexID);
 	glAttachShader(gl->programID, gl->fragmentID);
 	glLinkProgram(gl->programID);
+	glGetProgramiv(gl->programID , GL_LINK_STATUS , &shd->programState);
+	return (1);
+}
 
-	// Et encore une fois on vérifie si tout se passe bien
-	glGetProgramiv(gl->programID , GL_LINK_STATUS , &shd.programState);
+int				ft_shaders(char *nameVS, char *nameFS, t_gl *gl)
+{
+	t_shd	shd;
+
+	bzero(&shd, sizeof(t_shd));
+	gl->vertexID = glCreateShader(GL_VERTEX_SHADER);
+	gl->fragmentID = glCreateShader(GL_FRAGMENT_SHADER);
+	if (!(shd.vertexSource = (GLchar*)ft_get_file(nameVS, shd.vertexSource)) ||
+		!(shd.fragmentSource = (GLchar*)ft_get_file(nameFS, shd.fragmentSource)))
+		return (ft_delete_shader(gl));
+	if (ft_shader_start(gl, &shd) < 0)
+		return (-1);
 	if (shd.programState != GL_TRUE)
 	{
-		// return (ft_gl_error("Error memori allocation", "liage du shader", gl->programID, gl));
-		// return (ft_error_log("Erreur lors du liage du shader:\n"));
-		// On récupère la taille du log
-		GLint logSize = 0;
-		GLchar* log = NULL;
-		glGetProgramiv(gl->programID, GL_INFO_LOG_LENGTH, &logSize);
-		if (!(log = (GLchar*)malloc(logSize)))
+		glGetProgramiv(gl->programID, GL_INFO_LOG_LENGTH, &gl->logSize);
+		if (!(gl->log = (GLchar*)malloc(gl->logSize)))
 		{
 			fprintf(stderr,"Error memori allocation for log of program compilation\n");
 			return (ft_delete_shader(gl));
 		}
-		glGetProgramInfoLog(gl->programID, logSize, &logSize, log);
-		fprintf(stderr,"Erreur lors du liage du shader:\n%s",log);
-		free(log);
+		glGetProgramInfoLog(gl->programID, gl->logSize, &gl->logSize, gl->log);
+		fprintf(stderr,"Erreur lors du liage du shader:\n%s",gl->log);
+		free(gl->log);
 		return (ft_delete_shader(gl));
 	}
 	return (0);

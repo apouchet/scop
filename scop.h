@@ -45,8 +45,8 @@ typedef struct		s_obj
 	// int				nbVertex;
 	// int				nbNormal;
 	// int				nbTexture;
-	int				faceTri;
-	int				faceQuad;
+	size_t			faceTri;
+	size_t			faceQuad;
 	char			*fileName;
 	char			*texture;
 	float			*v;
@@ -97,6 +97,8 @@ typedef struct		s_gl
 	GLuint			fragmentID;
 	GLuint			programID;
 	GLint			attributeId;
+	GLint			logSize;
+	GLchar*			log;
 	unsigned int	VAO_tri;
 	unsigned int	VBO_tri[3];
 	unsigned int	VAO_quad;
@@ -165,12 +167,40 @@ void					ft_trans(t_matrix *mx, float x, float y, float z);
 
 void					ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ);
 
-void					ft_perspective(t_matrix *mx, double near, double far);
+void					ft_perspective(t_matrix *mx);
 
 void					ft_matrix(GLuint programID, t_control *ctrl, t_matrix *mx);
 
 size_t					ft_atost(const char *s);
 
 void					ft_glBuffer(t_obj *obj, t_gl *gl);
+
+int						ft_size_file_pars(t_obj *obj, size_t *nbVertex, size_t *nbTexture, size_t *nbNormal);
+
+char 					*ft_get_path(char *s);
+
+int						ft_check_extention(char *s, char *ex);
+
+void					ft_center(t_obj *obj, size_t *posVertex);
+
+int						ft_get_nb_value(char *s);
+
+void					ft_get_value(float **tab, int nb, char *line, size_t *pos);
+
+void					ft_get_point(t_obj *obj, char *line, int type, int *i);
+
+void					ft_get_face(t_obj *obj, char *line);
+
+void					ft_get_data(t_obj *obj, size_t *posVertex, size_t posTexture, size_t posNormal);
+
+void					ft_exit_pars(int type, char *msg, int l, char *line);
+
+void					ft_other_command(t_obj *obj, char *line, size_t l);
+
+int						ft_check_value(char *s, int max);
+
+void					ft_fill(t_obj *obj, size_t a, size_t size, int type);
+
+void					ft_exit_gl_sdl(t_gl *gl, t_sdl *sdl);
 
 #endif
