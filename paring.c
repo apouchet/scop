@@ -40,6 +40,7 @@ void 	ft_parsing(t_obj *obj, char *name)
 	size_t nbTexture;
 	size_t nbNormal;
 
+	printf("name = %s\n", name);
 	nbVertex = 0;
 	nbTexture = 0;
 	nbNormal = 0;

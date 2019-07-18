@@ -53,6 +53,11 @@ void	ft_rotate(t_matrix *mx, double angleX, double angleY, double angleZ)
 
 void	ft_perspective(t_matrix *mx)
 {
+	// mx->pers[0][0] = 0.5f;
+	// mx->pers[1][1] = 0.5f;
+	// mx->pers[2][2] = 0.5f;
+	// mx->pers[3][3] = 0.5f;
+	
 	mx->pers[0][0] = 2 * mx->near / (mx->right - mx->left);
 	mx->pers[1][1] = 2 * mx->near / (mx->top - mx->bottom);
 	mx->pers[2][2] = -2 * mx->far * mx->near / (mx->far - mx->near);
@@ -69,12 +74,7 @@ void	ft_matrix(GLuint programID, t_control *ctrl, t_matrix *mx)
 	static float	mix = 0;
 
 	if (ctrl->key == '.')
-	{
 		acolor = (acolor == 1 ? 0 : 1);
-		// acolor = (acolor >= 1? (acolor == 1? 2 : 0) : 1);
-	// printf("\ntour\n");
-		// printf("acolor = %f\n", acolor);
-	}
 	if(acolor == 1 && mix < 1.00f)
 		mix += 0.02;
 	else if (acolor == 0 && mix > 0)

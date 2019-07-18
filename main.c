@@ -72,11 +72,7 @@ void	ft_read_texture(GLuint programID, char *texture)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	if (texture)
-		data = ft_read_tga_headers(texture, &tga);
-	else
-		data = ft_read_tga_headers("img/face.tga", &tga);
-	if (data)
+	if ((data = ft_read_tga_headers((texture ? texture : "img/face.tga"), &tga)))
 	{
 	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, ((tga.bpp == 4) ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
 	    glGenerateMipmap(GL_TEXTURE_2D);
@@ -84,9 +80,8 @@ void	ft_read_texture(GLuint programID, char *texture)
 	}
 	else
 	{
-		printf("Failed to load texture\n");
+		ft_printf("Failed to load texture\n");
 		exit(0);
-		// return (-1);
 	}
 }
 
@@ -94,7 +89,7 @@ void	ft_main_loop(t_sdl *sdl, t_gl *gl, t_obj *obj)
 {
 	t_matrix	mx;
 	t_control	ctrl;
-	int			i;
+	size_t		i;
 
 	bzero(&mx, sizeof(mx));
 	bzero(&ctrl, sizeof(t_control));
@@ -111,8 +106,8 @@ void	ft_main_loop(t_sdl *sdl, t_gl *gl, t_obj *obj)
 		glBindVertexArray(gl->VAO_tri);
 		glDrawArrays(GL_TRIANGLES, 0, obj->faceTri * 3);
 		glBindVertexArray(gl->VAO_quad);
-			while (i < obj->faceQuad * 4)
-				glDrawArrays(GL_TRIANGLE_FAN, i += 4, 4);
+		while (i < obj->faceQuad * 4)
+			glDrawArrays(GL_TRIANGLE_FAN, i += 4, 4);
 		SDL_GL_SwapWindow(sdl->fenetre);
 	}
 	ft_exit_gl_sdl(gl, sdl);
@@ -121,8 +116,8 @@ void	ft_main_loop(t_sdl *sdl, t_gl *gl, t_obj *obj)
 void	ft_face_color(t_obj *obj)
 {
 	float	color;
-	int		i;
-	int		j;
+	size_t	i;
+	size_t	j;
 
 	color = 0;
 	i = 0;
@@ -147,12 +142,40 @@ void	ft_face_color(t_obj *obj)
 	}
 }
 
+char	*ft_find_arg(int argc, char **argv, int *i)
+{
+	int j;
+	int	name;
+
+	j = 1;
+	name = 0;
+	while (j < argc)
+	{
+		if (ft_strcmp(argv[j], "-n") == 0 && *i == 0)
+			*i = j;
+		else if (name == 0)
+			name = j;
+		else
+		{
+			ft_printf("Invalid argument\n./scop [path]\n");
+			exit (-1);
+		}
+		j++;
+	}
+	if (name != 0)
+		return (argv[name]);
+	else
+		return (NULL);
+}
+
 int		main(int argc, char **argv)
 {	
 	t_sdl		sdl;
 	t_gl		gl;
 	t_obj		obj;
+	int			i;
 
+	i = 0;
 	bzero(&obj, sizeof(t_obj));
 	bzero(&sdl, sizeof(sdl));
 	bzero(&gl, sizeof(gl));
@@ -162,22 +185,18 @@ int		main(int argc, char **argv)
 	glDepthFunc(GL_LESS);
 	if (ft_shaders("Shaders/shader.vs", "Shaders/shader.fs", &gl) < 0)
 		return (-1);
-	// printf("OpenGL version : %s\n", glGetString(GL_VERSION));
-	// printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-	if (argc == 2)
-		ft_parsing(&obj, argv[1]);
-	else
-		ft_parsing(&obj, NULL);
-	// printf("face tri %d\n", obj.faceTri);
-	// printf("face quad %d\n", obj.faceQuad);
-	// printf("face total %d\n", obj.faceQuad + obj.faceTri);
-	ft_face_color(&obj);
+	ft_printf("OpenGL version : %s\n", glGetString(GL_VERSION));
+	ft_printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	ft_parsing(&obj, ft_find_arg(argc, argv, &i));
+	if (i == 0)
+		ft_face_color(&obj);
 	ft_glBuffer(&obj, &gl);
 	ft_read_texture(gl.programID, obj.texture);
 	glUseProgram(gl.programID);
 	ft_main_loop(&sdl, &gl, &obj);
 	return (0);
 }
+
 
 
 /*

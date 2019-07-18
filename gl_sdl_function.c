@@ -18,7 +18,7 @@ int			ft_gl_error(char *msg, char *where, GLuint ID, t_gl *gl)
 	glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &logLength);
 	if (!(log = (GLchar*)malloc(logLength)))
 	{
-		printf("%s for %s\n", msg, where);
+		ft_printf("%s for %s\n", msg, where);
 		if (gl)
 			return (ft_delete_shader(gl));
 		// fprintf(stderr,"Error memori allocation for log of shader compilation\n");
