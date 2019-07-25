@@ -37,5 +37,6 @@ int		get_next_line(const int fd, char **line)
 			!(*line = ft_strndup_free(line, (size_t)ft_ischar(*line, '\n')))))
 		return (-1);
 	(rd > 0 || *line[0]) ? ft_strdel(&buff) : ft_strdel(&save);
+	ft_strdel(&buff);
 	return ((rd > 0 || *line[0]) ? 1 : 0);
 }

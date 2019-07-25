@@ -12,26 +12,26 @@
 
 #include "scop.h"
 
-static void	ft_min_max(t_obj *obj, float *tab, size_t *posVertex)
+static void		ft_min_max(t_obj *obj, float *tab, size_t *pos_vertex)
 {
 	size_t i;
 
 	i = 0;
-	while (i < *posVertex)
+	while (i < *pos_vertex)
 	{
-		if(tab[0] > obj->v[i])
+		if (tab[0] > obj->v[i])
 			tab[0] = obj->v[i];
-		else if(tab[1] < obj->v[i])
+		else if (tab[1] < obj->v[i])
 			tab[1] = obj->v[i];
 		i++;
-		if(tab[2] > obj->v[i])
+		if (tab[2] > obj->v[i])
 			tab[2] = obj->v[i];
-		else if(tab[3] < obj->v[i])
+		else if (tab[3] < obj->v[i])
 			tab[3] = obj->v[i];
 		i++;
-		if(tab[4] > obj->v[i])
+		if (tab[4] > obj->v[i])
 			tab[4] = obj->v[i];
-		else if(tab[5] < obj->v[i])
+		else if (tab[5] < obj->v[i])
 			tab[5] = obj->v[i];
 		i++;
 	}
@@ -44,49 +44,46 @@ static float	ft_fabs(float f)
 	return (f);
 }
 
-static float	ft_min(float *tab, float midX, float midY, float midZ)
+static float	ft_min(float *tab, float mid_x, float mid_y, float mid_z)
 {
 	float zoom;
-	
-	zoom = ft_fabs(tab[0] - midX);
-	if (ft_fabs(tab[1] - midX) > zoom)
-		zoom = ft_fabs(tab[1] - midX);
-	if (ft_fabs(tab[2] - midY) > zoom)
-		zoom = ft_fabs(tab[2] - midY);
-	if (ft_fabs(tab[3] - midZ) > zoom)
-		zoom = ft_fabs(tab[3] - midZ);
-	printf("zoom = %f\n", zoom);
-	return (zoom);
+
+	zoom = ft_fabs(tab[0] - mid_x);
+	if (ft_fabs(tab[1] - mid_x) > zoom)
+		zoom = ft_fabs(tab[1] - mid_x);
+	if (ft_fabs(tab[2] - mid_y) > zoom)
+		zoom = ft_fabs(tab[2] - mid_y);
+	if (ft_fabs(tab[3] - mid_z) > zoom)
+		zoom = ft_fabs(tab[3] - mid_z);
+	free(tab);
+	return (-(zoom + 1));
 }
 
-void	ft_center(t_obj *obj, size_t *posVertex)
+void			ft_center(t_obj *obj, size_t *pos_vertex)
 {
-	float	midX;
-	float	midY;
-	float	midZ;
+	float	mid[3];
 	float	*tab;
 	size_t	i;
 
 	if (!(tab = (float*)ft_memalloc(sizeof(float) * 6)))
 		ft_exit_pars(2, "Fail To Malloc", 0, NULL);
-	ft_min_max(obj, tab, posVertex);
-	midX = (tab[1] + tab[0]) / 2;
-	midY = (tab[3] + tab[2]) / 2;
-	midZ = (tab[5] + tab[4]) / 2;
+	ft_min_max(obj, tab, pos_vertex);
+	mid[X] = (tab[1] + tab[0]) / 2;
+	mid[Y] = (tab[3] + tab[2]) / 2;
+	mid[Z] = (tab[5] + tab[4]) / 2;
 	i = 0;
-	while (i < obj->tabVTri)
+	while (i < obj->nb_v_tri)
 	{
-		obj->tabVertexTri[i++] -= midX;
-		obj->tabVertexTri[i++] -= midY;
-		obj->tabVertexTri[i++] -= midZ;
+		obj->tab_v_tri[i++] -= mid[X];
+		obj->tab_v_tri[i++] -= mid[Y];
+		obj->tab_v_tri[i++] -= mid[Z];
 	}
 	i = 0;
-	while (i < obj->tabVQuad)
+	while (i < obj->nb_v_quad)
 	{
-		obj->tabVertexQuad[i++] -= midX;
-		obj->tabVertexQuad[i++] -= midY;
-		obj->tabVertexQuad[i++] -= midZ;
+		obj->tab_v_quad[i++] -= mid[X];
+		obj->tab_v_quad[i++] -= mid[Y];
+		obj->tab_v_quad[i++] -= mid[Z];
 	}
-	obj->zoom = ft_min(tab, midX, midY, midZ);
-	free(tab);
+	obj->zoom = ft_min(tab, mid[X], mid[Y], mid[Z]);
 }

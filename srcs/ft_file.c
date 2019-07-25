@@ -16,16 +16,16 @@ int		ft_size_file(char *name)
 {
 	int		fd;
 	int		rd;
-	long	fileLength;
+	long	len;
 	char	buff[1001];
 
-	fileLength = 0;
+	len = 0;
 	if ((fd = open(name, O_RDONLY)) < 0)
 		return (-1);
 	while ((rd = read(fd, buff, 1000)) > 0)
-		fileLength += rd;
+		len += rd;
 	close(fd);
-	return (rd < 0 ? rd : fileLength);
+	return (rd < 0 ? rd : len);
 }
 
 char	*ft_get_file(char *name, char *file)
@@ -47,7 +47,7 @@ char	*ft_get_file(char *name, char *file)
 	return (file);
 }
 
-int		ft_size_file_pars(t_obj *obj, size_t *nbVertex, size_t *nbTexture, size_t *nbNormal)
+int		ft_size_file_pars(t_obj *obj, size_t *nb_v, size_t *nb_t, size_t *nb_n)
 {
 	int		fd;
 	int		get;
@@ -55,27 +55,29 @@ int		ft_size_file_pars(t_obj *obj, size_t *nbVertex, size_t *nbTexture, size_t *
 	char	*line;
 
 	l = 0;
-	if ((fd = open(obj->fileName, O_RDONLY)) < 0)
+	// printf("leaks ? 0\n");sleep(5);
+	if ((fd = open(obj->file_name, O_RDONLY)) < 0)
 		ft_exit_pars(2, "Fail To Open File", 0, NULL);
 	while ((get = get_next_line(fd, &line)) > 0)
 	{
 		l++;
 		if (ft_strncmp(line, "v ", 2) == 0)
-			(*nbVertex)++;
+			(*nb_v)++;
 		else if (ft_strncmp(line, "vt ", 3) == 0)
-			(*nbTexture)++;
+			(*nb_t)++;
 		else if (ft_strncmp(line, "vn ", 3) == 0)
-			(*nbNormal)++;
+			(*nb_n)++;
 		else
 			ft_other_command(obj, line, l);
 		free(line);
 	}
 	free(line);
+	// printf("leaks ? 1\n");sleep(5);
 	close(fd);
 	return (get < 0 ? -1 : 1);
 }
 
-char 	*ft_get_path(char *s)
+char	*ft_get_path(char *s)
 {
 	int i;
 

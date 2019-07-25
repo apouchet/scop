@@ -16,47 +16,47 @@ void	ft_exit_pars(int type, char *msg, int l, char *line)
 {
 	if (type == 1)
 	{
-		printf("ERROR LINE %d : %s\n", l, msg);
-		printf("Line : \"%s\"\n", line);
+		ft_printf("ERROR LINE %d : %s\n", l, msg);
+		ft_printf("Line : \"%s\"\n", line);
 	}
 	else if (type == 2)
-		printf("ERROR : %s\n", msg);
+		ft_printf("ERROR : %s\n", msg);
 	if (type == 3)
 	{
-		printf("ERROR : %s\n", msg);
-		printf("Line : \"%s\"\n", line);
+		ft_printf("ERROR : %s\n", msg);
+		ft_printf("Line : \"%s\"\n", line);
 	}
 	if (type == 4)
-		printf("ERROR : %s - %s\n", msg, line);
+		ft_printf("ERROR : %s - %s\n", msg, line);
 	exit(0);
 }
 
-void			ft_other_command(t_obj *obj, char *line, size_t l)
+void	ft_other_command(t_obj *obj, char *line, size_t l)
 {
-	size_t	tmp;
-
 	if (ft_strncmp(line, "f ", 2) == 0)
 	{
-		if ((tmp = ft_get_nb_value(&line[2])) < 3 || tmp > 4)
-			ft_exit_pars(1, "Invalide Type, Can Only Read 3 or 4 Vertex Per Face", l, line);
-		(ft_get_nb_value(&line[2]) == 3) ? obj->faceTri++ : obj->faceQuad++;
+		if ((ft_get_nb_value(&line[2])) < 3 || ft_get_nb_value(&line[2]) > 4)
+			ft_exit_pars(1, "Invalid Type Can Only Read 3 - 4 Vertex", l, line);
+		(ft_get_nb_value(&line[2]) == 3) ? obj->f_tri++ : obj->f_quad++;
 	}
 	else if (ft_strncmp(line, "usemtl ", 7) == 0)
 	{
 		obj->texture = ft_strtrim(&line[7]); // strdup !!!
-		if (ft_strncmp(obj->texture, "None\0 ", 5) != 0 && ft_strncmp(obj->texture, "Material\0 ", 9) != 0)
+		if (ft_strncmp(obj->texture, "None\0 ", 5)
+			&& ft_strncmp(obj->texture, "Material\0 ", 9))
 		{
 			if (ft_check_extention(obj->texture, ".tga") == 1)
 				obj->texture = ft_strjoin_free(&obj->path, &obj->texture, 2);
 			else
-				ft_exit_pars(1, "Invalide Texture, Only Read TGA File", l, line);
+				ft_exit_pars(1, "Invalid Texture, Only Read TGA File", l, line);
 		}
 		else
 			ft_strdel(&obj->texture);
 	}
-	else if (ft_strncmp(line, "mtllib ", 7) && ft_strncmp(line, "s ", 2) && ft_strncmp(line, "o ", 2)
-		&& ft_strncmp(line, "g ", 2) && line[0] != '#' && line[ft_while_space(line, 0)])
-			ft_exit_pars(1, "Unknow Command", l, line);
+	else if (ft_strncmp(line, "mtllib ", 7) && ft_strncmp(line, "s ", 2)
+		&& ft_strncmp(line, "o ", 2) && ft_strncmp(line, "g ", 2)
+		&& line[0] != '#' && line[ft_while_space(line, 0)])
+		ft_exit_pars(1, "Unknow Command", l, line);
 }
 
 int		ft_check_value(char *s, int max)
@@ -73,7 +73,7 @@ int		ft_check_value(char *s, int max)
 	while (ft_isdigit(s[i]) || s[i] == '.')
 	{
 		if (s[i] == '.')
-			dot = (max > 20 ? dot + 1: 10);
+			dot = (max > 20 ? dot + 1 : 10);
 		else if (dot <= 0)
 			size++;
 		i++;
@@ -82,44 +82,38 @@ int		ft_check_value(char *s, int max)
 		return (1);
 	s[i] = '\0';
 	if (size > max)
-		printf("Error Value To Big - More Than %d Character In : %s\n", max, s);
+		ft_printf("Value To Big - More Than %d Character In : %s\n", max, s);
 	else
-		printf("Error - To Many Dot In : %s\n", s);
+		ft_printf("Error - To Many Dot In : %s\n", s);
 	return (-1);
 }
 
-void		ft_fill(t_obj *obj, size_t a, size_t size, int type)
+void	ft_fill(t_obj *obj, size_t a, size_t size, int type)
 {
 	size_t i;
 
-	i = 0;
 	// if (a + size - 1 > obj->nbVertex * size) !!!!!!!!!!!!!!!!!!!!!!!
 	// 	return ;
-	if ((type < 10 && a + size - 1 > obj->faceTri * 3 * 3)
-		|| (type >= 10 && a + size  - 1 > obj->faceQuad * 4 * 3))
+	i = 0;
+	if ((type < 10 && a + size - 1 > obj->f_tri * 3 * 3)
+		|| (type >= 10 && a + size - 1 > obj->f_quad * 4 * 3))
 	{
-		printf("ERROR :Invalid File\n");
-		// printf("fail tri\n");
+		ft_printf("ERROR : Invalid File\n");
 		exit(0);
 	}
-	// if (type >= 10 && a + size  - 1 > obj->faceQuad * 4 * 3)
-	// {
-	// 	printf("fail quad\n");
-	// 	exit(0);
-	// }
 	while (i < size)
 	{
 		if (type == 1)
-			obj->tabVertexTri[obj->tabVTri++] = obj->v[a * size + i++];
+			obj->tab_v_tri[obj->nb_v_tri++] = obj->v[a * size + i++];
 		else if (type == 10)
-			obj->tabVertexQuad[obj->tabVQuad++] = obj->v[a * size + i++];
+			obj->tab_v_quad[obj->nb_v_quad++] = obj->v[a * size + i++];
 		else if (type == 2)
-			obj->tabNormalTri[obj->tabNTri++] = obj->vn[a * size + i++];
+			obj->tab_n_tri[obj->nb_n_tri++] = obj->vn[a * size + i++];
 		else if (type == 20)
-			obj->tabNormalQuad[obj->tabNQuad++] = obj->vn[a * size + i++];
+			obj->tab_n_quad[obj->nb_n_quad++] = obj->vn[a * size + i++];
 		else if (type == 3)
-			obj->tabTextureTri[obj->tabTTri++] = obj->vt[a * size + i++];
-		else if (type == 30 )
-			obj->tabTextureQuad[obj->tabTQuad++] = obj->vt[a * size + i++];
+			obj->tab_t_tri[obj->nb_t_tri++] = obj->vt[a * size + i++];
+		else if (type == 30)
+			obj->tab_t_quad[obj->nb_t_quad++] = obj->vt[a * size + i++];
 	}
 }
