@@ -36,13 +36,7 @@ void	ft_alloc(t_obj *obj, size_t nb_v, size_t nb_t, size_t nb_n)
 void	ft_parsing(t_obj *obj, char *name)
 {
 	size_t pos_vertex;
-	size_t nb_v;
-	size_t nb_t;
-	size_t nb_n;
 
-	nb_v = 0;
-	nb_t = 0;
-	nb_n = 0;
 	pos_vertex = 0;
 	if (name == NULL)
 		obj->file_name = "obj_file/lowtri.obj";
@@ -53,9 +47,9 @@ void	ft_parsing(t_obj *obj, char *name)
 	}
 	else
 		ft_exit_pars(2, "Invalid File Name, Need To Be A \".obj\"", 0, NULL);
-	if (ft_size_file_pars(obj, &nb_v, &nb_t, &nb_n) < 0)
+	if (ft_size_file_pars(obj) < 0)
 		ft_exit_pars(4, "Error while reading file : ", 0, name);
-	ft_alloc(obj, nb_v, nb_t, nb_n);
+	ft_alloc(obj, obj->nb_v, obj->nb_t, obj->nb_n);
 	ft_get_data(obj, &pos_vertex, 0, 0);
 	ft_center(obj, &pos_vertex);
 }

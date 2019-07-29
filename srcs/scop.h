@@ -35,6 +35,9 @@ typedef struct		s_obj
 {
 	size_t			f_tri;
 	size_t			f_quad;
+	size_t			nb_v;
+	size_t			nb_n;
+	size_t			nb_t;
 	char			*file_name;
 	char			*texture;
 	float			*v;
@@ -166,8 +169,7 @@ size_t				ft_atost(const char *s);
 
 void				ft_glbuffer(t_obj *obj, t_gl *gl);
 
-int					ft_size_file_pars(t_obj *obj, size_t *nb_vertex,
-	size_t *nb_texture, size_t *nb_normal);
+int					ft_size_file_pars(t_obj *obj);
 
 char				*ft_get_path(char *s);
 

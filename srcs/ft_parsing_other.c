@@ -94,9 +94,12 @@ void	ft_fill(t_obj *obj, size_t a, size_t size, int type)
 	size_t i;
 
 	i = 0;
-	if ((type < 10 && a + size - 1 > obj->f_tri * 3 * 3)
-		|| (type >= 10 && a + size - 1 > obj->f_quad * 4 * 3))
-		ft_exit_pars(2, "Invalid File", 0, NULL);
+	if ((type == 1 || type == 10) && a * size + size > obj->nb_v * size)
+		ft_exit_pars(5, "Vertex number :", a + 1, "not exist");
+	if ((type == 2 || type == 20) && a * size + size > obj->nb_n * size)
+		ft_exit_pars(5, "Vertex normal number :", a + 1, "not exist");
+	if ((type == 3 || type == 30) && a * size + size > obj->nb_t * size)
+		ft_exit_pars(5, "Vertex texture number :", a + 1, "not exist");
 	while (i < size)
 	{
 		if (type == 1)

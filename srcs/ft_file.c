@@ -47,7 +47,7 @@ char	*ft_get_file(char *name, char *file)
 	return (file);
 }
 
-int		ft_size_file_pars(t_obj *obj, size_t *nb_v, size_t *nb_t, size_t *nb_n)
+int		ft_size_file_pars(t_obj *obj)
 {
 	int		fd;
 	int		get;
@@ -61,11 +61,11 @@ int		ft_size_file_pars(t_obj *obj, size_t *nb_v, size_t *nb_t, size_t *nb_n)
 	{
 		l++;
 		if (ft_strncmp(line, "v ", 2) == 0)
-			(*nb_v)++;
+			obj->nb_v++;
 		else if (ft_strncmp(line, "vt ", 3) == 0)
-			(*nb_t)++;
+			obj->nb_t++;
 		else if (ft_strncmp(line, "vn ", 3) == 0)
-			(*nb_n)++;
+			obj->nb_n++;
 		else
 			ft_other_command(obj, line, l);
 		free(line);
