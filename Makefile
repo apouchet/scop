@@ -26,7 +26,10 @@ LIBFT = ./libft/libft.a
 
 FRAM = -framework OpenGL -framework Cocoa
 
-SRC = ./srcs/ft_parsing.c ./srcs/main.c ./srcs/ft_read_tga.c ./srcs/ft_read_shader.c ./srcs/ft_file.c ./srcs/gl_sdl_function.c ./srcs/ft_matrix.c ./srcs/ft_zoom.c ./srcs/ft_get_data.c ./srcs/ft_parsing_other.c
+SRC = ./srcs/ft_parsing.c ./srcs/main.c ./srcs/ft_read_tga.c \
+	./srcs/ft_read_shader.c ./srcs/ft_file.c ./srcs/gl_sdl_function.c \
+	./srcs/ft_matrix.c ./srcs/ft_zoom.c ./srcs/ft_get_data.c \
+	./srcs/ft_parsing_other.c ./srcs/ft_control.c
 
 OBJ = $(SRC:.c=.o)
 

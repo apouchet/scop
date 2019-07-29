@@ -49,66 +49,16 @@ void	ft_rotate(t_matrix *mx, double angle_x, double angle_y, double angle_z)
 	sin[Y] = sinf(angle_y);
 	cos[Z] = cosf(angle_z);
 	sin[Z] = sinf(angle_z);
-
-	// mx->rotate[0][0] = cos[Y] * cos[X];
-	// mx->rotate[0][1] = cos[Z] * sin[Y] * sin[X] - sin[Z] * cos[X];
-	// mx->rotate[0][2] = cos[X] * sin[Y] * cos[Z] + (-sin[X] * (-sin[Z]));
-	// mx->rotate[1][0] = cos[Y] * sin[Z];
-	// mx->rotate[1][1] = cos[X] * cos[Z] + sin[X] * sin[Y] * sin[Z];
-	// mx->rotate[1][2] = cos[X] * sin[Y] * sin[Z] - sin[X] * cos[Z];
-	// mx->rotate[2][0] = -sin[Y];
-	// mx->rotate[2][1] = sin[X] * cos[Y]; 
-	// mx->rotate[2][2] = cos[X] * cos[Y];
-	// mx->rotate[3][3] = 1.0f;
-
-	// printf("cos z = %f\n", cos[Z]);
-	// printf("sin z = %f\n", sin[Z]);
-	// cos[X] = 1;
-	// sin[X] = 0;
 	mx->rotate[0][0] = cos[Y] * cos[Z];
 	mx->rotate[1][0] = sin[X] * sin[Y] * cos[Z] + cos[X] * sin[Z];
 	mx->rotate[2][0] = -cos[X] * sin[Y] * cos[Z] + sin[X] * sin[Z];
-	mx->rotate[0][1] = -cos[Y] * sin[Z]; 
-	// (cos[X] * -sin[Z]) + sin[X] * sin[Y] * cos[Z]
-	// (cos[X] + sin[X]) * (-sin[Z] + sin[X]) * sin[Y] * con[Z]
+	mx->rotate[0][1] = -cos[Y] * sin[Z];
 	mx->rotate[1][1] = -sin[X] * sin[Y] * sin[Z] + cos[X] * cos[Z];
 	mx->rotate[2][1] = cos[X] * sin[Y] * sin[Z] + sin[X] * cos[Z];
 	mx->rotate[0][2] = sin[Y];
 	mx->rotate[1][2] = -sin[X] * cos[Y];
 	mx->rotate[2][2] = cos[X] * cos[Y];
 	mx->rotate[3][3] = 1.0f;
-	// for (int i = 0; i < 4; i++)
-	// {
-	// 	for (int j = 0; j < 4; j++)
-	// 	{
-	// 		printf("%f", mx->rotate[i][j]);
-	// 		if (j != 3)
-	// 			printf(" - ");
-	// 	}
-	// 	printf("\n");
-	// }
-	// printf("\n\n\n\n\n\n\n\n\n\n\n");
-
-	mx->r[X][0][0] = 1;
-	mx->r[X][1][1] = cos[X];
-	mx->r[X][1][2] = -sin[X];
-	mx->r[X][2][1] = sin[X];
-	mx->r[X][2][2] = cos[X];
-	mx->r[X][3][3] = 1;
-
-	mx->r[Y][0][0] = cos[Y];
-	mx->r[Y][2][0] = -sin[Y];
-	mx->r[Y][1][1] = 1;
-	mx->r[Y][0][2] = sin[Y];
-	mx->r[Y][2][2] = cos[Y];
-	mx->r[Y][3][3] = 1;
-
-	mx->r[Z][0][0] = cos[Z];
-	mx->r[Z][1][0] = -sin[Z];
-	mx->r[Z][0][1] = sin[Z];
-	mx->r[Z][1][1] = cos[Z];
-	mx->r[Z][2][2] = 1;
-	mx->r[Z][3][3] = 1;
 }
 
 void	ft_perspective(t_matrix *mx)
@@ -130,9 +80,9 @@ void	ft_matrix(GLuint program_id, t_control *ctrl, t_matrix *mx)
 
 	if (ctrl->key == '.')
 		acolor = (acolor == 1 ? 0 : 1);
-	if (acolor == 1 && mix < 1.00f)
+	if (acolor == 1 && mix < 0.98f)
 		mix += 0.02;
-	else if (acolor == 0 && mix > 0)
+	else if (acolor == 0 && mix >= 0.02)
 		mix -= 0.02;
 	gl_perspective(mx);
 	ft_rotate(mx, ctrl->rot_x, ctrl->rot_y, ctrl->rot_z);
@@ -148,11 +98,4 @@ void	ft_matrix(GLuint program_id, t_control *ctrl, t_matrix *mx)
 	glUniformMatrix4fv(matloc, 1, GL_FALSE, &mx->pers[0][0]);
 	matloc = glGetUniformLocation(program_id, "base");
 	glUniformMatrix4fv(matloc, 1, GL_FALSE, &mx->base[0][0]);
-
-	matloc = glGetUniformLocation(program_id, "x");
-	glUniformMatrix4fv(matloc, 1, GL_FALSE, &mx->r[X][0][0]);
-	matloc = glGetUniformLocation(program_id, "y");
-	glUniformMatrix4fv(matloc, 1, GL_FALSE, &mx->r[Y][0][0]);
-	matloc = glGetUniformLocation(program_id, "z");
-	glUniformMatrix4fv(matloc, 1, GL_FALSE, &mx->r[Z][0][0]);
 }

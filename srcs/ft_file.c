@@ -55,7 +55,6 @@ int		ft_size_file_pars(t_obj *obj, size_t *nb_v, size_t *nb_t, size_t *nb_n)
 	char	*line;
 
 	l = 0;
-	// printf("leaks ? 0\n");sleep(5);
 	if ((fd = open(obj->file_name, O_RDONLY)) < 0)
 		ft_exit_pars(2, "Fail To Open File", 0, NULL);
 	while ((get = get_next_line(fd, &line)) > 0)
@@ -72,7 +71,6 @@ int		ft_size_file_pars(t_obj *obj, size_t *nb_v, size_t *nb_t, size_t *nb_n)
 		free(line);
 	}
 	free(line);
-	// printf("leaks ? 1\n");sleep(5);
 	close(fd);
 	return (get < 0 ? -1 : 1);
 }

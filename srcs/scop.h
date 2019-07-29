@@ -123,14 +123,17 @@ typedef struct		s_control
 {
 	int				key;
 	int				end;
+	int				step;
 	float			move_x;
 	float			move_y;
 	float			move_z;
 	float			rot_x;
 	float			rot_y;
 	float			rot_z;
-	int				step;
+	float			move;
 }					t_control;
+
+void				ft_control(t_control *ctrl, SDL_Event e, float zoom);
 
 char				*ft_get_file(char *name, char *file);
 
@@ -185,10 +188,12 @@ void				ft_exit_pars(int type, char *msg, int l, char *line);
 
 void				ft_other_command(t_obj *obj, char *line, size_t l);
 
-int					ft_check_value(char *s, int max);
+void				ft_check_value(char *s, int max);
 
 void				ft_fill(t_obj *obj, size_t a, size_t size, int type);
 
 void				ft_exit_gl_sdl(t_gl *gl, t_sdl *sdl);
+
+void				ft_read_texture(GLuint program_id, char *texture);
 
 #endif

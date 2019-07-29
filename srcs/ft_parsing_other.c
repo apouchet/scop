@@ -28,6 +28,8 @@ void	ft_exit_pars(int type, char *msg, int l, char *line)
 	}
 	if (type == 4)
 		ft_printf("ERROR : %s - %s\n", msg, line);
+	if (type == 5)
+		ft_printf("ERROR : %s %d - %s\n", msg, l, line);
 	exit(0);
 }
 
@@ -41,7 +43,7 @@ void	ft_other_command(t_obj *obj, char *line, size_t l)
 	}
 	else if (ft_strncmp(line, "usemtl ", 7) == 0)
 	{
-		obj->texture = ft_strtrim(&line[7]); // strdup !!!
+		obj->texture = ft_strtrim(&line[7]);
 		if (ft_strncmp(obj->texture, "None\0 ", 5)
 			&& ft_strncmp(obj->texture, "Material\0 ", 9))
 		{
@@ -59,7 +61,7 @@ void	ft_other_command(t_obj *obj, char *line, size_t l)
 		ft_exit_pars(1, "Unknow Command", l, line);
 }
 
-int		ft_check_value(char *s, int max)
+void	ft_check_value(char *s, int max)
 {
 	int i;
 	int dot;
@@ -78,29 +80,23 @@ int		ft_check_value(char *s, int max)
 			size++;
 		i++;
 	}
-	if (size < max && dot <= 1)
-		return (1);
+	if (size <= max && dot <= 1)
+		return ;
 	s[i] = '\0';
 	if (size > max)
-		ft_printf("Value To Big - More Than %d Character In : %s\n", max, s);
+		ft_exit_pars(5, "Value To Big - More Than", max, s);
 	else
-		ft_printf("Error - To Many Dot In : %s\n", s);
-	return (-1);
+		ft_exit_pars(4, "Error - To Many Dot In", 0, s);
 }
 
 void	ft_fill(t_obj *obj, size_t a, size_t size, int type)
 {
 	size_t i;
 
-	// if (a + size - 1 > obj->nbVertex * size) !!!!!!!!!!!!!!!!!!!!!!!
-	// 	return ;
 	i = 0;
 	if ((type < 10 && a + size - 1 > obj->f_tri * 3 * 3)
 		|| (type >= 10 && a + size - 1 > obj->f_quad * 4 * 3))
-	{
-		ft_printf("ERROR : Invalid File\n");
-		exit(0);
-	}
+		ft_exit_pars(2, "Invalid File", 0, NULL);
 	while (i < size)
 	{
 		if (type == 1)

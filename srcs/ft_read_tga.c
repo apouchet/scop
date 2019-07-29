@@ -12,6 +12,35 @@
 
 #include "scop.h"
 
+void					ft_read_texture(GLuint program_id, char *texture)
+{
+	t_tga			tga;
+	unsigned int	gl_texture;
+	unsigned char	*data;
+
+	bzero(&tga, sizeof(t_tga));
+	gl_texture = glGetUniformLocation(program_id, "Texture");
+	glGenTextures(1, &gl_texture);
+	glBindTexture(GL_TEXTURE_2D, gl_texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	if ((data = ft_read_tga_headers(
+		(texture ? texture : "img/wall1.tga"), &tga)))
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0,
+			((tga.bpp == 4) ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		free(data);
+	}
+	else
+	{
+		ft_printf("Failed to load texture\n");
+		exit(0);
+	}
+}
+
 static void				ft_affich_tga_header(t_tga *tga)
 {
 	ft_printf("id length :      %hhd\n", tga->id_length);

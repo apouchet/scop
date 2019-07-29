@@ -39,17 +39,10 @@ void		ft_get_value(float **tab, int nb, char *line, size_t *pos)
 
 	a = *tab;
 	i = 0;
-	/*
-	** ????????
-	**if (ft_count_word(line) != nb)
-	**{
-	**	printf("line = %s\n", line);
-	**	printf("word = %d \n", ft_count_word(line));
-	**	printf("nb = %d \n", nb);
-	**	ft_exit_pars(3, "Invalid Number Of Value", 0, line);
-	**}
-	** ????????
-	*/
+	if (ft_count_word(line) != (size_t)nb && nb == 3)
+		ft_exit_pars(5, "Need 3 value, have", (int)ft_count_word(line), line);
+	else if (ft_count_word(line) != (size_t)nb && nb == 2)
+		ft_exit_pars(5, "Need 2 value, have", (int)ft_count_word(line), line);
 	while (ft_isspace(line[i]) || ft_isdigit(line[i]) || line[i] == '.'
 		|| line[i] == '-' || line[i] == '+')
 		i++;
@@ -60,8 +53,7 @@ void		ft_get_value(float **tab, int nb, char *line, size_t *pos)
 	{
 		while (line[i] && ft_isspace(line[i]))
 			i++;
-		if (ft_check_value(&line[i], 35) < 0)
-			exit(0);
+		ft_check_value(&line[i], 35);
 		a[(*pos)++] = ft_atof(&line[i]);
 		i = ft_find_space(line, i);
 		nb--;
@@ -73,7 +65,7 @@ size_t		ft_get_point(char *line, int *i, size_t a[3])
 	size_t step;
 
 	step = 0;
-	while (line[*i] && !ft_isspace(line[*i]) && step < 3)
+	while (line[*i] && !ft_isspace(line[*i]))
 	{
 		if (line[*i] == '-')
 			ft_exit_pars(4, "Negative Value Imposible", 0, line);
@@ -110,7 +102,7 @@ void		ft_get_face(t_obj *obj, char *line)
 		{
 			step = ft_get_point(line, &i, a);
 			if (step == 0 || step > 3)
-				exit(-1);
+				ft_exit_pars(4, "Invalide face", 0, line);
 			ft_fill(obj, a[0], 3, 1 * type);
 			if (step >= 2)
 				ft_fill(obj, a[1], 2, 3 * type);

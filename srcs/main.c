@@ -12,81 +12,6 @@
 
 #include "scop.h"
 
-void	ft_control(t_control *ctrl, SDL_Event evenements, float zoom)
-{
-	ctrl->key = 0;
-	if (SDL_WaitEventTimeout(&evenements, 1))
-	{
-		ctrl->key = evenements.window.event;
-		if (ctrl->key == SDL_WINDOWEVENT_CLOSE || ctrl->key == ' ')
-			ctrl->end = 1;
-		else if (ctrl->key == 'f')
-			ctrl->rot_y -= PI / ctrl->step;
-		else if (ctrl->key == 'h')
-			ctrl->rot_y += PI / ctrl->step;
-		else if (ctrl->key == 'g')
-			ctrl->rot_x -= PI / ctrl->step;
-		else if (ctrl->key == 't')
-			ctrl->rot_x += PI / ctrl->step;
-		else if (ctrl->key == 'y')
-			ctrl->rot_z -= PI / ctrl->step;
-		else if (ctrl->key == 'r')
-			ctrl->rot_z += PI / ctrl->step;
-		else if (ctrl->key == 'w')
-			ctrl->move_y += 0.1f;
-		else if (ctrl->key == 's')
-			ctrl->move_y -= 0.1f;
-		else if (ctrl->key == 'd')
-			ctrl->move_x += 0.1f;
-		else if (ctrl->key == 'a')
-			ctrl->move_x -= 0.1f;
-		else if (ctrl->key == 'z')
-			ctrl->move_z += 0.1f;
-		else if (ctrl->key == 'x')
-			ctrl->move_z -= 0.1f;
-
-		else if (ctrl->key == 'p')
-		{
-			ctrl->move_z = zoom;
-		}
-		else if (ctrl->key == 'o')
-		{
-			ctrl->rot_x = 0;
-			ctrl->rot_y = 0;
-			ctrl->rot_z = 0;
-		}
-	}
-}
-
-
-
-void	ft_read_texture(GLuint program_id, char *texture)
-{
-	t_tga			tga;
-	unsigned int	gl_texture;
-	unsigned char	*data;
-
-	bzero(&tga, sizeof(t_tga));
-	gl_texture = glGetUniformLocation(program_id, "Texture");
-	glGenTextures(1, &gl_texture);
-	glBindTexture(GL_TEXTURE_2D, gl_texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	if ((data = ft_read_tga_headers((texture ? texture : "img/face.tga"), &tga)))
-	{
-	    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tga.width, tga.height, 0, ((tga.bpp == 4) ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, data);
-	    glGenerateMipmap(GL_TEXTURE_2D);
-		free(data);
-	}
-	else
-	{
-		ft_printf("Failed to load texture\n");
-		exit(0);
-	}
-}
-
 void	ft_main_loop(t_sdl *sdl, t_gl *gl, t_obj *obj)
 {
 	t_matrix	mx;
@@ -96,8 +21,9 @@ void	ft_main_loop(t_sdl *sdl, t_gl *gl, t_obj *obj)
 	bzero(&mx, sizeof(mx));
 	bzero(&ctrl, sizeof(t_control));
 	ctrl.step = 20;
+	ctrl.move = 0.2f;
 	ctrl.move_z = obj->zoom;
-	while(!ctrl.end)
+	while (!ctrl.end)
 	{
 		i = 0;
 		ft_control(&ctrl, sdl->evenements, obj->zoom);
@@ -160,7 +86,7 @@ char	*ft_find_arg(int argc, char **argv, int *i)
 		else
 		{
 			ft_printf("Invalid argument\n./scop [file.obj]\n");
-			exit (-1);
+			exit(-1);
 		}
 		j++;
 	}
@@ -171,7 +97,7 @@ char	*ft_find_arg(int argc, char **argv, int *i)
 }
 
 int		main(int argc, char **argv)
-{	
+{
 	t_sdl		sdl;
 	t_gl		gl;
 	t_obj		obj;
@@ -187,10 +113,9 @@ int		main(int argc, char **argv)
 	glDepthFunc(GL_LESS);
 	if (ft_shaders("Shaders/shader.vs", "Shaders/shader.fs", &gl) < 0)
 		return (-1);
-	ft_printf("OpenGL version : %s\n", glGetString(GL_VERSION));
-	ft_printf("Shader version : %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+	ft_printf("OpenGL version: %s\n", glGetString(GL_VERSION));
+	ft_printf("Shader version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 	ft_parsing(&obj, ft_find_arg(argc, argv, &i));
-	// while (1);
 	if (i == 0)
 		ft_face_color(&obj);
 	ft_glbuffer(&obj, &gl);
