@@ -45,12 +45,11 @@ void	ft_parsing(t_obj *obj, char *name)
 	nb_n = 0;
 	pos_vertex = 0;
 	if (name == NULL)
-		obj->file_name = "lowtri.obj";
+		obj->file_name = "obj_file/lowtri.obj";
 	else if (ft_check_extention(name, ".obj"))
 	{
 		obj->file_name = name;
 		obj->path = ft_get_path(name);
-		ft_printf("path = %s\n", obj->path);
 	}
 	else
 		ft_exit_pars(2, "Invalid File Name, Need To Be A \".obj\"", 0, NULL);

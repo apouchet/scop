@@ -10,6 +10,8 @@
 #                                                                              #
 # **************************************************************************** #
 
+.PHONY: all, $(NAME), clean, re, fclean
+
 CFLAGS =  -Wall -Werror -Wextra
 
 CC = gcc
@@ -18,11 +20,11 @@ NAME = scop
 
 INCL = -I ~/.brew/include
 
-# LIB = -L ~/.brew/lib -lSDL2 
-# LIB = -L /usr/local/Cellar/
 LIB = $(shell sdl2-config --libs)
 
 LIBFT = ./libft/libft.a
+
+LIB_SRC = ./libft/
 
 FRAM = -framework OpenGL -framework Cocoa
 
@@ -33,9 +35,10 @@ SRC = ./srcs/ft_parsing.c ./srcs/main.c ./srcs/ft_read_tga.c \
 
 OBJ = $(SRC:.c=.o)
 
-all: $(NAME) 
+all: $(NAME)
 
 $(NAME) : $(OBJ)
+	make -C $(LIB_SRC)
 	gcc $(CFLAGS) $(LIB) $(LIBFT) $(INCL) $(FRAM) $(OBJ) -o $(NAME)
 
 %.o: %.c
@@ -43,11 +46,12 @@ $(NAME) : $(OBJ)
 
 clean :
 	rm -f $(OBJ)
+	make clean -C $(LIB_SRC)
 
 re : fclean all
 
 fclean : clean
 	rm -f $(NAME)
+	make fclean -C $(LIB_SRC)
 
 
-# -I ~/.brew/include -L ~/.brew/lib -lSDL2 -framework OpenGL -framework Cocoa
