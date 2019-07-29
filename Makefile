@@ -45,13 +45,12 @@ $(NAME) : $(OBJ)
 	$(CC) $(CFLAGS) -o $@ -c $< $(INCL) -Wno-deprecated-declarations
 
 clean :
-	rm -f $(OBJ)
-	make clean -C $(LIB_SRC)
+	@echo "Clean obj scop"
+	@rm -f $(OBJ)
+	@make clean -C $(LIB_SRC)
 
 re : fclean all
 
 fclean : clean
 	rm -f $(NAME)
-	make fclean -C $(LIB_SRC)
-
-
+	rm -f $(LIBFT)

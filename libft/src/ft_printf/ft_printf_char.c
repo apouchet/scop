@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-static int		ft_p(t_val *a)
+static int	ft_p(t_val *a)
 {
 	int p;
 
@@ -24,7 +24,7 @@ static int		ft_p(t_val *a)
 	return (p);
 }
 
-void	ft_buff_str(char *str, t_val *a, int len)
+void		ft_buff_str(char *str, t_val *a, int len)
 {
 	int i;
 
@@ -40,7 +40,7 @@ void	ft_buff_str(char *str, t_val *a, int len)
 	a->buff[a->b] = '\0';
 }
 
-void	ft_str(t_val *a, va_list ap)
+void		ft_str(t_val *a, va_list ap)
 {
 	char			*str;
 	int				p;
@@ -61,7 +61,7 @@ void	ft_str(t_val *a, va_list ap)
 		largeur_champ(p, a);
 }
 
-void	ft_str_unicode(t_val *a, va_list ap)
+void		ft_str_unicode(t_val *a, va_list ap)
 {
 	int		*nbr;
 	int		j;
@@ -89,7 +89,7 @@ void	ft_str_unicode(t_val *a, va_list ap)
 		largeur_champ(p + l, a);
 }
 
-void	lettre(t_val *a, va_list ap, int flag)
+void		lettre(t_val *a, va_list ap, int flag)
 {
 	if (a->zero != 0)
 		a->prec = a->ldc;

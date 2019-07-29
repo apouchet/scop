@@ -111,7 +111,7 @@ static int		ft_tri_flag(t_val *a, va_list ap, char *str, int i)
 	return (i + 1);
 }
 
-int		ft_printf(char *str, ...)
+int				ft_printf(char *str, ...)
 {
 	t_val	a;
 	va_list	ap;

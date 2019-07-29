@@ -76,7 +76,8 @@ void						ft_nombre(t_val *a, va_list ap, char flag);
 
 char						*ft_itoa_base(ssize_t nb, size_t base, int maj);
 
-char						*ft_itoa_unsigned_base(size_t nb, size_t base, int maj);
+char						*ft_itoa_unsigned_base(size_t nb, size_t base,
+	int maj);
 
 long long int				signe(t_val *a, va_list ap);
 

@@ -44,7 +44,7 @@ static size_t	ft_nb_unsigned(size_t nb, size_t base)
 	return (len);
 }
 
-char		*ft_itoa_base(ssize_t nb, size_t base, int maj)
+char			*ft_itoa_base(ssize_t nb, size_t base, int maj)
 {
 	size_t	i;
 	size_t	n;
@@ -72,7 +72,7 @@ char		*ft_itoa_base(ssize_t nb, size_t base, int maj)
 	return (tab);
 }
 
-char		*ft_itoa_unsigned_base(size_t nb, size_t base, int maj)
+char			*ft_itoa_unsigned_base(size_t nb, size_t base, int maj)
 {
 	size_t	i;
 	size_t	n;

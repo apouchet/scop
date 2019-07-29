@@ -12,6 +12,41 @@
 
 #include "scop.h"
 
+static void		ft_over(t_control *ctrl)
+{
+	if (ctrl->rot_x > PI * 2)
+		ctrl->rot_x -= PI * 2;
+	else if (ctrl->rot_x < -(PI * 2))
+		ctrl->rot_x += PI * 2;
+	if (ctrl->rot_y > PI * 2)
+		ctrl->rot_y -= PI * 2;
+	else if (ctrl->rot_y < -(PI * 2))
+		ctrl->rot_y += PI * 2;
+	if (ctrl->rot_z > PI * 2)
+		ctrl->rot_z -= PI * 2;
+	else if (ctrl->rot_z < -(PI * 2))
+		ctrl->rot_z += PI * 2;
+}
+
+static int		ft_rot(t_control *ctrl)
+{
+	if (ctrl->key == 'f')
+		ctrl->rot_y -= PI / ctrl->step;
+	else if (ctrl->key == 'h')
+		ctrl->rot_y += PI / ctrl->step;
+	else if (ctrl->key == 'g')
+		ctrl->rot_x -= PI / ctrl->step;
+	else if (ctrl->key == 't')
+		ctrl->rot_x += PI / ctrl->step;
+	else if (ctrl->key == 'y')
+		ctrl->rot_z -= PI / ctrl->step;
+	else if (ctrl->key == 'r')
+		ctrl->rot_z += PI / ctrl->step;
+	else
+		return (0);
+	return (1);
+}
+
 static int		ft_move(t_control *ctrl)
 {
 	if (ctrl->key == '+' && ctrl->move < 1.5f)
@@ -30,12 +65,6 @@ static int		ft_move(t_control *ctrl)
 		ctrl->move_z += ctrl->move;
 	else if (ctrl->key == 'x')
 		ctrl->move_z -= ctrl->move;
-	else if (ctrl->key == 'o')
-	{
-		ctrl->rot_x = 0;
-		ctrl->rot_y = 0;
-		ctrl->rot_z = 0;
-	}
 	else
 		return (0);
 	return (1);
@@ -49,21 +78,21 @@ void			ft_control(t_control *ctrl, SDL_Event e, float zoom)
 		ctrl->key = e.window.event;
 		if (ctrl->key == SDL_WINDOWEVENT_CLOSE || ctrl->key == ' ')
 			ctrl->end = 1;
-		else if (ctrl->key == 'f')
-			ctrl->rot_y -= PI / ctrl->step;
-		else if (ctrl->key == 'h')
-			ctrl->rot_y += PI / ctrl->step;
-		else if (ctrl->key == 'g')
-			ctrl->rot_x -= PI / ctrl->step;
-		else if (ctrl->key == 't')
-			ctrl->rot_x += PI / ctrl->step;
-		else if (ctrl->key == 'y')
-			ctrl->rot_z -= PI / ctrl->step;
-		else if (ctrl->key == 'r')
-			ctrl->rot_z += PI / ctrl->step;
+		else if (ctrl->key == 'o')
+		{
+			ctrl->rot_x = 0;
+			ctrl->rot_y = 0;
+			ctrl->rot_z = 0;
+		}
 		else if (ctrl->key == 'p')
+		{
+			ctrl->move_x = 0;
+			ctrl->move_y = 0;
+		}
+		else if (ctrl->key == 'i')
 			ctrl->move_z = zoom;
-		else
+		else if (!ft_rot(ctrl))
 			ft_move(ctrl);
+		ft_over(ctrl);
 	}
 }

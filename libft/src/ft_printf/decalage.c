@@ -12,7 +12,7 @@
 
 #include "ft_printf.h"
 
-int	ft_len(int c)
+int			ft_len(int c)
 {
 	int octet;
 
